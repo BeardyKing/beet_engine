@@ -1,6 +1,7 @@
+#include <beet/assert.h>
 #include <beet/engine.h>
+#include <beet/log.h>
 #include <beet/window.h>
-#include <iostream>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 
@@ -13,24 +14,14 @@ Window::Window(int width, int height, std::string title, Engine& engine)
     : m_width(width), m_height(height), m_title(title), m_window(nullptr), m_engine(engine) {
     int glfw_init_res = glfwInit();
 
-    // TODO replace with spdlog / ASSERT MESSAGE
-    if (glfw_init_res == GLFW_FALSE) {
-        std::cout << "Failed to initialize GLFW\n";
-        __debugbreak();
-    }
-    std::cout << "GLFW initialized\n";
-    // END TODO
+    BEET_ASSERT_MESSAGE(glfw_init_res == GLFW_TRUE, "Failed to initialize GLFW");
+    log::debug("GLFW initialized");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
 
-    // TODO replace with spdlog / ASSERT MESSAGE
-    if (m_window == nullptr) {
-        std::cout << "Failed to create window\n";
-        __debugbreak();
-    }
-    std::cout << "Window created, title " << m_title << ", dimensions : " << m_width << " , " << m_height << "\n";
-    // END TODO
+    BEET_ASSERT_MESSAGE(m_window != nullptr, "Failed to create window");
+    log::debug("Window created, title \"{}\", dimensions {}x{}", m_title, m_width, m_height);
 }
 
 void Window::setup_callbacks() {
@@ -56,7 +47,7 @@ void Window::close() {
 Window::~Window() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
-    std::cout << "Window destroyed\n";
+    log::debug("Window destroyed");
 }
 
 void Window::on_awake() {}

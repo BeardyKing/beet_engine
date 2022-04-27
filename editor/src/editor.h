@@ -1,7 +1,6 @@
 #pragma once
 
 #include <beet/engine.h>
-#include <iostream>
 
 namespace beet {
 

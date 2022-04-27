@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.21)
 
 project(beet_engine)
 
+
+
+
 add_subdirectory(third)
 
 file(GLOB_RECURSE BEET_CORE_SOURCES
@@ -31,7 +34,17 @@ include_directories(beet
         )
 
 target_link_libraries(beet
-        glfw)
+        glfw
+        spdlog)
 
 set_target_properties(beet PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/build")
 set_target_properties(beet PROPERTIES OUTPUT_NAME beet_build)
+
+#======== DEBUG ========#
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    target_compile_definitions(beet PUBLIC BEET_DEBUG=1)
+    target_compile_definitions(beet PUBLIC _DEBUG=1)
+else()
+    target_compile_definitions(beet PUBLIC NDEBUG=1)
+endif()

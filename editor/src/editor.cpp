@@ -1,10 +1,11 @@
 #include "editor.h"
+#include <beet/log.h>
 
 namespace beet {
 
 Editor::Editor() {
+    log::Logger::setup();
     m_engine = std::make_unique<Engine>();
-    std::cout << "hello from editor constructor\n";
 }
 
 void Editor::run() {
