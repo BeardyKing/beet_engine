@@ -20,6 +20,7 @@ class Window : public Subsystem {
     void on_late_update() override;
     void on_destroy() override;
 
+    void swap_frame();
     bool is_open();
     void close();
 
