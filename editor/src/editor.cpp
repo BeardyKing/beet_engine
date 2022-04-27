@@ -10,7 +10,6 @@ Editor::Editor() {
 void Editor::run() {
     while (m_engine->is_open()) {
         m_engine->update_modules();
-        m_engine->close();
     }
 }
 

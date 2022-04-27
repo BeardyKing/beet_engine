@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <beet/window.h>
+
 namespace beet {
 class Engine {
    public:
@@ -13,10 +15,11 @@ class Engine {
 
     void update_modules();
     bool is_open();
-    void close();
 
    private:
-    bool m_isOpen;
+    std::vector<std::shared_ptr<Subsystem>> m_engineModules;
+
+    std::shared_ptr<Window> m_windowModule;
 };
 
 }  // namespace beet

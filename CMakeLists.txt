@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(beet_engine)
 
-include_directories(core/inc/)
+add_subdirectory(third)
 
 file(GLOB_RECURSE BEET_CORE_SOURCES
         core/src/*.cpp
@@ -25,7 +25,13 @@ set_target_properties(beet PROPERTIES
         CXX_EXTENSIONS NO
         )
 
+include_directories(beet
+        core/inc/
+        third/glfw/include/
+        )
+
+target_link_libraries(beet
+        glfw)
+
 set_target_properties(beet PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/build")
 set_target_properties(beet PROPERTIES OUTPUT_NAME beet_build)
-
-
