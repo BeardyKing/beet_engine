@@ -8,8 +8,6 @@
 namespace beet {
 namespace components {
 
-enum ShaderType { VERTEX, FRAGMENT, PROGRAM };
-
 class ShaderProgram : public Asset {
    public:
     ShaderProgram();
