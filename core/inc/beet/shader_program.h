@@ -28,18 +28,19 @@ class ShaderProgram : public Asset {
                      const std::string& vertexShaderPath,
                      const std::string& fragmentShaderPath);
 
-    void create_program(std::string& vertexShaderPath, std::string& fragmentShaderPath);
-    void check_compile_errors(GLuint shader, uint16_t type = 0);
-    void check_link_errors();
     void set_asset_name(const std::string& assetName) { m_assetName = assetName; }
+
+   private:
+    void create_program(std::string& vertexShaderPath, std::string& fragmentShaderPath);
+    GLuint create_shader(const std::string& path, uint16_t glShaderType);
+    void check_link_errors();
+    void check_compile_errors(GLuint shader, uint16_t glShaderType);
 
     bool does_file_path_exist(const std::string& path);
     std::string get_cross_platform_path(const std::string& folderName, const std::string& fileName);
-
-   private:
     std::string load_shader_text(const std::string& fileName);
 
-    GLuint m_id;
+    GLuint m_id = 0;
     std::map<std::string, GLint> m_UniformLocations;
 };
 }  // namespace components

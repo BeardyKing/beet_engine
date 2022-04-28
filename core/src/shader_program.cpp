@@ -10,10 +10,12 @@ namespace components {
 
 ShaderProgram::ShaderProgram() : Asset{AssetType::Shader, ""} {}
 ShaderProgram::ShaderProgram(const std::string& path) : Asset{AssetType::Shader, path} {}
-
 ShaderProgram::~ShaderProgram() {}
 
-void ShaderProgram::on_destroy() {}
+void ShaderProgram::on_destroy() {
+    glDeleteProgram(m_id);
+    m_UniformLocations.clear();
+}
 
 void ShaderProgram::on_awake() {}
 
@@ -32,27 +34,25 @@ bool ShaderProgram::load_shader(const std::string& folderName,
     return has_valid_paths;
 }
 
-void ShaderProgram::create_program(std::string& vertexShaderPath, std::string& fragmentShaderPath) {
-    //=VS==============
-
-    std::string vsString = load_shader_text(vertexShaderPath);
+GLuint ShaderProgram::create_shader(const std::string& path, uint16_t glShaderType) {
+    GLuint vs = 0;
+    std::string vsString = load_shader_text(path);
     const GLchar* vsSourcePtr = vsString.c_str();
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vsSourcePtr, NULL);
+
+    vs = glCreateShader(glShaderType);
+    glShaderSource(vs, 1, &vsSourcePtr, nullptr);
     glCompileShader(vs);
-    check_compile_errors(vs, GL_VERTEX_SHADER);
 
-    //=FS==============
+    check_compile_errors(vs, glShaderType);
+    return vs;
+}
 
-    std::string fsString = load_shader_text(fragmentShaderPath);
-    const GLchar* fsSourcePtr = fsString.c_str();
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fsSourcePtr, NULL);
-    glCompileShader(fs);
-    check_compile_errors(fs, GL_FRAGMENT_SHADER);
+void ShaderProgram::create_program(std::string& vertexShaderPath, std::string& fragmentShaderPath) {
+    GLuint vs = create_shader(vertexShaderPath, GL_VERTEX_SHADER);
+    GLuint fs = create_shader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
-    //=PROGRAM=========
     m_id = glCreateProgram();
+
     glAttachShader(m_id, vs);
     glAttachShader(m_id, fs);
     glLinkProgram(m_id);
@@ -89,7 +89,6 @@ bool ShaderProgram::does_file_path_exist(const std::string& path) {
         log::error("shader file : {} does not exist", path);
         return false;
     }
-
     return true;
 }
 
@@ -105,13 +104,13 @@ std::string ShaderProgram::get_cross_platform_path(const std::string& folderName
     return shaderPath;
 }
 void ShaderProgram::generate_default_asset() {}
-void ShaderProgram::check_compile_errors(GLuint shader, uint16_t type) {
+void ShaderProgram::check_compile_errors(GLuint shader, uint16_t glShaderType) {
     int status = 0;
-    std::string shaderHintType = "";
-    if (type == GL_VERTEX_SHADER) {
-        shaderHintType = "Vertex";
-    } else if (type == GL_FRAGMENT_SHADER) {
-        shaderHintType = "Fragment";
+    std::string type = "";
+    if (glShaderType == GL_VERTEX_SHADER) {
+        type = "Vertex";
+    } else if (glShaderType == GL_FRAGMENT_SHADER) {
+        type = "Fragment";
     }
 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -122,8 +121,7 @@ void ShaderProgram::check_compile_errors(GLuint shader, uint16_t type) {
 
         std::string errorLog(length, ' ');
         glGetShaderInfoLog(shader, length, &length, &errorLog[0]);
-        log::debug("{} shader failed to compile - ID : {} - name : {}\n{}", shaderHintType, m_id, m_assetName,
-                   errorLog);
+        log::debug("{} shader failed to compile - ID : {} - name : {}\n{}", type, m_id, m_assetName, errorLog);
     }
 }
 
