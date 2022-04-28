@@ -45,7 +45,6 @@ class Renderer : public Subsystem {
     Engine& m_engine;
 
     std::shared_ptr<components::ShaderProgram> m_testShader;
-
 };
 
 }  // namespace beet

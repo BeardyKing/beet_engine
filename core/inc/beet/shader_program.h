@@ -27,6 +27,7 @@ class ShaderProgram : public Asset {
                      const std::string& fragmentShaderPath);
 
     void set_asset_name(const std::string& assetName) { m_assetName = assetName; }
+    GLuint get_program() { return m_program; }
 
    private:
     void create_program(std::string& vertexShaderPath, std::string& fragmentShaderPath);
@@ -38,7 +39,7 @@ class ShaderProgram : public Asset {
     std::string get_cross_platform_path(const std::string& folderName, const std::string& fileName);
     std::string load_shader_text(const std::string& fileName);
 
-    GLuint m_id = 0;
+    GLuint m_program = 0;
     std::map<std::string, GLint> m_UniformLocations;
 };
 }  // namespace components

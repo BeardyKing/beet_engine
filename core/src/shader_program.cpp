@@ -13,7 +13,7 @@ ShaderProgram::ShaderProgram(const std::string& path) : Asset{AssetType::Shader,
 ShaderProgram::~ShaderProgram() {}
 
 void ShaderProgram::on_destroy() {
-    glDeleteProgram(m_id);
+    glDeleteProgram(m_program);
     m_UniformLocations.clear();
 }
 
@@ -51,11 +51,11 @@ void ShaderProgram::create_program(std::string& vertexShaderPath, std::string& f
     GLuint vs = create_shader(vertexShaderPath, GL_VERTEX_SHADER);
     GLuint fs = create_shader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
-    m_id = glCreateProgram();
+    m_program = glCreateProgram();
 
-    glAttachShader(m_id, vs);
-    glAttachShader(m_id, fs);
-    glLinkProgram(m_id);
+    glAttachShader(m_program, vs);
+    glAttachShader(m_program, fs);
+    glLinkProgram(m_program);
 
     check_link_errors();
 
@@ -121,24 +121,24 @@ void ShaderProgram::check_compile_errors(GLuint shader, uint16_t glShaderType) {
 
         std::string errorLog(length, ' ');
         glGetShaderInfoLog(shader, length, &length, &errorLog[0]);
-        log::debug("{} shader failed to compile - ID : {} - name : {}\n{}", type, m_id, m_assetName, errorLog);
+        log::debug("{} shader failed to compile - ID : {} - name : {}\n{}", type, m_program, m_assetName, errorLog);
     }
 }
 
 void ShaderProgram::check_link_errors() {
     int status = 0;
 
-    glGetProgramiv(m_id, GL_LINK_STATUS, &status);
+    glGetProgramiv(m_program, GL_LINK_STATUS, &status);
 
     if (status == GL_FALSE) {
         GLint length = 0;
-        glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &length);
+        glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
 
         std::string errorLog(length, ' ');
-        glGetProgramInfoLog(m_id, length, &length, &errorLog[0]);
-        log::error("Program link failed - ID : {} - name : {}\n{}", m_id, m_assetName, errorLog);
+        glGetProgramInfoLog(m_program, length, &length, &errorLog[0]);
+        log::error("Program link failed - ID : {} - name : {}\n{}", m_program, m_assetName, errorLog);
     } else {
-        log::debug("Program link success - ID : {} - name : {} ", m_id, m_assetName);
+        log::debug("Program link success - ID : {} - name : {} ", m_program, m_assetName);
     }
 }
 

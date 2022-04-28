@@ -9,6 +9,10 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     log::debug("GLAD initialized");
 }
 
+float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+unsigned int VBO;
+unsigned int VAO;
+
 void Renderer::on_awake() {
     recreate_framebuffer(1024, 768);
     glClearColor(1.0f, 0.4f, 0.4f, 1.0f);
@@ -16,12 +20,25 @@ void Renderer::on_awake() {
     m_testShader = std::make_shared<components::ShaderProgram>();
     m_testShader->set_asset_name("fallback shader");
     m_testShader->load_shader("fallback", "fallback.vert", "fallback.frag");
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
 }
 
 Renderer::~Renderer() {}
 
 void Renderer::on_update(double deltaTime) {
     clear_framebuffer(0);
+
+    glUseProgram(m_testShader->get_program());
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     depth_pass(0);
     shadow_pass(0);
