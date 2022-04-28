@@ -9,27 +9,29 @@
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 
 namespace beet {
 
 Window::Window(int width, int height, std::string title, Engine& engine)
     : m_width(width), m_height(height), m_title(title), m_window(nullptr), m_engine(engine) {
-    int glfw_init_res = glfwInit();
+    glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    BEET_ASSERT_MESSAGE(glfw_init_res == GLFW_TRUE, "Failed to initialize GLFW");
-    log::debug("GLFW initialized");
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
 
-    BEET_ASSERT_MESSAGE(m_window != nullptr, "Failed to create window");
-    log::debug("Window created, title \"{}\", dimensions {}x{}", m_title, m_width, m_height);
+    BEET_ASSERT_MESSAGE(m_window, "Failed to create GLFW window");
+    log::debug("GLFW initialized");
+
+    glfwMakeContextCurrent(m_window);
+}
+
+void Window::on_awake() {
+    glfwSetWindowUserPointer(m_window, this);
+    setup_callbacks();
 }
 
 void Window::setup_callbacks() {
@@ -37,7 +39,7 @@ void Window::setup_callbacks() {
 }
 
 void Window::window_size_callback(GLFWwindow* window, int width, int height) {
-    Window* self = (Window*)glfwGetWindowUserPointer(window);
+    auto* self = (Window*)glfwGetWindowUserPointer(window);
     self->m_width = width;
     self->m_height = height;
     self->m_engine.get_renderer_module().lock()->recreate_framebuffer(width, height);
@@ -56,8 +58,6 @@ Window::~Window() {
     glfwTerminate();
     log::debug("Window destroyed");
 }
-
-void Window::on_awake() {}
 
 void Window::on_update(double deltaTime) {
     glfwPollEvents();

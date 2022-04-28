@@ -20,7 +20,6 @@ class Renderer : public Subsystem {
     void on_destroy() override;
 
     void recreate_framebuffer(uint16_t width, uint16_t height, uint16_t id = 0);
-    void clear_framebuffer(uint16_t id = 0);
 
    private:
     // 1) SYSTEM : Shadow pass
@@ -39,8 +38,8 @@ class Renderer : public Subsystem {
     void post_process_pass(uint16_t id);
 
    private:
-    int get_window_width();
-    int get_window_height();
+    void clear_framebuffer(uint16_t id = 0);
+    void clear_all_framebuffer_objects();
 
     Engine& m_engine;
 };
