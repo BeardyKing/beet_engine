@@ -1,6 +1,7 @@
 #pragma once
 
 #include <beet/log.h>
+#include <beet/shader_program.h>
 #include <beet/subsystem.h>
 
 namespace beet {
@@ -42,6 +43,9 @@ class Renderer : public Subsystem {
     void clear_all_framebuffer_objects();
 
     Engine& m_engine;
+
+    std::shared_ptr<components::ShaderProgram> m_testShader;
+
 };
 
 }  // namespace beet

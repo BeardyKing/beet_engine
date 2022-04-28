@@ -12,6 +12,10 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
 void Renderer::on_awake() {
     recreate_framebuffer(1024, 768);
     glClearColor(1.0f, 0.4f, 0.4f, 1.0f);
+
+    m_testShader = std::make_shared<components::ShaderProgram>();
+    m_testShader->set_asset_name("fallback shader");
+    m_testShader->load_shader("fallback", "fallback.vert", "fallback.frag");
 }
 
 Renderer::~Renderer() {}
