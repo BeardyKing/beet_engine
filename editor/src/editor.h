@@ -1,5 +1,4 @@
 #pragma once
-
 #include <beet/engine.h>
 
 namespace beet {

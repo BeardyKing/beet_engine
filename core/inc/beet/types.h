@@ -23,7 +23,7 @@ using vec2d = vec<2, double>;
 using vec3i = vec<3, int>;
 using vec3d = vec<3, double>;
 using vec4i = vec<4, int>;
-using vec4d = vec<4, double>;   
+using vec4d = vec<4, double>;
 
 }  // namespace asset
 }  // namespace beet

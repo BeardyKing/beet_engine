@@ -27,6 +27,7 @@ include_directories(beet
         third/glad/include/
         third/glfw/include/
         third/glm/
+        third/assimp/include
         )
 
 target_link_libraries(beet
@@ -34,6 +35,7 @@ target_link_libraries(beet
         glfw
         spdlog
         glm
+        assimp
         )
 
 #======= PROPERTIES ========#
@@ -67,6 +69,7 @@ endforeach ()
 #==========================#
 
 #========= DEBUG ==========#
+
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(beet PUBLIC BEET_DEBUG=1)
