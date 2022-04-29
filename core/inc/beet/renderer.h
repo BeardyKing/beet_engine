@@ -1,6 +1,7 @@
 #pragma once
 
 #include <beet/log.h>
+#include <beet/mesh.h>
 #include <beet/shader_program.h>
 #include <beet/subsystem.h>
 
@@ -45,6 +46,7 @@ class Renderer : public Subsystem {
     Engine& m_engine;
 
     std::shared_ptr<components::ShaderProgram> m_testShader;
+    std::shared_ptr<components::Mesh> m_testMesh;
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
 };
 

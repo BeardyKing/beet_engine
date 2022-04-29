@@ -1,9 +1,4 @@
-// clang-format off
-// only x64 unless dx9 lib installed
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
-// clang-format on
+
 
 #include <beet/assert.h>
 #include <beet/renderer.h>
@@ -23,10 +18,11 @@ unsigned int VBO;
 unsigned int VAO;
 
 void Renderer::on_awake() {
-    Assimp::Importer importer;
-
     recreate_framebuffer(1024, 768);
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
+
+    m_testMesh = std::make_shared<components::Mesh>("uv_cube.obj");
+    m_testMesh->on_awake();
 
     m_testShader = std::make_shared<components::ShaderProgram>();
     m_testShader->set_asset_name("fallback shader");
