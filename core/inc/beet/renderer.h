@@ -45,6 +45,7 @@ class Renderer : public Subsystem {
     Engine& m_engine;
 
     std::shared_ptr<components::ShaderProgram> m_testShader;
+    vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
 };
 
 }  // namespace beet

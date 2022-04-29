@@ -26,12 +26,14 @@ include_directories(beet
         core/inc/
         third/glad/include/
         third/glfw/include/
+        third/glm/
         )
 
 target_link_libraries(beet
         glad
         glfw
         spdlog
+        glm
         )
 
 #======= PROPERTIES ========#

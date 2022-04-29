@@ -1,6 +1,8 @@
 #include <beet/assert.h>
 #include <beet/renderer.h>
+#include <beet/types.h>
 #include <glad/glad.h>
+
 namespace beet {
 
 Renderer::Renderer(Engine& engine) : m_engine(engine) {
@@ -15,7 +17,7 @@ unsigned int VAO;
 
 void Renderer::on_awake() {
     recreate_framebuffer(1024, 768);
-    glClearColor(1.0f, 0.4f, 0.4f, 1.0f);
+    glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 
     m_testShader = std::make_shared<components::ShaderProgram>();
     m_testShader->set_asset_name("fallback shader");
