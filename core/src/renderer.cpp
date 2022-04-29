@@ -1,6 +1,6 @@
 
-
 #include <beet/assert.h>
+#include <beet/engine.h>
 #include <beet/renderer.h>
 #include <beet/types.h>
 #include <glad/glad.h>
@@ -36,6 +36,12 @@ void Renderer::on_awake() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
+
+    //=setup uniforms
+
+    m_modelLoc = glGetUniformLocation(m_testShader->get_program(), "model");
+    m_viewLoc = glGetUniformLocation(m_testShader->get_program(), "view");
+    m_projLoc = glGetUniformLocation(m_testShader->get_program(), "projection");
 }
 
 Renderer::~Renderer() {}
@@ -43,9 +49,24 @@ Renderer::~Renderer() {}
 void Renderer::on_update(double deltaTime) {
     clear_framebuffer(0);
 
+    float aspectRatio = (float)m_engine.get_window_module().lock()->get_window_aspect_ratio();
+    m_timePassed += (float)deltaTime;
+
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 proj = glm::mat4(1.0f);
+
+    model = glm::rotate(model, glm::radians(m_timePassed * 50), glm::vec3(1.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+    proj = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+
+    glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+    //=RENDER=======================
     glUseProgram(m_testShader->get_program());
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    m_testMesh->draw();
 
     depth_pass(0);
     shadow_pass(0);

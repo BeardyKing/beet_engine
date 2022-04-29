@@ -29,6 +29,7 @@ class Window : public Subsystem {
 
     int get_window_width() { return m_width; };
     int get_window_height() { return m_height; };
+    float get_window_aspect_ratio() { return (float)m_width / (float)m_height; }
 
    protected:
     void setup_callbacks();
