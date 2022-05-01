@@ -4,6 +4,7 @@
 #include <beet/mesh.h>
 #include <beet/shader_program.h>
 #include <beet/subsystem.h>
+#include <beet/texture.h>
 
 namespace beet {
 class Engine;
@@ -47,6 +48,8 @@ class Renderer : public Subsystem {
 
     std::shared_ptr<components::ShaderProgram> m_testShader;
     std::shared_ptr<components::Mesh> m_testMesh;
+    std::shared_ptr<components::Texture> m_texture;
+    
     int m_modelLoc{0};
     int m_viewLoc{0};
     int m_projLoc{0};

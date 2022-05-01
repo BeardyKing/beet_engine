@@ -28,6 +28,7 @@ include_directories(beet
         third/glfw/include/
         third/glm/
         third/assimp/include
+        third/stb/
         )
 
 target_link_libraries(beet
@@ -36,6 +37,7 @@ target_link_libraries(beet
         spdlog
         glm
         assimp
+        stb
         )
 
 #======= PROPERTIES ========#

@@ -32,3 +32,8 @@ set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(assimp)
+
+#======== STB =========#
+
+project(stb)
+add_library(stb INTERFACE)

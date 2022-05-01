@@ -25,8 +25,11 @@ void Renderer::on_awake() {
     m_testMesh->on_awake();
 
     m_testShader = std::make_shared<components::ShaderProgram>();
-    m_testShader->set_asset_name("fallback shader");
+    m_testShader->set_asset_name("fallback");
     m_testShader->load_shader("fallback", "fallback.vert", "fallback.frag");
+
+    m_texture = std::make_shared<components::Texture>("UV_Grid_test.png");
+    m_texture->on_awake();
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -42,6 +45,9 @@ void Renderer::on_awake() {
     m_modelLoc = glGetUniformLocation(m_testShader->get_program(), "model");
     m_viewLoc = glGetUniformLocation(m_testShader->get_program(), "view");
     m_projLoc = glGetUniformLocation(m_testShader->get_program(), "projection");
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 }
 
 Renderer::~Renderer() {}
@@ -65,6 +71,9 @@ void Renderer::on_update(double deltaTime) {
     glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
     //=RENDER=======================
+
+    glCullFace(GL_BACK);
+    m_texture->bind();
     glUseProgram(m_testShader->get_program());
     m_testMesh->draw();
 

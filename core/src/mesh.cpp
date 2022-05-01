@@ -25,7 +25,11 @@ void Mesh::on_awake() {
 }
 
 void Mesh::on_destroy() {
-    // TODO Delete gpu memory
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    if (m_ibo) {
+        glDeleteBuffers(1, &m_ibo);
+    }
     log::info("removed mesh : {}", m_fullPath);
 }
 
@@ -104,7 +108,7 @@ void Mesh::init_buffers() {
 
     glGenBuffers(1, &m_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vertexLayout.size() * sizeof(VertexLayout), m_vertexLayout.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_vertexLayout.size() * sizeof(VertexLayout), m_vertexLayout.data(),GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
@@ -115,12 +119,12 @@ void Mesh::init_buffers() {
     glEnableVertexAttribArray(3);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), 0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(vec3)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(vec3) + sizeof(vec3)));
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(vec3) + sizeof(vec3) + sizeof(vec2)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(VertexLayout::m_position)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(VertexLayout::m_position) + sizeof(VertexLayout::m_normal)));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexLayout), (GLvoid*)(sizeof(VertexLayout::m_position) + sizeof(VertexLayout::m_normal) + sizeof(VertexLayout::m_uv)));
+
     // clang-format on
 
-    // Index buffer
     if (!m_indices.empty()) {
         glGenBuffers(1, &m_ibo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
