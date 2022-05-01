@@ -49,9 +49,7 @@ void Texture::load_texture_2d(const std::string& path, bool usingMipMaps, bool u
         log::error(fullPath + " - does not Exist");
         m_textureHandle = 0;
     }
-
-    stbi_set_flip_vertically_on_load(true);
-
+    
     auto imageData = stbi_load(fullPath.c_str(), &m_imageSize.x, &m_imageSize.y, &m_channels, 0);
 
     if (!imageData) {
@@ -98,7 +96,6 @@ void Texture::load_texture_2d(const std::string& path, bool usingMipMaps, bool u
 
     log::info("Texture loaded at path: {}", fullPath);
 
-    stbi_set_flip_vertically_on_load(false);
     stbi_image_free(imageData);
 
     if (!m_textureHandle) {
