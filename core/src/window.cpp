@@ -14,7 +14,12 @@
 namespace beet {
 
 Window::Window(int width, int height, std::string title, Engine& engine)
-    : m_width(width), m_height(height), m_title(title), m_window(nullptr), m_engine(engine) {
+    : m_width(width),
+      m_height(height),
+      m_title(title),
+      m_window(nullptr),
+      m_engine(engine),
+      m_input(std::make_shared<InputManager>(*this)) {
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -33,10 +38,6 @@ Window::Window(int width, int height, std::string title, Engine& engine)
 void Window::on_awake() {
     glfwSetWindowUserPointer(m_window, this);
     setup_callbacks();
-}
-
-void Window::setup_callbacks() {
-    glfwSetWindowSizeCallback(m_window, Window::window_size_callback);
 }
 
 void Window::window_size_callback(GLFWwindow* window, int width, int height) {
@@ -79,6 +80,51 @@ void Window::on_late_update() {}
 void Window::on_destroy() {}
 void Window::swap_frame() {
     glfwSwapBuffers(m_window);
+}
+
+void Window::setup_callbacks() {
+    glfwSetWindowSizeCallback(m_window, Window::window_size_callback);
+
+    glfwSetKeyCallback(m_window, Window::window_key_callback);
+    glfwSetCharCallback(m_window, Window::window_char_callback);
+    glfwSetMouseButtonCallback(m_window, Window::window_mouse_button_callback);
+    glfwSetScrollCallback(m_window, Window::window_scroll_event);
+    glfwSetCursorPosCallback(m_window, Window::window_mouse_event_callback);
+}
+
+void Window::window_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    if (action != GLFW_REPEAT) {
+        self->m_input->key_event(key, action != GLFW_RELEASE);
+    }
+}
+
+void Window::window_char_callback(GLFWwindow* window, unsigned int codepoint) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+}
+
+void Window::window_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    self->m_input->mouse_button_event(button, action != GLFW_RELEASE);
+}
+
+void Window::window_scroll_event(GLFWwindow* window, double xoffset, double yoffset) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    self->m_input->scroll_event({xoffset, yoffset});
+}
+
+void Window::window_mouse_event_callback(GLFWwindow* window, double x, double y) {
+    if (!glfwGetWindowAttrib(window, GLFW_HOVERED))
+        return;
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    self->m_input->mouse_event(x, y);
+}
+
+void Window::window_cursor_enter_event_callback(GLFWwindow* window, int entered) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+}
+std::shared_ptr<InputManager> Window::get_input_manager() {
+    return m_input;
 }
 
 }  // namespace beet

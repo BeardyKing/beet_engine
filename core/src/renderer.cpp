@@ -21,15 +21,22 @@ void Renderer::on_awake() {
     recreate_framebuffer(1024, 768);
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 
-    m_testMesh = std::make_shared<components::Mesh>("uv_cube.obj");
+    m_testMesh = std::make_shared<components::Mesh>("default_cube.obj");
     m_testMesh->on_awake();
 
     m_testShader = std::make_shared<components::ShaderProgram>();
     m_testShader->set_asset_name("fallback");
     m_testShader->load_shader("fallback", "fallback.vert", "fallback.frag");
 
-    m_texture = std::make_shared<components::Texture>("UV_Grid_test.png");
-    m_texture->on_awake();
+    m_testTexture = std::make_shared<components::Texture>("UV_Grid_test.png");
+    m_testTexture->on_awake();
+
+    //=Camera=========
+    m_testCameraTransform = std::make_shared<components::Transform>();
+    m_testCameraTransform->set_position(vec3(0, 0, -5));
+    m_testCamera = std::make_shared<components::Camera>();
+    m_testCamera->on_awake();
+    //================
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -54,17 +61,32 @@ Renderer::~Renderer() {}
 
 void Renderer::on_update(double deltaTime) {
     clear_framebuffer(0);
-
     float aspectRatio = (float)m_engine.get_window_module().lock()->get_window_aspect_ratio();
     m_timePassed += (float)deltaTime;
 
-    glm::mat4 model = glm::mat4(1.0f);
+    //=Camera=========
+
+    const glm::vec3 pos = m_testCameraTransform->get_position();
+    const glm::vec3 lookTarget = m_testCamera->get_look_target();
+    const glm::vec3 up = m_testCameraTransform->up();
+
+    const float fovY = m_testCamera->get_fov();
+    const float zNear = m_testCamera->get_z_near();
+    const float zFar = m_testCamera->get_z_far();
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 proj = glm::mat4(1.0f);
 
+    // Set view and projection matrix for view 0.
+    {
+        view = glm::lookAt(pos, lookTarget, up);
+        proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
+    }
+
+    //=Test cube======
+
+    glm::mat4 model = glm::mat4(1.0f);
+
     model = glm::rotate(model, glm::radians(m_timePassed * 50), glm::vec3(1.0f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
-    proj = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 
     glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -73,7 +95,7 @@ void Renderer::on_update(double deltaTime) {
     //=RENDER=======================
 
     glCullFace(GL_BACK);
-    m_texture->bind();
+    m_testTexture->bind();
     glUseProgram(m_testShader->get_program());
     m_testMesh->draw();
 

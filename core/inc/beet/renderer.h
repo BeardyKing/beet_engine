@@ -1,10 +1,12 @@
 #pragma once
 
+#include <beet/camera.h>
 #include <beet/log.h>
 #include <beet/mesh.h>
 #include <beet/shader_program.h>
 #include <beet/subsystem.h>
 #include <beet/texture.h>
+#include <beet/transform.h>
 
 namespace beet {
 class Engine;
@@ -48,8 +50,11 @@ class Renderer : public Subsystem {
 
     std::shared_ptr<components::ShaderProgram> m_testShader;
     std::shared_ptr<components::Mesh> m_testMesh;
-    std::shared_ptr<components::Texture> m_texture;
-    
+    std::shared_ptr<components::Texture> m_testTexture;
+
+    std::shared_ptr<components::Camera> m_testCamera;
+    std::shared_ptr<components::Transform> m_testCameraTransform;
+
     int m_modelLoc{0};
     int m_viewLoc{0};
     int m_projLoc{0};

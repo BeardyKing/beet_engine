@@ -1,6 +1,8 @@
 #pragma once
 
+#include <beet/input_manager.h>
 #include <beet/subsystem.h>
+#include <memory>
 #include <string>
 
 namespace beet {
@@ -26,6 +28,7 @@ class Window : public Subsystem {
 
     void calculate_delta_time();
     double get_delta_time();
+    std::shared_ptr<InputManager> get_input_manager();
 
     int get_window_width() { return m_width; };
     int get_window_height() { return m_height; };
@@ -34,6 +37,12 @@ class Window : public Subsystem {
    protected:
     void setup_callbacks();
     static void window_size_callback(GLFWwindow* window, int width, int height);
+    static void window_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void window_char_callback(GLFWwindow* window, unsigned int codepoint);
+    static void window_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    static void window_scroll_event(GLFWwindow* window, double xoffset, double yoffset);
+    static void window_mouse_event_callback(GLFWwindow* window, double x, double y);
+    static void window_cursor_enter_event_callback(GLFWwindow* window, int entered);
 
    protected:
     int m_width;
@@ -48,6 +57,7 @@ class Window : public Subsystem {
 
     GLFWwindow* m_window;
     Engine& m_engine;
+    std::shared_ptr<InputManager> m_input;
 };
 
 }  // namespace beet

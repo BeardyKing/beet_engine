@@ -1,5 +1,6 @@
 #pragma once
 
+#include <beet/component.h>
 #include <beet/log.h>
 #include <beet/types.h>
 
@@ -8,12 +9,9 @@ namespace components {
 
 class Transform {
    public:
-    Transform(const vec3& position = vec3(0.0f), const vec3& scale = vec3(1.0f), const quat& rotation = quat());
-
-    //=For ECS========
-    void on_awake();
-    void on_destroy();
-    //================
+    Transform(const vec3& position = vec3(0.0f),
+              const vec3& scale = vec3(1.0f),
+              const quat& rotation = quat(1.0f, 0.0f, 0.0f, 0.0f));
 
     vec3 get_position() const;
     vec3 get_scale() const;
@@ -25,9 +23,13 @@ class Transform {
     void set_rotation(const quat& rotation);
     void set_rotation_euler(const vec3& rotation);
 
-    mat4 get_model_matrix() const;
+    mat4 get_model_matrix();
 
-   protected:
+    vec3 forward() const;
+    vec3 up() const;
+    vec3 right() const;
+
+   private:
     vec3 m_position;
     vec3 m_scale;
     quat m_rotation;
