@@ -23,7 +23,7 @@ void Texture::on_awake() {
 void Texture::on_destroy() {
     m_assetState = AssetState::Idle;
     glDeleteTextures(1, &m_textureHandle);
-    log::info("removed texture : {}", m_fullPath);
+    log::debug("removed texture : {}", m_fullPath);
 }
 
 void Texture::load_texture(const std::string& path) {
@@ -49,7 +49,7 @@ void Texture::load_texture_2d(const std::string& path, bool usingMipMaps, bool u
         log::error(fullPath + " - does not Exist");
         m_textureHandle = 0;
     }
-    
+
     auto imageData = stbi_load(fullPath.c_str(), &m_imageSize.x, &m_imageSize.y, &m_channels, 0);
 
     if (!imageData) {
@@ -145,7 +145,7 @@ void Texture::internal_generate_solid_texture(const vec4& color, const std::stri
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    log::info("generated texture: {}", m_fullPath);
+    log::debug("generated texture: {}", m_fullPath);
     m_assetState = AssetState::Finished;
 }
 

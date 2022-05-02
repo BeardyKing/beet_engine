@@ -138,9 +138,6 @@ void Renderer::on_update(double deltaTime) {
         m_pitch -= ((float)m_mouseDelta.y * (float)m_mouseSensitivity.y) * (float)deltaTime;
         m_yaw -= ((float)m_mouseDelta.x * (float)m_mouseSensitivity.x) * (float)deltaTime;
 
-        if (deltaTime > 0.009f) {
-            log::info("DT: {}", deltaTime);
-        }
         m_pitch = clamp(m_pitch, radians(-80.f), radians(80.f));
         m_testCameraTransform->set_rotation_euler(vec3(m_pitch, m_yaw, m_roll));
 
@@ -149,12 +146,6 @@ void Renderer::on_update(double deltaTime) {
         look.x = cosf(m_pitch) * sinf(m_yaw);
         look.y = sinf(m_pitch);
         look.z = cosf(m_pitch) * cosf(m_yaw);
-
-        m_forward = glm::normalize(look);
-        //        vec3 look;
-        //        look.x = cosf(radians(m_yaw)) * cosf(radians(m_pitch));
-        //        look.y = sinf(radians(m_pitch));
-        //        look.z = sinf(radians(m_yaw)) * cosf(radians(m_pitch));
 
         m_forward = normalize(look);
 

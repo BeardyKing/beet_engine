@@ -126,7 +126,7 @@ void Window::toggle_fullscreen_internal() {
         glfwSetWindowMonitor(m_window, NULL, windowPos.x, windowPos.y + WINDOWS_TITLE_BAR_SIZE, m_width, m_height, 0);
     }
 
-    log::debug("window toggle size : {}, {}", m_width, m_height);
+    log::debug("Window toggle size : {}, {}", m_width, m_height);
 }
 
 void Window::calculate_delta_time() {
