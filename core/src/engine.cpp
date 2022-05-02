@@ -3,7 +3,7 @@
 namespace beet {
 
 Engine::Engine() {
-    m_windowModule = std::make_shared<beet::Window>(1024, 768, "beetroot", *this);
+    m_windowModule = std::make_shared<beet::Window>(1920, 1080, "beetroot", *this);
     m_rendererModule = std::make_shared<beet::Renderer>(*this);
 
     // order dependent

@@ -52,8 +52,36 @@ class Renderer : public Subsystem {
     std::shared_ptr<components::Mesh> m_testMesh;
     std::shared_ptr<components::Texture> m_testTexture;
 
+    //=Camera=========
     std::shared_ptr<components::Camera> m_testCamera;
     std::shared_ptr<components::Transform> m_testCameraTransform;
+
+    //=Camera state===
+
+    vec2d m_lastMousePosition = vec2d(0.0);
+    vec2d m_mouseSensitivity = vec2d(0.2);
+    vec2d m_pitchClamp = vec2(-60, 60);
+    vec2d m_currentMousePos = vec2d(0.0);
+    vec2d m_mouseDelta = vec2d(0.0);
+
+    vec3 m_keyboardDirection = vec3(0);
+    vec3 m_movementMultiplier = vec3(1);
+    vec3 m_maxMovementMultiplier = vec3(5);
+    vec3 m_minMovementMultiplier = vec3(1);
+    vec3 m_moveSpeed = vec3(10);
+
+    float m_pitch = 0;  // pitch = x
+    float m_yaw = 0;    // yaw = y
+    float m_roll = 0;   // roll = z
+
+    vec3 m_right = vec3(1, 0, 0);
+    vec3 m_up = vec3(0, 1, 0);
+    vec3 m_forward = vec3(0, 0, 1);
+    static constexpr vec3 WORLD_UP = vec3(0, 1, 0);
+
+    bool m_ePressed = true;
+    bool m_lockState = false;
+    //================
 
     int m_modelLoc{0};
     int m_viewLoc{0};

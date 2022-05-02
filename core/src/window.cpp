@@ -1,15 +1,16 @@
+
 // clang-format off
 #include <glad/glad.h>
 // clang-format on
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 #include <beet/assert.h>
 #include <beet/engine.h>
 #include <beet/log.h>
 #include <beet/window.h>
-
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 
 namespace beet {
 
@@ -26,6 +27,7 @@ Window::Window(int width, int height, std::string title, Engine& engine)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
     m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
 
@@ -37,7 +39,11 @@ Window::Window(int width, int height, std::string title, Engine& engine)
 
 void Window::on_awake() {
     glfwSetWindowUserPointer(m_window, this);
+    if (glfwRawMouseMotionSupported())
+        glfwSetInputMode(m_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    glfwSwapInterval(1);
     setup_callbacks();
+    m_engine.get_renderer_module().lock()->recreate_framebuffer(m_width, m_height);
 }
 
 void Window::window_size_callback(GLFWwindow* window, int width, int height) {
@@ -64,6 +70,63 @@ Window::~Window() {
 void Window::on_update(double deltaTime) {
     glfwPollEvents();
     calculate_delta_time();
+    toggle_fullscreen();
+}
+void Window::toggle_fullscreen() {
+    if (m_input->key_on_trigger(KeyCode::LeftAlt) && m_input->key_on_trigger(KeyCode::Enter) && !keysDown) {
+        toggle_fullscreen_internal();
+        keysDown = true;
+    } else if (!m_input->key_pressed(KeyCode::LeftAlt) || !m_input->key_pressed(KeyCode::Enter)) {
+        keysDown = false;
+    }
+}
+
+void Window::toggle_fullscreen_internal() {
+    vec2i windowPos;
+    glfwGetWindowPos(m_window, &windowPos.x, &windowPos.y);
+    m_fullscreen = !m_fullscreen;
+    if (m_fullscreen) {
+        // best window selection from https://stackoverflow.com/a/31526753
+        int nmonitors, i;
+        int wx, wy, ww, wh;
+        int mx, my, mw, mh;
+        int overlap, bestoverlap;
+        GLFWmonitor* bestmonitor;
+        GLFWmonitor** monitors;
+        const GLFWvidmode* mode;
+
+        bestoverlap = 0;
+        bestmonitor = NULL;
+
+        glfwGetWindowPos(m_window, &wx, &wy);
+        glfwGetWindowSize(m_window, &ww, &wh);
+        monitors = glfwGetMonitors(&nmonitors);
+
+        for (i = 0; i < nmonitors; i++) {
+            mode = glfwGetVideoMode(monitors[i]);
+            glfwGetMonitorPos(monitors[i], &mx, &my);
+            mw = mode->width;
+            mh = mode->height;
+
+            overlap = max(0, min(wx + ww, mx + mw) - max(wx, mx)) * max(0, min(wy + wh, my + mh) - max(wy, my));
+
+            if (bestoverlap < overlap) {
+                bestoverlap = overlap;
+                bestmonitor = monitors[i];
+            }
+        }
+        auto bestMode = glfwGetVideoMode(bestmonitor);
+
+        m_width = bestMode->width;
+        m_height = bestMode->height;
+
+        glfwSetWindowMonitor(m_window, bestmonitor, windowPos.x, 0, bestMode->width, bestMode->height,
+                             bestMode->refreshRate);
+    } else if (!m_fullscreen) {
+        glfwSetWindowMonitor(m_window, NULL, windowPos.x, windowPos.y + WINDOWS_TITLE_BAR_SIZE, m_width, m_height, 0);
+    }
+
+    log::debug("window toggle size : {}, {}", m_width, m_height);
 }
 
 void Window::calculate_delta_time() {
@@ -123,6 +186,11 @@ void Window::window_mouse_event_callback(GLFWwindow* window, double x, double y)
 void Window::window_cursor_enter_event_callback(GLFWwindow* window, int entered) {
     Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
 }
+
+void Window::set_cursor_hide(bool state) {
+    glfwSetInputMode(m_window, GLFW_CURSOR, state ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
 std::shared_ptr<InputManager> Window::get_input_manager() {
     return m_input;
 }
