@@ -41,3 +41,7 @@ add_library(stb INTERFACE)
 #======= ENTT =========#
 
 add_subdirectory(entt)
+
+#====== STDUUID =======#
+set(UUID_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(stduuid)
