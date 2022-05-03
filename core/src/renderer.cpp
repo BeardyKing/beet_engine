@@ -15,10 +15,6 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     log::debug("GLAD initialized");
 }
 
-float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
-unsigned int VBO;
-unsigned int VAO;
-
 void Renderer::on_awake() {
     auto width = m_engine.get_window_module().lock()->get_window_width();
     auto height = m_engine.get_window_module().lock()->get_window_height();

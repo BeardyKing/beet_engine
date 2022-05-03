@@ -9,8 +9,6 @@ Editor::Editor() {
     log::Logger::setup();
     m_engine = std::make_unique<Engine>();
 
-    //=Scene setup===
-
     {
         auto editorCamera = m_scene->create_game_object("camera");
         auto& cam = editorCamera.add_component<components::Camera>();

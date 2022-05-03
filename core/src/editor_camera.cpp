@@ -43,70 +43,29 @@ void EditorCameraController::on_awake() {
 void EditorCameraController::on_update(double deltaTime) {
     using namespace components;
 
-    //=Camera state=== //TODO when holding left click on the active window
-    if (m_inputManager->key_pressed(KeyCode::E)) {
-        if (m_ePressed) {
-            m_lockState = !m_lockState;
-            m_engine.get_window_module().lock()->set_cursor_hide(m_lockState);
-        }
-        m_ePressed = false;
-    } else {
-        m_ePressed = true;
-    }
-
-    //= XYZ editor movement input
-
-    vec3 movementDirectionXYZ = vec3(0);
-
-    if (m_inputManager->key_pressed(KeyCode::W)) {
-        movementDirectionXYZ += m_forward;
-    }
-    if (m_inputManager->key_pressed(KeyCode::S)) {
-        movementDirectionXYZ += -m_forward;
-    }
-    if (m_inputManager->key_pressed(KeyCode::A)) {
-        movementDirectionXYZ += -m_right;
-    }
-    if (m_inputManager->key_pressed(KeyCode::D)) {
-        movementDirectionXYZ += m_right;
-    }
-    if (m_inputManager->key_pressed(KeyCode::R)) {
-        movementDirectionXYZ += WORLD_UP;
-    }
-    if (m_inputManager->key_pressed(KeyCode::F)) {
-        movementDirectionXYZ += -WORLD_UP;
-    }
-
-    vec3 speedTarget;
-    if (m_inputManager->key_pressed(KeyCode::LeftShift)) {
-        speedTarget = m_maxMovementMultiplier;
-    } else {
-        speedTarget = m_minMovementMultiplier;
-    }
-    m_movementMultiplier = lerp(m_movementMultiplier, speedTarget, .15f);
-    m_keyboardDirection = movementDirectionXYZ;
+    camera_key_input();
 
     bool skipCameraBehaviour = false;
 
     vec2d currentMousePos = m_inputManager->get_absolute_position();
-    if (glm::isinf(currentMousePos.x) || glm::isinf(currentMousePos.y)) {
-        skipCameraBehaviour = true;
-    }
-    m_mouseDelta = (currentMousePos - m_lastMousePosition);
-    if (m_lockState == false) {
+    if (glm::isinf(currentMousePos.x) || glm::isinf(currentMousePos.y) || !m_lockState) {
         skipCameraBehaviour = true;
     }
 
+    m_mouseDelta = (currentMousePos - m_lastMousePosition);
+
     auto cameraOpt = Camera::get_active_camera();
-    if (!cameraOpt)
+    if (!cameraOpt) {
         skipCameraBehaviour = true;
+    }
+
     auto& editorCamera = cameraOpt.value().get();
 
     auto goOpt = GameObject::get_game_object_from_component(editorCamera);
     if (!goOpt) {
         skipCameraBehaviour = true;
     }
-    if (skipCameraBehaviour == false) {
+    if (!skipCameraBehaviour) {
         GameObject go = goOpt.value();
         Transform& transform = go.get_component<Transform>();
         Name& name = go.get_component<Name>();
@@ -149,8 +108,53 @@ void EditorCameraController::on_update(double deltaTime) {
 
     m_lastMousePosition = currentMousePos;
 }
+
+void EditorCameraController::camera_key_input() {
+    //=Camera state=== //TODO when holding left click on the active window
+    if (m_inputManager->key_pressed(KeyCode::E)) {
+        if (m_ePressed) {
+            m_lockState = !m_lockState;
+            m_engine.get_window_module().lock()->set_cursor_hide(m_lockState);
+        }
+        m_ePressed = false;
+    } else {
+        m_ePressed = true;
+    }
+
+    //= XYZ editor movement input
+
+    vec3 movementDirectionXYZ = vec3(0);
+
+    if (m_inputManager->key_pressed(KeyCode::W)) {
+        movementDirectionXYZ += m_forward;
+    }
+    if (m_inputManager->key_pressed(KeyCode::S)) {
+        movementDirectionXYZ += -m_forward;
+    }
+    if (m_inputManager->key_pressed(KeyCode::A)) {
+        movementDirectionXYZ += -m_right;
+    }
+    if (m_inputManager->key_pressed(KeyCode::D)) {
+        movementDirectionXYZ += m_right;
+    }
+    if (m_inputManager->key_pressed(KeyCode::R)) {
+        movementDirectionXYZ += WORLD_UP;
+    }
+    if (m_inputManager->key_pressed(KeyCode::F)) {
+        movementDirectionXYZ += -WORLD_UP;
+    }
+
+    vec3 speedTarget;
+    if (m_inputManager->key_pressed(KeyCode::LeftShift)) {
+        speedTarget = m_maxMovementMultiplier;
+    } else {
+        speedTarget = m_minMovementMultiplier;
+    }
+    m_movementMultiplier = lerp(m_movementMultiplier, speedTarget, .15f);
+    m_keyboardDirection = movementDirectionXYZ;
+}
+
 void EditorCameraController::on_late_update() {}
 void EditorCameraController::on_destroy() {}
-void EditorCameraController::camera_key_input() {}
 
 }  // namespace beet

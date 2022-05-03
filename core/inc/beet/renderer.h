@@ -51,6 +51,7 @@ class Renderer : public Subsystem {
     int m_modelLoc{0};
     int m_viewLoc{0};
     int m_projLoc{0};
+
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
     float m_timePassed{0.0f};
 };
