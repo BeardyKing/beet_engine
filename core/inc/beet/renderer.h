@@ -48,12 +48,6 @@ class Renderer : public Subsystem {
 
     Engine& m_engine;
 
-    std::shared_ptr<components::ShaderProgram> m_testShader;
-    std::shared_ptr<components::Mesh> m_testMesh;
-    std::shared_ptr<components::Texture> m_testTexture;
-    
-    //=Camera state===
-
     vec2d m_lastMousePosition = vec2d(0.0);
     vec2d m_mouseSensitivity = vec2d(0.2);
     vec2d m_pitchClamp = vec2(-60, 60);

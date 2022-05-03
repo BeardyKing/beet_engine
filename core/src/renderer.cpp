@@ -26,38 +26,6 @@ void Renderer::on_awake() {
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 
-    m_testMesh = std::make_shared<components::Mesh>("default_cube.obj");
-    m_testMesh->on_awake();
-
-    m_testShader = std::make_shared<components::ShaderProgram>();
-    m_testShader->set_asset_name("fallback");
-    m_testShader->load_shader("fallback", "fallback.vert", "fallback.frag");
-
-    m_testTexture = std::make_shared<components::Texture>("UV_Grid_test.png");
-    m_testTexture->on_awake();
-
-    //=Camera=========
-    //    m_testCameraTransform = std::make_shared<components::Transform>();
-    //    m_testCameraTransform->set_position(vec3(0, 0, -5));
-    //    m_testCamera = std::make_shared<components::Camera>();
-    //    m_testCamera->on_awake();
-    //================
-
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    //=setup uniforms
-
-    m_modelLoc = glGetUniformLocation(m_testShader->get_program(), "model");
-    m_viewLoc = glGetUniformLocation(m_testShader->get_program(), "view");
-    m_projLoc = glGetUniformLocation(m_testShader->get_program(), "projection");
-
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
@@ -210,21 +178,36 @@ void Renderer::on_update(double deltaTime) {
     }
 
     //=Test cube======
+    auto entities = registry.view<Transform, Mesh, Texture, ShaderProgram, Name>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+        GameObject go = goOpt.value();
+        Transform& transform = go.get_component<Transform>();
+        Mesh& mesh = go.get_component<Mesh>();
+        Texture& texture = go.get_component<Texture>();
+        ShaderProgram& shader = go.get_component<ShaderProgram>();
+        Name& name = go.get_component<Name>();
 
-    glm::mat4 model = glm::mat4(1.0f);
+        m_modelLoc = glGetUniformLocation(shader.get_program(), "model");
+        m_viewLoc = glGetUniformLocation(shader.get_program(), "view");
+        m_projLoc = glGetUniformLocation(shader.get_program(), "projection");
 
-    model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f));
+        glm::mat4 model = transform.get_model_matrix();
 
-    glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+        glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-    //=RENDER=======================
+        //=RENDER=======================
 
-    glCullFace(GL_BACK);
-    m_testTexture->bind();
-    glUseProgram(m_testShader->get_program());
-    m_testMesh->draw();
+        glCullFace(GL_BACK);
+        texture.bind();
+        glUseProgram(shader.get_program());
+        mesh.draw();
+    }
 
     depth_pass(0);
     shadow_pass(0);
