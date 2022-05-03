@@ -8,6 +8,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <uuid.h>
+
 namespace beet {
 namespace asset {
 
@@ -17,6 +19,7 @@ enum class TextureType { Albedo, Normal, Metallic, Roughness, Occlusion, LAST };
 
 }  // namespace asset
 using namespace glm;
+using namespace uuids;
 
 using vec2i = vec<2, int>;
 using vec2u = vec<2, uint>;

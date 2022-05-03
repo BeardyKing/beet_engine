@@ -51,11 +51,7 @@ class Renderer : public Subsystem {
     std::shared_ptr<components::ShaderProgram> m_testShader;
     std::shared_ptr<components::Mesh> m_testMesh;
     std::shared_ptr<components::Texture> m_testTexture;
-
-    //=Camera=========
-    std::shared_ptr<components::Camera> m_testCamera;
-    std::shared_ptr<components::Transform> m_testCameraTransform;
-
+    
     //=Camera state===
 
     vec2d m_lastMousePosition = vec2d(0.0);
