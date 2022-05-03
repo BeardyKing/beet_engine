@@ -29,6 +29,7 @@ include_directories(beet
         third/glm/
         third/assimp/include
         third/stb/
+        third/entt/single_include
         )
 
 target_link_libraries(beet
@@ -38,6 +39,7 @@ target_link_libraries(beet
         glm
         assimp
         stb
+        EnTT::EnTT
         )
 
 #======= PROPERTIES ========#

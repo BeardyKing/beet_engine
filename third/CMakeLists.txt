@@ -37,3 +37,7 @@ add_subdirectory(assimp)
 
 project(stb)
 add_library(stb INTERFACE)
+
+#======= ENTT =========#
+
+add_subdirectory(entt)
