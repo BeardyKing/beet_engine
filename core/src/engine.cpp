@@ -5,9 +5,11 @@ namespace beet {
 Engine::Engine() {
     m_windowModule = std::make_shared<beet::Window>(1920, 1080, "beetroot", *this);
     m_rendererModule = std::make_shared<beet::Renderer>(*this);
+    m_editorCameraModule = std::make_shared<beet::EditorCameraController>(*this);
 
     // order dependent
     m_engineModules.emplace_back(m_windowModule);
+    m_engineModules.emplace_back(m_editorCameraModule);
     m_engineModules.emplace_back(m_rendererModule);
 
     for (auto& module : m_engineModules) {

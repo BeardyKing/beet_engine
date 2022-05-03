@@ -3,11 +3,13 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/assimp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/glfw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/imgui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/imguizmo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third/stduuid" vcs="Git" />
   </component>
 </project>

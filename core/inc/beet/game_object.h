@@ -111,6 +111,19 @@ class GameObject {
     }
 
     template <typename T>
+    static std::optional<GameObject> get_game_object_from_component(T& component) {
+        auto sceneOpt = Scene::get_active_scene();
+        if (!sceneOpt) {
+            return std::nullopt;
+        }
+
+        Scene& scene = sceneOpt.value();
+        entt::registry& registry = scene.m_registry;
+        entt::entity handle = entt::to_entity(registry, component);
+        return scene.get_game_object_from_handle(handle);
+    }
+
+    template <typename T>
     void remove_component() {
         BEET_ASSERT_MESSAGE(has_component<T>(), "GameObject does not have component");
 

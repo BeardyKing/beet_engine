@@ -33,17 +33,26 @@ void Renderer::on_awake() {
 Renderer::~Renderer() {}
 
 void Renderer::on_update(double deltaTime) {
-    using namespace components;
     clear_framebuffer(0);
-    const float aspectRatio = (float)m_engine.get_window_module().lock()->get_window_aspect_ratio();
-    if (glm::isnan(aspectRatio)) {
-        return;
-    }
     m_timePassed += (float)deltaTime;
 
-    auto input = m_engine.get_window_module().lock()->get_input_manager().get();
+    if (glm::isnan((float)m_engine.get_window_module().lock()->get_window_aspect_ratio())) {
+        return;
+    }
 
-    //=Camera=========
+    depth_pass(0);
+    shadow_pass(0);
+    color_pass(0);
+    transparent_pass(0);
+    post_process_pass(0);
+    gui_pass(0);
+}
+
+void Renderer::shadow_pass(uint16_t id) {}
+void Renderer::depth_pass(uint16_t id) {}
+void Renderer::color_pass(uint16_t id) {
+    using namespace components;
+
     auto sceneOpt = Scene::get_active_scene();
     if (!sceneOpt) {
         return;
@@ -52,11 +61,9 @@ void Renderer::on_update(double deltaTime) {
     entt::registry& registry = scene.get_registry();
 
     //=CAMERA===========================
+    auto cameras = registry.view<Transform, Camera, Name>();
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 proj = glm::mat4(1.0f);
-
-    auto cameras = registry.view<Transform, Camera, Name>();
-
     for (auto& cam : cameras) {
         auto goOpt = scene.get_game_object_from_handle(cam);
         if (!goOpt) {
@@ -68,100 +75,6 @@ void Renderer::on_update(double deltaTime) {
         Camera& camera = go.get_component<Camera>();
         Name& name = go.get_component<Name>();
 
-        //=Camera state===
-        if (input->key_pressed(KeyCode::E)) {
-            if (m_ePressed) {
-                m_lockState = !m_lockState;
-                m_engine.get_window_module().lock()->set_cursor_hide(m_lockState);
-            }
-            m_ePressed = false;
-        } else {
-            m_ePressed = true;
-        }
-
-        //= XYZ editor movement input
-
-        vec3 movementDirectionXYZ = vec3(0);
-
-        if (input->key_pressed(KeyCode::W)) {
-            movementDirectionXYZ += m_forward;
-        }
-        if (input->key_pressed(KeyCode::S)) {
-            movementDirectionXYZ += -m_forward;
-        }
-        if (input->key_pressed(KeyCode::A)) {
-            movementDirectionXYZ += -m_right;
-        }
-        if (input->key_pressed(KeyCode::D)) {
-            movementDirectionXYZ += m_right;
-        }
-        if (input->key_pressed(KeyCode::R)) {
-            movementDirectionXYZ += WORLD_UP;
-        }
-        if (input->key_pressed(KeyCode::F)) {
-            movementDirectionXYZ += -WORLD_UP;
-        }
-
-        vec3 speedTarget;
-        if (input->key_pressed(KeyCode::LeftShift)) {
-            speedTarget = m_maxMovementMultiplier;
-        } else {
-            speedTarget = m_minMovementMultiplier;
-        }
-        m_movementMultiplier = lerp(m_movementMultiplier, speedTarget, .15f);
-        m_keyboardDirection = movementDirectionXYZ;
-
-        bool skipCameraBehaviour = false;
-
-        vec2d currentMousePos = input->get_absolute_position();
-        if (glm::isinf(currentMousePos.x) || glm::isinf(currentMousePos.y)) {
-            skipCameraBehaviour = true;
-        }
-        m_mouseDelta = (currentMousePos - m_lastMousePosition);
-        if (m_lockState == false) {
-            skipCameraBehaviour = true;
-        }
-
-        auto rotation = transform.get_rotation_euler();
-
-        m_pitch = rotation.x;
-        m_yaw = rotation.y;
-        m_roll = rotation.z;
-
-        if (skipCameraBehaviour == false) {
-            //= CAMERA ROTATION
-            m_roll = 0.0f;
-            m_pitch -= ((float)m_mouseDelta.y * (float)m_mouseSensitivity.y) * (float)deltaTime;
-            m_yaw -= ((float)m_mouseDelta.x * (float)m_mouseSensitivity.x) * (float)deltaTime;
-
-            m_pitch = clamp(m_pitch, radians(-80.f), radians(80.f));
-            transform.set_rotation_euler(vec3(m_pitch, m_yaw, m_roll));
-
-            //= CALCULATE FORWARD VECTOR == // TODO STORE / CALC THESE IN TRANSFORM
-            glm::vec3 look;
-            look.x = cosf(m_pitch) * sinf(m_yaw);
-            look.y = sinf(m_pitch);
-            look.z = cosf(m_pitch) * cosf(m_yaw);
-
-            m_forward = normalize(look);
-
-            //= CALCULATE LOCAL RIGHT AND UP == // TODO STORE / CALC THESE IN TRANSFORM
-            m_right = normalize(cross(m_forward, vec3(0, 1, 0)));
-            m_up = normalize(cross(m_right, m_forward));
-
-            //= CAMERA MOVEMENT
-            vec3 position = transform.get_position();
-            vec3 nextPosition =
-                position + (m_keyboardDirection * m_movementMultiplier * m_moveSpeed * (float)deltaTime);
-            transform.set_position(nextPosition);
-
-            //= SET LOOK TARGET POSITION USING FORWARD VECTOR
-            vec3 targetPos = transform.get_position() + m_forward;
-            camera.set_look_target(targetPos);
-        }
-
-        m_lastMousePosition = currentMousePos;
-
         const glm::vec3 pos = transform.get_position();
         const glm::vec3 lookTarget = camera.get_look_target();
         const glm::vec3 up = transform.up();
@@ -170,26 +83,27 @@ void Renderer::on_update(double deltaTime) {
         const float zNear = camera.get_z_near();
         const float zFar = camera.get_z_far();
 
-        // Set view and projection matrix for view 0.
-        {
-            view = glm::lookAt(pos, lookTarget, up);
-            proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
-        }
+        const float aspectRatio = (float)m_engine.get_window_module().lock()->get_window_aspect_ratio();
+
+        view = glm::lookAt(pos, lookTarget, up);
+        proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
     }
 
-    //=Test cube======
     auto entities = registry.view<Transform, Mesh, Texture, ShaderProgram, Name>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
             continue;
         }
+
         GameObject go = goOpt.value();
         Transform& transform = go.get_component<Transform>();
         Mesh& mesh = go.get_component<Mesh>();
         Texture& texture = go.get_component<Texture>();
         ShaderProgram& shader = go.get_component<ShaderProgram>();
         Name& name = go.get_component<Name>();
+
+        // TODO MOVE TO MATERIAL COMPONENT
 
         m_modelLoc = glGetUniformLocation(shader.get_program(), "model");
         m_viewLoc = glGetUniformLocation(shader.get_program(), "view");
@@ -201,29 +115,16 @@ void Renderer::on_update(double deltaTime) {
         glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-        //=RENDER=======================
-
-        glCullFace(GL_BACK);
         texture.bind();
         glUseProgram(shader.get_program());
+
+        // TODO MOVE TO MATERIAL COMPONENT
+
+        //=RENDER=======================
+        glCullFace(GL_BACK);
         mesh.draw();
     }
-
-    depth_pass(0);
-    shadow_pass(0);
-    color_pass(0);
-    transparent_pass(0);
-    post_process_pass(0);
-    gui_pass(0);
 }
-void Renderer::on_late_update() {}
-void Renderer::on_destroy() {
-    log::debug("Renderer destroyed");
-}
-
-void Renderer::shadow_pass(uint16_t id) {}
-void Renderer::depth_pass(uint16_t id) {}
-void Renderer::color_pass(uint16_t id) {}
 void Renderer::gui_pass(uint16_t id) {}
 void Renderer::transparent_pass(uint16_t id) {}
 void Renderer::post_process_pass(uint16_t id) {}
@@ -239,6 +140,12 @@ void Renderer::clear_framebuffer(uint16_t id) {
 void Renderer::clear_all_framebuffer_objects() {
     // TODO when framebuffer manager in impl
     clear_framebuffer(0);
+}
+
+void Renderer::on_late_update() {}
+
+void Renderer::on_destroy() {
+    log::debug("Renderer destroyed");
 }
 
 }  // namespace beet
