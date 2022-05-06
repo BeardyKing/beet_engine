@@ -64,12 +64,13 @@ void Material::set_uniforms(mat4& model, mat4& view, mat4& projection) {
     // clang-format off
 
     // TODO SETUP UBO FOR VIEW PROJ
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],      1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::View],       1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Projection], 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],      1, GL_FALSE, value_ptr(model));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::View],       1, GL_FALSE, value_ptr(view));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Projection], 1, GL_FALSE, value_ptr(projection));
 
-    glUniform4f(m_uniformHandles[(size_t)UniformHandle::AlbedoColor],           m_albedoColor.r, m_albedoColor.g, m_albedoColor.b, m_albedoColor.a);
-    glUniform2f(m_uniformHandles[(size_t)UniformHandle::TextureTiling],         m_textureTiling.x, m_textureTiling.y);
+    glUniform4fv(m_uniformHandles[(size_t)UniformHandle::AlbedoColor],          1, value_ptr(m_albedoColor));
+    glUniform2fv(m_uniformHandles[(size_t)UniformHandle::TextureTiling],        1, value_ptr(m_textureTiling));
+
     glUniform1f(m_uniformHandles[(size_t)UniformHandle::AlbedoScalar],          m_albedoScalar);
     glUniform1f(m_uniformHandles[(size_t)UniformHandle::NormalScalar],          m_normalScalar);
     glUniform1f(m_uniformHandles[(size_t)UniformHandle::MetallicScalar],        m_metallicScalar);
