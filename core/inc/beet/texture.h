@@ -31,6 +31,8 @@ class Texture : public Asset {
     void bind(GLuint texUint = 0);
     void unbind(GLuint texUnit = 0);
 
+    GLuint get_texture_handle() { return m_textureHandle; }
+
    private:
     void internal_generate_solid_texture(const vec4& color, const std::string& name);
 

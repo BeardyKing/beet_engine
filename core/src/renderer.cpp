@@ -85,7 +85,7 @@ void Renderer::color_pass(uint16_t id) {
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
     }
 
-    auto entities = registry.view<Transform, Mesh, Texture, ShaderProgram, Name>();
+    auto entities = registry.view<Transform, Mesh, Texture, ShaderProgram, Name, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
@@ -95,24 +95,18 @@ void Renderer::color_pass(uint16_t id) {
         GameObject go = goOpt.value();
         Transform& transform = go.get_component<Transform>();
         Mesh& mesh = go.get_component<Mesh>();
-        Texture& texture = go.get_component<Texture>();
-        ShaderProgram& shader = go.get_component<ShaderProgram>();
+        Material& material = go.get_component<Material>();
         Name& name = go.get_component<Name>();
-
-        // TODO MOVE TO MATERIAL COMPONENT
-
-        m_modelLoc = glGetUniformLocation(shader.get_program(), "model");
-        m_viewLoc = glGetUniformLocation(shader.get_program(), "view");
-        m_projLoc = glGetUniformLocation(shader.get_program(), "projection");
 
         glm::mat4 model = transform.get_model_matrix();
 
-        glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+        //        glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //        glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        //        glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-        texture.bind();
-        glUseProgram(shader.get_program());
+        material.set_uniforms(model, view, proj);
+        //        texture.bind();
+        //        glUseProgram(shader.get_program());
 
         // TODO MOVE TO MATERIAL COMPONENT
 

@@ -28,6 +28,14 @@ Editor::Editor() {
         cubeObj.add_component<components::Mesh>("default_cube.obj").on_awake();
         cubeObj.add_component<components::Texture>("UV_Grid_test.png").on_awake();
         cubeObj.add_component<components::ShaderProgram>(shader).on_awake();
+        
+        auto material = components::Material();
+        material.set_texture_slot_path(TextureType::Albedo, "UV_Grid_test.png");
+        material.set_texture_slot_path(TextureType::Normal, "UV_Grid_test.png");
+        material.set_texture_slot_path(TextureType::Metallic, "UV_Grid_test.png");
+        material.set_texture_slot_path(TextureType::Roughness, "UV_Grid_test.png");
+        material.set_texture_slot_path(TextureType::Occlusion, "UV_Grid_test.png");
+        cubeObj.add_component<components::Material>(material);
     }
 }
 
