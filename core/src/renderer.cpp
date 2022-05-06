@@ -85,7 +85,7 @@ void Renderer::color_pass(uint16_t id) {
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
     }
 
-    auto entities = registry.view<Transform, Mesh, Texture, ShaderProgram, Name, Material>();
+    auto entities = registry.view<Transform, Mesh, Name, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
@@ -99,16 +99,7 @@ void Renderer::color_pass(uint16_t id) {
         Name& name = go.get_component<Name>();
 
         glm::mat4 model = transform.get_model_matrix();
-
-        //        glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //        glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        //        glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-
         material.set_uniforms(model, view, proj);
-        //        texture.bind();
-        //        glUseProgram(shader.get_program());
-
-        // TODO MOVE TO MATERIAL COMPONENT
 
         //=RENDER=======================
         glCullFace(GL_BACK);

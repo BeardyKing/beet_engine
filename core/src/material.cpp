@@ -1,11 +1,17 @@
 #include <beet/material.h>
+
 namespace beet {
 namespace components {
 Material::Material() {
     m_uniformHandles.fill(0);
     m_textureHandles.fill(0);
 }
-Material::~Material() {}
+
+void Material::on_destroy() {
+    m_shader.on_destroy();
+    m_uniformHandles.fill(0);
+    m_textureHandles.fill(0);
+}
 
 void Material::on_awake() {
     m_shader.set_asset_name("fallback");
@@ -53,7 +59,7 @@ void Material::on_awake() {
 
     // clang-format on
 }
-void Material::on_destroy() {}
+
 void Material::set_uniforms(mat4& model, mat4& view, mat4& projection) {
     // clang-format off
 

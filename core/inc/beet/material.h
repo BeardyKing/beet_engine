@@ -34,7 +34,7 @@ enum class UniformHandle {
 class Material : public Component<Material> {
    public:
     Material();
-    ~Material();
+    ~Material() = default;
 
     //=For ECS========
     void on_awake() override;
