@@ -105,11 +105,7 @@ void Renderer::color_pass(uint16_t id) {
         data.pointColor_pointIntensity = vec4(pointLight.get_color(), pointLight.get_intensity());
         m_lightData.emplace_back(data);
     }
-
-    //    for (int i = 0; i < 300; ++i) {
-    //        m_lightData.emplace_back(PackedPointLightData{vec4(1), vec4(1)});
-    //    }
-
+    // TODO consider passing in as 2 arrays/vectors as size and intensity is unlikely to be updated as often as position
     m_bufferData.update_point_light_data(m_lightData);
 
     auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
@@ -128,7 +124,6 @@ void Renderer::color_pass(uint16_t id) {
         glm::mat4 model = transform.get_model_matrix();
         material.set_uniforms(model, view, proj);
 
-        //=RENDER=======================
         glCullFace(GL_BACK);
         mesh.draw();
     }
