@@ -21,7 +21,7 @@ Editor::Editor() {
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 45, 0));
 
-        cubeObj.add_component<components::Mesh>("default_cube.obj").on_awake();
+        cubeObj.add_component<components::InstanceMesh>("default_cube.obj");
 
         auto material = components::Material();
         material.set_texture_slot_path(TextureType::Albedo, "UV_Grid_test.png");

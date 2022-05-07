@@ -30,11 +30,81 @@ void Mesh::on_destroy() {
     if (m_ibo) {
         glDeleteBuffers(1, &m_ibo);
     }
-    log::info("removed mesh : {}", m_fullPath);
+    log::debug("removed mesh : {}", m_fullPath);
 }
 
 void Mesh::generate_default_asset() {
-    log::error("generate default asset not impl");
+    m_assetState = AssetState::Loading;
+    m_fullPath = "fallbackMesh";
+
+    create_plane();
+
+    if (!m_vbo) {
+        log::error("VBO : fallbackMesh failed to be created");
+        m_assetState = AssetState::Failed;
+        return;
+    }
+
+    if (!m_ibo) {
+        log::error("IBO : fallbackMesh failed to be created");
+        m_assetState = AssetState::Failed;
+        return;
+    }
+
+    m_assetState = AssetState::Finished;
+    log::info("Fallback created");
+}
+
+void Mesh::create_plane() {
+    // clang-format off
+    m_vertexLayout.emplace_back(
+        VertexLayout{
+            vec3(-1.0f, 1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(0.0f, 1.0f),
+            vec3(0)});
+    m_vertexLayout.emplace_back(
+    VertexLayout{
+            vec3(-1.0f, -1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(0.0f, 0.0f),
+            vec3(0)});
+    m_vertexLayout.emplace_back(
+    VertexLayout{
+            vec3(1.0f, -1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(1.0f, 0.0f),
+            vec3(0)});
+    m_vertexLayout.emplace_back(
+        VertexLayout{
+            vec3(-1.0f, 1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(0.0f, 1.0f),
+            vec3(0)});
+    m_vertexLayout.emplace_back(
+        VertexLayout{
+            vec3(1.0f, -1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(1.0f, 0.0f),
+            vec3(0)});
+    m_vertexLayout.emplace_back(
+        VertexLayout{
+            vec3(1.0f, 1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f),
+            vec2(1.0f, 1.0f),
+            vec3(0)});
+    // clang-format on
+
+    m_indices.push_back(0);
+    m_indices.push_back(1);
+    m_indices.push_back(2);
+    m_indices.push_back(0);
+    m_indices.push_back(2);
+    m_indices.push_back(5);
+
+    log::debug("Fallback mesh loaded");
+
+    init_buffers();
 }
 
 bool Mesh::internal_load_obj(const std::string& path) {
@@ -97,7 +167,7 @@ bool Mesh::internal_load_obj(const std::string& path) {
         m_indices.push_back(face.mIndices[2]);
     }
 
-    log::debug("Model loaded at : {}", m_fullPath);
+    log::info("Model loaded at : {}", m_fullPath);
 
     init_buffers();
 

@@ -1,3 +1,4 @@
+#include <beet/asset_manager.h>
 #include <beet/material.h>
 
 namespace beet {
@@ -39,11 +40,11 @@ void Material::on_awake() {
     m_uniformHandles[(size_t)UniformHandle::AlphaCutoffEnabled] = glGetUniformLocation(program, "alphaCutoffEnabled");
     m_uniformHandles[(size_t)UniformHandle::AlphaCutoffAmount]  = glGetUniformLocation(program, "alphaCutoffAmount");
 
-    m_albedo    = std::make_shared<components::Texture>(m_textureSlotPath[(size_t)TextureType::Albedo]);
-    m_normal    = std::make_shared<components::Texture>(m_textureSlotPath[(size_t)TextureType::Normal]);
-    m_metallic  = std::make_shared<components::Texture>(m_textureSlotPath[(size_t)TextureType::Metallic]);
-    m_roughness = std::make_shared<components::Texture>(m_textureSlotPath[(size_t)TextureType::Roughness]);
-    m_occlusion = std::make_shared<components::Texture>(m_textureSlotPath[(size_t)TextureType::Occlusion]);
+    m_albedo    = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Albedo]).lock();
+    m_normal    = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Normal]).lock();
+    m_metallic  = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Metallic]).lock();
+    m_roughness = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Roughness]).lock();
+    m_occlusion = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Occlusion]).lock();
 
     m_albedo->on_awake();
     m_normal->on_awake();
@@ -64,9 +65,9 @@ void Material::set_uniforms(mat4& model, mat4& view, mat4& projection) {
     // clang-format off
 
     // TODO SETUP UBO FOR VIEW PROJ
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],      1, GL_FALSE, value_ptr(model));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::View],       1, GL_FALSE, value_ptr(view));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Projection], 1, GL_FALSE, value_ptr(projection));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],          1, GL_FALSE, value_ptr(model));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::View],           1, GL_FALSE, value_ptr(view));
+    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Projection],     1, GL_FALSE, value_ptr(projection));
 
     glUniform4fv(m_uniformHandles[(size_t)UniformHandle::AlbedoColor],          1, value_ptr(m_albedoColor));
     glUniform2fv(m_uniformHandles[(size_t)UniformHandle::TextureTiling],        1, value_ptr(m_textureTiling));

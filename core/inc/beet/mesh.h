@@ -37,6 +37,8 @@ class Mesh : public Asset {
     bool internal_load_obj(const std::string& path);
     void init_buffers();
 
+    void create_plane();
+
    private:
     std::vector<VertexLayout> m_vertexLayout;
     std::vector<unsigned int> m_indices;

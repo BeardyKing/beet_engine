@@ -85,7 +85,7 @@ void Renderer::color_pass(uint16_t id) {
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
     }
 
-    auto entities = registry.view<Transform, Mesh, Name, Material>();
+    auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
@@ -94,7 +94,7 @@ void Renderer::color_pass(uint16_t id) {
 
         GameObject go = goOpt.value();
         Transform& transform = go.get_component<Transform>();
-        Mesh& mesh = go.get_component<Mesh>();
+        InstanceMesh& mesh = go.get_component<InstanceMesh>();
         Material& material = go.get_component<Material>();
         Name& name = go.get_component<Name>();
 

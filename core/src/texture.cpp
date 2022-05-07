@@ -44,7 +44,7 @@ void Texture::load_texture_2d(const std::string& path, bool usingMipMaps, bool u
     std::string fullPath = PATH_TEXTURE + path;
     std::filesystem::path fsPath = fullPath;
 
-    log::info("Loading texture : {}", fullPath);
+    log::debug("Loading texture : {}", fullPath);
     if (!exists(fsPath)) {
         log::error(fullPath + " - does not Exist");
         m_textureHandle = 0;
@@ -108,7 +108,52 @@ void Texture::load_texture_2d(const std::string& path, bool usingMipMaps, bool u
 }
 
 void Texture::load_texture_hdri(const std::string& path) {
-    log::error("hdri texture loading not impl");
+    std::string fullPath = PATH_TEXTURE + path;
+    std::filesystem::path fsPath = fullPath;
+
+    log::debug("Loading texture : {}", fullPath);
+    if (!exists(fsPath)) {
+        log::error(fullPath + " - does not Exist");
+        m_textureHandle = 0;
+    }
+
+    auto imageData = stbi_load(fullPath.c_str(), &m_imageSize.x, &m_imageSize.y, &m_channels, 0);
+
+    if (!imageData) {
+        log::error("Failed to load image: {}", fsPath.string());
+        m_assetState = AssetState::Failed;
+        return;
+    }
+
+    glGenTextures(1, &m_textureHandle);
+
+    const GLenum format = GL_RGB16F;
+
+    glBindTexture(GL_TEXTURE_2D, m_textureHandle);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, m_imageSize.x, m_imageSize.y, 0, format, GL_UNSIGNED_BYTE, imageData);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    log::info("Texture loaded at path: {}", fullPath);
+
+    stbi_image_free(imageData);
+
+    if (!m_textureHandle) {
+        log::error("Error loading texture : {} - texture handle : {}", path, m_textureHandle);
+        m_assetState = AssetState::Failed;
+        return;
+    }
+
+    m_assetState = AssetState::Finished;
 }
 
 void Texture::generate_default_asset() {

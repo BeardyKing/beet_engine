@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <beet/asset_manager.h>
 #include <beet/editor_camera.h>
 #include <beet/renderer.h>
 #include <beet/window.h>
@@ -30,6 +31,7 @@ class Engine {
     std::shared_ptr<Renderer> m_rendererModule;
     std::shared_ptr<Window> m_windowModule;
     std::shared_ptr<EditorCameraController> m_editorCameraModule;
+    std::shared_ptr<AssetManager> m_assetManager;
 };
 
 }  // namespace beet
