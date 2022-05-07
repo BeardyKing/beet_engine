@@ -21,6 +21,11 @@ enum class TextureType { Albedo, Normal, Metallic, Roughness, Occlusion, LAST };
 using namespace glm;
 using namespace uuids;
 
+struct PackedPointLightData {
+    vec4 pointPosition_pointRange;
+    vec4 pointColor_pointIntensity;
+};
+
 using vec2i = vec<2, int>;
 using vec2u = vec<2, uint>;
 using vec2d = vec<2, double>;

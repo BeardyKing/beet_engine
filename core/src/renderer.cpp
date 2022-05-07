@@ -25,11 +25,7 @@ void Renderer::on_awake() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    glGenBuffers(1, &m_uboMatrices);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrices);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STATIC_DRAW);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uboMatrices, 0, sizeof(glm::mat4) * 2);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    m_bufferData.init();
 }
 
 Renderer::~Renderer() {}
@@ -89,13 +85,32 @@ void Renderer::color_pass(uint16_t id) {
 
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
+
+        m_bufferData.update_view_projection_data(view, proj, pos);
     }
 
-    // UPDATE MATRIX DATA
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrices);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    auto lights = registry.view<Transform, PointLight>();
+    std::vector<PackedPointLightData> m_lightData;
+    for (auto& e : lights) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+        GameObject go = goOpt.value();
+        Transform& transform = go.get_component<Transform>();
+        PointLight& pointLight = go.get_component<PointLight>();
+
+        PackedPointLightData data{};
+        data.pointPosition_pointRange = vec4(transform.get_position(), pointLight.get_range());
+        data.pointColor_pointIntensity = vec4(pointLight.get_color(), pointLight.get_intensity());
+        m_lightData.emplace_back(data);
+    }
+
+    //    for (int i = 0; i < 300; ++i) {
+    //        m_lightData.emplace_back(PackedPointLightData{vec4(1), vec4(1)});
+    //    }
+
+    m_bufferData.update_point_light_data(m_lightData);
 
     auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
     for (auto& e : entities) {

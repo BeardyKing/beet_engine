@@ -12,8 +12,6 @@ namespace components {
 
 enum class UniformHandle {
     Model,
-    View,
-    Projection,
     AlbedoColor,
     TextureTiling,
     AlbedoScalar,

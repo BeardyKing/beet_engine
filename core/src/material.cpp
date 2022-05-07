@@ -20,34 +20,33 @@ void Material::on_awake() {
 
     auto program = m_shader.get_program();
 
-    GLuint m_uniformBlockIndex = glGetUniformBlockIndex(program, "Matrices");
-    glUniformBlockBinding(program, m_uniformBlockIndex, 0);
+    GLuint uboMatrixIndex = glGetUniformBlockIndex(program, "Matrices");
+    glUniformBlockBinding(program, uboMatrixIndex, 0);
 
-    // clang-format off
-    //TODO SETUP UBO
-    m_uniformHandles[(size_t)UniformHandle::View]               = glGetUniformLocation(program, "view");
-    m_uniformHandles[(size_t)UniformHandle::Projection]         = glGetUniformLocation(program, "projection");
-    //TODO SETUP UBO
+    GLuint uboPointLightIndex = glGetUniformBlockIndex(program, "PointLights");
+    glUniformBlockBinding(program, uboPointLightIndex, 1);
 
-    m_uniformHandles[(size_t)UniformHandle::Model]              = glGetUniformLocation(program, "model");
-    m_uniformHandles[(size_t)UniformHandle::AlbedoColor]        = glGetUniformLocation(program, "albedoColor");
-    m_uniformHandles[(size_t)UniformHandle::TextureTiling]      = glGetUniformLocation(program, "textureTiling");
-    m_uniformHandles[(size_t)UniformHandle::AlbedoScalar]       = glGetUniformLocation(program, "albedoScalar");
-    m_uniformHandles[(size_t)UniformHandle::NormalScalar]       = glGetUniformLocation(program, "normalScalar");
-    m_uniformHandles[(size_t)UniformHandle::MetallicScalar]     = glGetUniformLocation(program, "metallicScalar");
-    m_uniformHandles[(size_t)UniformHandle::RoughnessScalar]    = glGetUniformLocation(program, "roughnessScalar");
-    m_uniformHandles[(size_t)UniformHandle::OcclusionScalar]    = glGetUniformLocation(program, "occlusionScalar");
-    m_uniformHandles[(size_t)UniformHandle::SkyboxScalar]       = glGetUniformLocation(program, "skyboxScalar");
-    m_uniformHandles[(size_t)UniformHandle::CastShadows]        = glGetUniformLocation(program, "castShadows");
-    m_uniformHandles[(size_t)UniformHandle::ReceivesShadows]    = glGetUniformLocation(program, "receivesShadows");
+    m_uniformHandles[(size_t)UniformHandle::Model] = glGetUniformLocation(program, "model");
+    m_uniformHandles[(size_t)UniformHandle::AlbedoColor] = glGetUniformLocation(program, "albedoColor");
+    m_uniformHandles[(size_t)UniformHandle::TextureTiling] = glGetUniformLocation(program, "textureTiling");
+    m_uniformHandles[(size_t)UniformHandle::AlbedoScalar] = glGetUniformLocation(program, "albedoScalar");
+    m_uniformHandles[(size_t)UniformHandle::NormalScalar] = glGetUniformLocation(program, "normalScalar");
+    m_uniformHandles[(size_t)UniformHandle::MetallicScalar] = glGetUniformLocation(program, "metallicScalar");
+    m_uniformHandles[(size_t)UniformHandle::RoughnessScalar] = glGetUniformLocation(program, "roughnessScalar");
+    m_uniformHandles[(size_t)UniformHandle::OcclusionScalar] = glGetUniformLocation(program, "occlusionScalar");
+    m_uniformHandles[(size_t)UniformHandle::SkyboxScalar] = glGetUniformLocation(program, "skyboxScalar");
+    m_uniformHandles[(size_t)UniformHandle::CastShadows] = glGetUniformLocation(program, "castShadows");
+    m_uniformHandles[(size_t)UniformHandle::ReceivesShadows] = glGetUniformLocation(program, "receivesShadows");
     m_uniformHandles[(size_t)UniformHandle::AlphaCutoffEnabled] = glGetUniformLocation(program, "alphaCutoffEnabled");
-    m_uniformHandles[(size_t)UniformHandle::AlphaCutoffAmount]  = glGetUniformLocation(program, "alphaCutoffAmount");
+    m_uniformHandles[(size_t)UniformHandle::AlphaCutoffAmount] = glGetUniformLocation(program, "alphaCutoffAmount");
 
-    m_albedo    = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Albedo]).lock();
-    m_normal    = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Normal]).lock();
-    m_metallic  = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Metallic]).lock();
-    m_roughness = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Roughness]).lock();
-    m_occlusion = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Occlusion]).lock();
+    m_albedo = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Albedo]).lock();
+    m_normal = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Normal]).lock();
+    m_metallic = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Metallic]).lock();
+    m_roughness =
+        AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Roughness]).lock();
+    m_occlusion =
+        AssetManager::load_asset<components::Texture>(m_textureSlotPath[(size_t)TextureType::Occlusion]).lock();
 
     m_albedo->on_awake();
     m_normal->on_awake();
@@ -55,9 +54,9 @@ void Material::on_awake() {
     m_roughness->on_awake();
     m_occlusion->on_awake();
 
-    m_textureHandles[(size_t)TextureType::Albedo]    = m_albedo->get_texture_handle();
-    m_textureHandles[(size_t)TextureType::Normal]    = m_normal->get_texture_handle();
-    m_textureHandles[(size_t)TextureType::Metallic]  = m_metallic->get_texture_handle();
+    m_textureHandles[(size_t)TextureType::Albedo] = m_albedo->get_texture_handle();
+    m_textureHandles[(size_t)TextureType::Normal] = m_normal->get_texture_handle();
+    m_textureHandles[(size_t)TextureType::Metallic] = m_metallic->get_texture_handle();
     m_textureHandles[(size_t)TextureType::Roughness] = m_roughness->get_texture_handle();
     m_textureHandles[(size_t)TextureType::Occlusion] = m_occlusion->get_texture_handle();
 
@@ -67,10 +66,7 @@ void Material::on_awake() {
 void Material::set_uniforms(mat4& model, mat4& view, mat4& projection) {
     // clang-format off
 
-    // TODO SETUP UBO FOR VIEW PROJ
     glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],          1, GL_FALSE, value_ptr(model));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::View],           1, GL_FALSE, value_ptr(view));
-    glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Projection],     1, GL_FALSE, value_ptr(projection));
 
     glUniform4fv(m_uniformHandles[(size_t)UniformHandle::AlbedoColor],          1, value_ptr(m_albedoColor));
     glUniform2fv(m_uniformHandles[(size_t)UniformHandle::TextureTiling],        1, value_ptr(m_textureTiling));

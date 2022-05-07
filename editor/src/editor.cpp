@@ -31,6 +31,31 @@ Editor::Editor() {
         material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
         cubeObj.add_component<components::Material>(material);
     }
+
+    {
+        auto light = m_scene->create_game_object("loaded_cube");
+        auto& pointLight = light.add_component<components::PointLight>();
+        light.get_component<components::Transform>().set_position(glm::vec3(1, 0, 1));
+        pointLight.set_color(vec3(1, 0, 0));
+        pointLight.set_intensity(3);
+        pointLight.set_range(10);
+    }
+    {
+        auto light = m_scene->create_game_object("loaded_cube");
+        auto& pointLight = light.add_component<components::PointLight>();
+        light.get_component<components::Transform>().set_position(glm::vec3(0, 0, 1));
+        pointLight.set_color(vec3(0, 1, 0));
+        pointLight.set_intensity(3);
+        pointLight.set_range(10);
+    }
+    {
+        auto light = m_scene->create_game_object("loaded_cube");
+        auto& pointLight = light.add_component<components::PointLight>();
+        light.get_component<components::Transform>().set_position(glm::vec3(1, 0, 0));
+        pointLight.set_color(vec3(0, 0, 1));
+        pointLight.set_intensity(3);
+        pointLight.set_range(10);
+    }
 }
 
 void Editor::run() {

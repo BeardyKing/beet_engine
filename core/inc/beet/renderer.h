@@ -7,6 +7,7 @@
 #include <beet/subsystem.h>
 #include <beet/texture.h>
 #include <beet/transform.h>
+#include <beet/universal_buffer_data.h>
 
 namespace beet {
 class Engine;
@@ -47,6 +48,8 @@ class Renderer : public Subsystem {
     void clear_all_framebuffer_objects();
 
     Engine& m_engine;
+    UniversalBufferData m_bufferData;
+    
     GLuint m_uboMatrices{0};
 
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
