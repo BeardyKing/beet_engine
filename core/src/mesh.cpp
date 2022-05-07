@@ -167,7 +167,7 @@ bool Mesh::internal_load_obj(const std::string& path) {
         m_indices.push_back(face.mIndices[2]);
     }
 
-    log::info("Model loaded at : {}", m_fullPath);
+    log::info("Model loaded at : {}", fileName);
 
     init_buffers();
 

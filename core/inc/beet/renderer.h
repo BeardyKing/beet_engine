@@ -47,6 +47,7 @@ class Renderer : public Subsystem {
     void clear_all_framebuffer_objects();
 
     Engine& m_engine;
+    GLuint m_uboMatrices{0};
 
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
     float m_timePassed{0.0f};

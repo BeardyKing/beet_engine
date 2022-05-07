@@ -24,6 +24,12 @@ void Renderer::on_awake() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+
+    glGenBuffers(1, &m_uboMatrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrices);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STATIC_DRAW);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uboMatrices, 0, sizeof(glm::mat4) * 2);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 Renderer::~Renderer() {}
@@ -84,6 +90,12 @@ void Renderer::color_pass(uint16_t id) {
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
     }
+
+    // UPDATE MATRIX DATA
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrices);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
     for (auto& e : entities) {

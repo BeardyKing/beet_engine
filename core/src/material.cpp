@@ -20,6 +20,9 @@ void Material::on_awake() {
 
     auto program = m_shader.get_program();
 
+    GLuint m_uniformBlockIndex = glGetUniformBlockIndex(program, "Matrices");
+    glUniformBlockBinding(program, m_uniformBlockIndex, 0);
+
     // clang-format off
     //TODO SETUP UBO
     m_uniformHandles[(size_t)UniformHandle::View]               = glGetUniformLocation(program, "view");

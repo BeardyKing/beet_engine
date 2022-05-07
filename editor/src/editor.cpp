@@ -25,10 +25,10 @@ Editor::Editor() {
 
         auto material = components::Material();
         material.set_texture_slot_path(TextureType::Albedo, "UV_Grid_test.png");
-        material.set_texture_slot_path(TextureType::Normal, "UV_Grid_test.png");
-        material.set_texture_slot_path(TextureType::Metallic, "UV_Grid_test.png");
-        material.set_texture_slot_path(TextureType::Roughness, "UV_Grid_test.png");
-        material.set_texture_slot_path(TextureType::Occlusion, "UV_Grid_test.png");
+        material.set_texture_slot_path(TextureType::Normal, "normal_tiles_1k.png");
+        material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
         cubeObj.add_component<components::Material>(material);
     }
 }
