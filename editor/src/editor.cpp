@@ -35,9 +35,9 @@ Editor::Editor() {
     {
         auto light = m_scene->create_game_object("pLight0");
         auto& pointLight = light.add_component<components::PointLight>();
-        light.get_component<components::Transform>().set_position(glm::vec3(0, 0, 1));
+        light.get_component<components::Transform>().set_position(glm::vec3(-2, -1, 1));
         light.get_component<components::Transform>().set_scale(glm::vec3(0.2f));
-        pointLight.set_color(vec3(150.0f));
+        pointLight.set_color(vec3(0, 1, 0));
         pointLight.set_intensity(3);
         pointLight.set_range(10);
 
@@ -54,10 +54,10 @@ Editor::Editor() {
     {
         auto light = m_scene->create_game_object("pLight1");
         auto& pointLight = light.add_component<components::PointLight>();
-        light.get_component<components::Transform>().set_position(glm::vec3(0, 0, -1.5));
+        light.get_component<components::Transform>().set_position(glm::vec3(-1.5f, 0, -1.5f));
         light.get_component<components::Transform>().set_scale(glm::vec3(0.2f));
 
-        pointLight.set_color(vec3(150.0f));
+        pointLight.set_color(vec3(0, 1, 1));
         pointLight.set_intensity(3);
         pointLight.set_range(10);
 
@@ -74,9 +74,9 @@ Editor::Editor() {
     {
         auto light = m_scene->create_game_object("pLight2");
         auto& pointLight = light.add_component<components::PointLight>();
-        light.get_component<components::Transform>().set_position(glm::vec3(1.5, 0, -1.5));
+        light.get_component<components::Transform>().set_position(glm::vec3(1.5f));
         light.get_component<components::Transform>().set_scale(glm::vec3(0.2f));
-        pointLight.set_color(vec3(150.0f));
+        pointLight.set_color(vec3(1, 1, 0));
         pointLight.set_intensity(3);
         pointLight.set_range(10);
 
