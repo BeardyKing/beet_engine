@@ -119,8 +119,8 @@ bool Mesh::internal_load_obj(const std::string& path) {
 
     Assimp::Importer importer;
 
-    const aiScene* scene =
-        importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+    const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+                                                                   aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
     if (!scene) {
         log::error("Failed to load mesh : {}", fileName);
         log::debug("Generating default asset");

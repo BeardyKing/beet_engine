@@ -1,6 +1,7 @@
 #pragma once
 
 #include <beet/assert.h>
+#include <beet/component.h>
 #include <beet/scene.h>
 #include <beet/transform.h>
 #include <beet/types.h>
@@ -26,44 +27,12 @@ class UUIDGenerator {
     std::mt19937 m_randomGenerator;
 };
 
-template <typename T>
-class HasOnAwake {
-    typedef char one;
-    struct two {
-        char x[2];
-    };
-
-    template <typename C>
-    static one test(decltype(&C::on_awake));
-    template <typename C>
-    static two test(...);
-
-   public:
-    enum { value = sizeof(test<T>(0)) == sizeof(char) };
-};
-
-template <typename T>
-class HasOnDestroy {
-    typedef char one;
-    struct two {
-        char x[2];
-    };
-
-    template <typename C>
-    static one test(decltype(&C::on_destroy));
-    template <typename C>
-    static two test(...);
-
-   public:
-    enum { value = sizeof(test<T>(0)) == sizeof(char) };
-};
-
 class GameObject {
    public:
     GameObject(entt::entity handle, Scene& scene);
 
-    inline bool operator==(const GameObject& other) const { return m_id == other.m_id; }
-    inline bool operator!=(const GameObject& other) const { return m_id != other.m_id; }
+    inline bool operator==(const GameObject& other) const { return this->get_id() == other.get_id(); }
+    inline bool operator!=(const GameObject& other) const { return this->get_id() != other.get_id(); }
 
     const uuid get_id() const;
     const entt::entity get_handle() const;
@@ -144,23 +113,23 @@ class GameObject {
     struct enable_if<false, T> {};
 
     template <typename T>
-    typename enable_if<HasOnAwake<T>::value>::type call_on_awake(T& t) {
+    typename enable_if<std::is_base_of<Component<T>, T>::value>::type call_on_awake(T& t) {
         t.on_awake();
     }
 
     template <typename T>
-    typename enable_if<!HasOnAwake<T>::value>::type call_on_awake(T&) {}
+    typename enable_if<!std::is_base_of<Component<T>, T>::value>::type call_on_awake(T& t) {}
 
     template <typename T>
-    typename enable_if<HasOnDestroy<T>::value>::type call_on_destroy(T& t) {
+    typename enable_if<std::is_base_of<Component<T>, T>::value>::type call_on_destroy(T& t) {
         t.on_destroy();
     }
 
     template <typename T>
-    typename enable_if<!HasOnDestroy<T>::value>::type call_on_destroy(T&) {}
+    typename enable_if<!std::is_base_of<Component<T>, T>::value>::type call_on_destroy(T&) {}
 
-    uuid m_id;
     entt::entity m_handle;
+
     std::reference_wrapper<Scene> m_scene;
 
     inline static UUIDGenerator s_uuidGenerator;
@@ -175,16 +144,19 @@ class Hierarchy {
     Hierarchy(GameObject parent, const std::vector<GameObject>& children);
     Hierarchy(const std::vector<GameObject>& children);
 
-    std::optional<GameObject> get_parent() const;
+    std::optional<uuid> get_parent() const;
+    bool has_parent() const;
+    void set_parent(GameObject parent);
 
     bool has_children() const;
-    std::vector<GameObject> get_children() const;
+    bool has_child(uuid id) const;
+    std::vector<uuid> get_children() const;
     void add_child(GameObject child);
     void remove_child(GameObject child);
 
    protected:
-    std::optional<GameObject> m_parent;
-    std::vector<GameObject> m_children;
+    uuid m_parent;
+    std::vector<uuid> m_children;
 };
 
 class Name {
@@ -196,9 +168,10 @@ class Name {
 
     inline bool operator==(const Name& other) const { return name == other.name; }
     inline bool operator!=(const Name& other) const { return name != other.name; }
+    std::string get_name() { return name; }
 
    private:
-    friend class beet::Scene;
+    friend class Scene;
 
     static constexpr const char* DEFAULT_NAME = "GameObject";
 };

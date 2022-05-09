@@ -1,6 +1,7 @@
 #pragma once
 
 #include <beet/camera.h>
+#include <beet/components.h>
 #include <beet/log.h>
 #include <beet/mesh.h>
 #include <beet/shader_program.h>
@@ -8,6 +9,7 @@
 #include <beet/texture.h>
 #include <beet/transform.h>
 #include <beet/universal_buffer_data.h>
+#include <entt/entt.hpp>
 
 namespace beet {
 class Engine;
@@ -46,10 +48,11 @@ class Renderer : public Subsystem {
    private:
     void clear_framebuffer(uint16_t id = 0);
     void clear_all_framebuffer_objects();
+    entt::registry test_registry;
 
     Engine& m_engine;
     UniversalBufferData m_bufferData;
-    
+
     GLuint m_uboMatrices{0};
 
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};

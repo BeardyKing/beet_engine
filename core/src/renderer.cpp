@@ -85,7 +85,6 @@ void Renderer::color_pass(uint16_t id) {
 
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
-
         m_bufferData.update_view_projection_data(view, proj, pos);
     }
 
@@ -122,7 +121,7 @@ void Renderer::color_pass(uint16_t id) {
         Name& name = go.get_component<Name>();
 
         glm::mat4 model = transform.get_model_matrix();
-        material.set_uniforms(model, view, proj);
+        material.set_uniforms(model);
 
         glCullFace(GL_BACK);
         mesh.draw();

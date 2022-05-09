@@ -3,26 +3,30 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 
-out vec2 TexCoords;
+layout (std140) uniform Matrices{
+    mat4 projection;
+    mat4 view;
+    vec3 viewPos;
+};
 
-out VS_OUT {
-    vec3 FragPos;
-    vec3 Normal;
-    vec2 TexCoords;
-    vec4 FragPosLightSpace;
-} vs_out;
-
-uniform mat4 projection;
-uniform mat4 view;
 uniform mat4 model;
 uniform mat4 lightSpaceMatrix;
-uniform vec2 textureScale;
+uniform vec2 textureTiling;
+
+out VS_OUT {
+    vec3 fragPos;
+    vec3 normal;
+    vec2 texCoords;
+    vec4 fragPosLightSpace;
+} vs_out;
+
+
 
 void main()
 {
-    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
-    vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
-    vs_out.TexCoords = vec2(aTexCoords.x * textureScale.x, aTexCoords.y * textureScale.y);
-    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    vs_out.fragPos = vec3(model * vec4(aPos, 1.0));
+    vs_out.normal = transpose(inverse(mat3(model))) * aNormal;
+    vs_out.texCoords = vec2(aTexCoords.x * textureTiling.x, aTexCoords.y * textureTiling.y);
+    vs_out.fragPosLightSpace = lightSpaceMatrix * vec4(vs_out.fragPos, 1.0);
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }

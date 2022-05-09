@@ -1,4 +1,6 @@
+#include <beet/components.h>
 #include <beet/game_object.h>
+#include <beet/instance_mesh.h>
 #include <beet/log.h>
 #include <beet/scene.h>
 #include <beet/transform.h>
@@ -10,10 +12,18 @@ entt::registry& Scene::get_registry() {
 }
 
 Scene::~Scene() {
+    unload();
+}
+
+void Scene::unload() {
     while (!m_entityGameObjectMap.empty()) {
         auto it = m_entityGameObjectMap.begin();
         remove_game_object(it->second);
     }
+
+    m_registry.clear();
+    m_uuidGameObjectMap.clear();
+    m_entityGameObjectMap.clear();
 }
 
 GameObject Scene::create_game_object(const std::string& name) {
@@ -24,63 +34,54 @@ GameObject Scene::create_game_object(const std::string& name) {
     std::string n = name.empty() ? components::Name::DEFAULT_NAME : name;
     e.add_component<components::Name>(n);
 
-    m_uuidGameObjectMap.insert(std::make_pair(e.m_id, e));
+    m_uuidGameObjectMap.insert(std::make_pair(e.get_id(), e));
     m_entityGameObjectMap.insert(std::make_pair(e.m_handle, e));
 
-    log::debug("Created game object with id {}", to_string(e.m_id));
+    log::debug("Created game object with id {} - name : {}", to_string(e.get_id()), name);
 
     return e;
 }
 
 void Scene::remove_game_object(GameObject game_object) {
     BEET_ASSERT_MESSAGE(m_registry.valid(game_object.m_handle),
-                        "Trying to remove Game object with id {}, which is not valid", to_string(game_object.m_id));
+                        "Trying to remove Game object with id {}, which is not valid", to_string(game_object.get_id()));
+
+    uuid id = game_object.get_id();
 
     if (game_object.has_component<components::Hierarchy>()) {
         auto& hierarchy = game_object.get_component<components::Hierarchy>();
-        if (hierarchy.has_children()) {
-            for (auto& child : hierarchy.get_children()) {
-                remove_game_object(child);
+
+        auto parentIdOpt = hierarchy.get_parent();
+        if (parentIdOpt) {
+            auto parentOpt = get_game_object_from_id(parentIdOpt.value());
+            if (parentOpt) {
+                parentOpt.value().get_component<components::Hierarchy>().remove_child(game_object);
             }
         }
 
-        auto parentOpt = hierarchy.get_parent();
-        if (parentOpt) {
-            GameObject parent = parentOpt.value();
-            parent.get_component<components::Hierarchy>().remove_child(game_object);
+        if (hierarchy.has_children()) {
+            for (auto& childId : hierarchy.get_children()) {
+                auto childOpt = get_game_object_from_id(childId);
+                if (!childOpt) {
+                    continue;
+                }
+                remove_game_object(childOpt.value());
+            }
         }
     }
 
-    for (auto [id, pool] : m_registry.storage()) {
-        using namespace entt::literals;
-
-        if (!pool.contains(game_object.m_handle)) {
-            continue;
-        }
-
-        auto meta = entt::resolve(id);
-        if (!meta) {
-            log::debug("Could not resolve meta for id {}", id);
-            continue;
-        }
-
-        auto removeComponent = meta.func("on_destroy"_hs);
-        if (!removeComponent) {
-            log::debug("Could not find remove_component function for id {}", id);
-            continue;
-        }
-
-        removeComponent.invoke(game_object.m_handle);
-    }
-
-    m_uuidGameObjectMap.erase(game_object.m_id);
+    m_uuidGameObjectMap.erase(game_object.get_id());
     m_entityGameObjectMap.erase(game_object.m_handle);
 
     m_registry.destroy(game_object.m_handle);
-    log::debug("Removed game object with id {}", to_string(game_object.m_id));
+
+    log::debug("Removed game object with id {}", to_string(id));
 }
 
 std::optional<GameObject> Scene::get_game_object_from_id(uuid id) {
+    if (id.is_nil())
+        return std::nullopt;
+
     auto it = m_uuidGameObjectMap.find(id);
     if (it == m_uuidGameObjectMap.end()) {
         return std::nullopt;
@@ -89,6 +90,9 @@ std::optional<GameObject> Scene::get_game_object_from_id(uuid id) {
 }
 
 std::optional<GameObject> Scene::get_game_object_from_handle(entt::entity handle) {
+    if (handle == entt::null || handle == entt::tombstone)
+        return std::nullopt;
+
     auto it = m_entityGameObjectMap.find(handle);
     if (it == m_entityGameObjectMap.end()) {
         return std::nullopt;
@@ -104,16 +108,17 @@ void Scene::set_active_scene(std::optional<std::reference_wrapper<Scene>> scene)
     s_activeScene = std::ref(scene);
 }
 
-template <typename T>
-std::optional<GameObject> Scene::get_game_object_from_component(T& component) {
-    auto sceneOpt = get_active_scene();
-    if (!sceneOpt) {
-        return std::nullopt;
-    }
+GameObject Scene::add_game_object(entt::entity handle) {
+    GameObject e(handle, *this);
 
-    Scene& scene = sceneOpt.value();
-    entt::entity handle = entt::to_entity(scene.m_registry, component);
-    return scene.get_game_object_from_handle(handle);
+    m_uuidGameObjectMap.insert(std::make_pair(e.get_id(), e));
+    m_entityGameObjectMap.insert(std::make_pair(e.m_handle, e));
+
+    return e;
+}
+
+void Scene::add_to_postLoadBuffer(std::function<void()> func) {
+    postLoadBuffer.emplace_back(func);
 }
 
 }  // namespace beet

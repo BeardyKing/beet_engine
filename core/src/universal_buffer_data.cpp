@@ -1,3 +1,4 @@
+#include <beet/log.h>
 #include <beet/universal_buffer_data.h>
 
 namespace beet {

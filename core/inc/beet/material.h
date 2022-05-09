@@ -5,6 +5,7 @@
 #include <beet/shader_program.h>
 #include <beet/texture.h>
 #include <beet/types.h>
+#include <array>
 
 namespace beet {
 namespace components {
@@ -32,6 +33,7 @@ enum class UniformHandle {
 class Material : public Component<Material> {
    public:
     Material();
+    Material(std::array<std::string, 5> textures);
     ~Material() = default;
 
     //=For ECS========
@@ -41,12 +43,12 @@ class Material : public Component<Material> {
 
     void set_texture_slot_path(TextureType slot, const std::string& path);
 
-    void set_uniforms(mat4& model, mat4& view, mat4& projection);
+    void set_uniforms(const mat4& model);
     GLuint get_program() { return m_shader.get_program(); };
 
    private:
     std::array<GLint, (size_t)UniformHandle::LAST> m_uniformHandles;
-    std::array<GLuint, (size_t)TextureType::LAST> m_textureHandles;
+    std::array<GLint, (size_t)TextureType::LAST> m_textureHandles;
 
    private:
     std::shared_ptr<Texture> m_albedo;
