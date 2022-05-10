@@ -2,11 +2,13 @@
 
 #include "demo_widget.h"
 #include "hierarchy_widget.h"
+#include "inspector_widget.h"
 
 namespace beet {
 EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
     add_widget(std::make_shared<DemoWidget>("Demo widget"));
     add_widget(std::make_shared<HierarchyWidget>("Hierarchy widget", *this));
+    add_widget(std::make_shared<InspectorWidget>("Inspector Widget", *this));
 }
 
 void EditorWidgets::add_widget(std::shared_ptr<Widget> widget) {
