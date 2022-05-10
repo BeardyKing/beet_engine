@@ -42,6 +42,7 @@ target_link_libraries(beet
         stb
         EnTT::EnTT
         stduuid
+        imgui
         )
 
 #======= PROPERTIES ========#

@@ -22,6 +22,22 @@ void Renderer::on_awake() {
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 
+    glEnable(GL_MULTISAMPLE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
+
+    glClearStencil(0);
+    glClearDepth(1.0f);
+    glDepthFunc(GL_LEQUAL);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 

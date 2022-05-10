@@ -45,3 +45,22 @@ add_subdirectory(entt)
 #====== STDUUID =======#
 set(UUID_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(stduuid)
+
+#======= IMGUI ========#
+
+project(imgui)
+file(GLOB IMGUI_SOURCES
+        imgui/imgui.cpp
+        imgui/imgui_draw.cpp
+        imgui/imgui_tables.cpp
+        imgui/imgui_widgets.cpp
+        imgui/imgui_demo.cpp
+        imgui/backends/imgui_impl_glfw.cpp
+        imgui/backends/imgui_impl_opengl3.cpp
+        )
+add_library(imgui ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends)
+target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/)
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCES})
+

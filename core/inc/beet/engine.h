@@ -11,6 +11,10 @@
 #include <beet/window.h>
 
 namespace beet {
+class EditorWidgets;
+}
+
+namespace beet {
 class Engine {
    public:
     Engine();
@@ -32,6 +36,7 @@ class Engine {
     std::shared_ptr<Window> m_windowModule;
     std::shared_ptr<EditorCameraController> m_editorCameraModule;
     std::shared_ptr<AssetManager> m_assetManager;
+    std::shared_ptr<EditorWidgets> m_widgetModule;
 };
 
 }  // namespace beet

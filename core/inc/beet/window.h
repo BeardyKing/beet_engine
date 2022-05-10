@@ -36,6 +36,7 @@ class Window : public Subsystem {
     void toggle_fullscreen();
 
     void set_cursor_hide(bool state);
+    GLFWwindow* get_glfw_window() { return m_window; };
 
    protected:
     void setup_callbacks();
