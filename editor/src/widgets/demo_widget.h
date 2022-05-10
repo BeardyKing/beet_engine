@@ -10,9 +10,6 @@ class DemoWidget : public Widget {
     DemoWidget(const std::string& name);
     ~DemoWidget();
     void on_widget_render() override;
-
-   private:
-    bool m_isActive{true};
 };
 
 }  // namespace beet

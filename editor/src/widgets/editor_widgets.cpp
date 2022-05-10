@@ -1,10 +1,12 @@
 #include "editor_widgets.h"
 
-#include "widgets/demo_widget.h"
+#include "demo_widget.h"
+#include "hierarchy_widget.h"
 
 namespace beet {
 EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
     add_widget(std::make_shared<DemoWidget>("Demo widget"));
+    add_widget(std::make_shared<HierarchyWidget>("Hierarchy widget", *this));
 }
 
 void EditorWidgets::add_widget(std::shared_ptr<Widget> widget) {
@@ -49,8 +51,10 @@ void EditorWidgets::on_late_update() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
     }
 }
 void EditorWidgets::on_destroy() {

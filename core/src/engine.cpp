@@ -1,5 +1,7 @@
 #include <beet/engine.h>
-#include "../../editor/src/editor_widgets.h"
+
+// TODO add widgets from editor
+#include "../../editor/src/widgets/editor_widgets.h"
 
 namespace beet {
 

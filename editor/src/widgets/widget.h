@@ -7,13 +7,14 @@ namespace beet {
 
 class Widget {
    public:
-    explicit Widget(const std::string& name) {}
+    explicit Widget(const std::string& name) : m_name(name) {}
 
     virtual void on_awake() {}
     virtual void on_widget_render() {}
     virtual void on_destroy() {}
 
-   private:
-    std::string m_name = "widget";
+   protected:
+    std::string m_name = {"widget"};
+    bool m_isActive{true};
 };
 }  // namespace beet
