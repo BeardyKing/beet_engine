@@ -7,11 +7,6 @@
 #include <string>
 #include <vector>
 
-namespace beet::components {
-class IndexBuffer;
-class VertexLayout;
-}  // namespace beet::components
-
 namespace beet {
 namespace components {
 
@@ -33,6 +28,9 @@ class Mesh : public Asset {
     GLuint get_vertex_buffer() { return m_vbo; }
     GLuint get_index_buffer() { return m_ibo; }
 
+    const std::vector<VertexLayout>& get_vertex_layout() { return m_vertexLayout; };
+    const std::vector<unsigned int>& get_indices() { return m_indices; };
+
    private:
     bool internal_load_obj(const std::string& path);
     void init_buffers();
@@ -47,16 +45,6 @@ class Mesh : public Asset {
     GLuint m_vbo;
     GLuint m_vao;
     GLuint m_ibo;
-};
-
-class VertexLayout {
-   public:
-    VertexLayout(vec3 position, vec3 normal, vec2 textureCoordinate, vec3 tangent)
-        : m_position(position), m_normal(normal), m_uv(textureCoordinate), m_tangent(tangent) {}
-    vec3 m_position;
-    vec3 m_normal;
-    vec2 m_uv;
-    vec3 m_tangent;
 };
 
 }  // namespace components

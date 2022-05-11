@@ -11,6 +11,7 @@
 #include <uuid.h>
 
 namespace beet {
+
 namespace asset {
 
 enum class AssetState { Idle, Loading, Finished, Failed, LAST };
@@ -24,6 +25,16 @@ using namespace uuids;
 struct PackedPointLightData {
     vec4 pointPosition_pointRange;
     vec4 pointColor_pointIntensity;
+};
+
+class VertexLayout {
+   public:
+    VertexLayout(vec3 position, vec3 normal, vec2 textureCoordinate, vec3 tangent)
+        : m_position(position), m_normal(normal), m_uv(textureCoordinate), m_tangent(tangent) {}
+    vec3 m_position;
+    vec3 m_normal;
+    vec2 m_uv;
+    vec3 m_tangent;
 };
 
 using vec2i = vec<2, int>;

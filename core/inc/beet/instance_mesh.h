@@ -18,6 +18,7 @@ class InstanceMesh : public Component<InstanceMesh> {
 
     void on_awake() override;
     void draw();
+    std::weak_ptr<components::Mesh> get_mesh() { return m_mesh; };
 
    private:
     std::shared_ptr<components::Mesh> m_mesh;

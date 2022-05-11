@@ -40,19 +40,25 @@ void InspectorWidget::render_inspector() {
 
     //=Render Inspector===========
 
-    auto name = registry.try_get<components::Name>(go.get_handle());
-    if (name) {
-        render_name_component(*name);
+    if (go.has_component<components::Name>()) {
+        render_name_component(go.get_component<components::Name>());
     }
 
-    ImGui::Separator();
-
-    auto transform = registry.try_get<components::Transform>(go.get_handle());
-    if (transform) {
-        render_transform_component(*transform);
+    if (go.has_component<components::Transform>()) {
+        render_transform_component(go.get_component<components::Transform>());
     }
 
-    ImGui::Separator();
+    if (go.has_component<components::Camera>()) {
+        render_camera_component(go.get_component<components::Camera>());
+    }
+
+    if (go.has_component<components::InstanceMesh>()) {
+        render_mesh_component(go.get_component<components::InstanceMesh>());
+    }
+
+    if (go.has_component<components::Material>()) {
+        render_material_component(go.get_component<components::Material>());
+    }
 }
 
 void InspectorWidget::render_name_component(components::Name& name) {
@@ -61,16 +67,16 @@ void InspectorWidget::render_name_component(components::Name& name) {
 
     ImGui::InputText("##INSPECTOR_NAME", entityName, IM_ARRAYSIZE(entityName));
     name.name = entityName;
-}
-void InspectorWidget::render_transform_component(components::Transform& transform) {
     ImGui::Separator();
+}
+
+void InspectorWidget::render_transform_component(components::Transform& transform) {
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
         vec3 position = transform.get_position();
         vec3 rotation = transform.get_rotation_euler();
         vec3 scale = transform.get_scale();
 
         ImGui::Text("Transform");
-
         ImGui::Text("Position : ");
         ImGui::SameLine();
         ImGui::DragFloat3("##P", &position.x, -0.1f, 0.1f);
@@ -87,6 +93,183 @@ void InspectorWidget::render_transform_component(components::Transform& transfor
         transform.set_rotation_euler(rotation);
         transform.set_scale(scale);
     }
+    ImGui::Separator();
+}
+void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMesh) {
+    auto& mesh = *instanceMesh.get_mesh().lock();
+    auto mIndices = mesh.get_index_buffer();
+    auto indices = mesh.get_indices();
+    auto vertexLayout = mesh.get_vertex_layout();
+    const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+    static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX | ImGuiTableFlags_RowBg |
+                                   ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
+
+    ImVec2 vertexLayoutSize = ImVec2(0.0f, TEXT_BASE_HEIGHT * 5);
+    ImVec2 indexLayoutSize = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+    ImVec2 vertLayoutSize = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+
+    if (ImGui::CollapsingHeader("Instance Mesh",
+                                ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        if (ImGui::BeginTable("Mesh general information", 2, flags, ImVec2(0, TEXT_BASE_HEIGHT * 4))) {
+            ImGui::TableSetupColumn("title", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableSetupColumn("data", ImGuiTableColumnFlags_WidthStretch);
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", "Vertex size");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%llu", sizeof(VertexLayout));
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", "Mesh name");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", mesh.get_asset_name().c_str());
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", "Mesh path");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", mesh.get_full_path().c_str());
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", "Asset state");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%i", mesh.get_asset_state());
+
+            ImGui::EndTable();
+        }
+
+        if (ImGui::CollapsingHeader("Vertex Layout", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
+                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Stride", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableHeadersRow();
+                uint32_t stride{0};
+                uint32_t size{0};
+                {
+                    size = sizeof(VertexLayout::m_position);
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("%s", "Position");
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%i", stride);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%i", size);
+                    stride += size;
+                }
+                {
+                    size = sizeof(VertexLayout::m_normal);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("%s", "Normal");
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%i", stride);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%i", size);
+                    stride += size;
+                }
+                {
+                    size = sizeof(VertexLayout::m_uv);
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("%s", "UV");
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%i", stride);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%i", size);
+                    stride += size;
+                }
+                {
+                    size = sizeof(VertexLayout::m_tangent);
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("%s", "Tangent");
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%i", stride);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%i", size);
+                    stride += size;
+                }
+                ImGui::EndTable();
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Vertex Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
+                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Normal", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("UV", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Tangent", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableHeadersRow();
+
+                ImGuiListClipper clipper;
+                clipper.Begin(vertexLayout.size() - 4);
+                while (clipper.Step()) {
+                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("\n%i", row);
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_position.x,
+                                    vertexLayout[row].m_position.y, vertexLayout[row].m_position.z);
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_normal.x, vertexLayout[row].m_normal.y,
+                                    vertexLayout[row].m_normal.z);
+                        ImGui::TableSetColumnIndex(3);
+                        ImGui::Text("u: %f \nv: %f", vertexLayout[row].m_uv.x, vertexLayout[row].m_uv.y);
+                        ImGui::TableSetColumnIndex(4);
+                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_tangent.x,
+                                    vertexLayout[row].m_tangent.y, vertexLayout[row].m_tangent.z);
+                    }
+                }
+
+                ImGui::EndTable();
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Index Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
+                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableHeadersRow();
+
+                ImGuiListClipper clipper;
+                clipper.Begin(indices.size() - 3);
+                while (clipper.Step()) {
+                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("%i", row);
+                        for (int column = 0; column < 3; ++column) {
+                            ImGui::TableSetColumnIndex(column + 1);
+                            ImGui::Text("%i", indices[row + column]);
+                        }
+                    }
+                }
+
+                ImGui::EndTable();
+            }
+        }
+
+        ImGui::Unindent();
+    }
+    ImGui::Separator();
+}
+void InspectorWidget::render_camera_component(components::Camera& camera) {
+    ImGui::Text("Camera");
+    ImGui::Separator();
+}
+
+void InspectorWidget::render_material_component(components::Material& material) {
+    ImGui::Text("Material");
     ImGui::Separator();
 }
 

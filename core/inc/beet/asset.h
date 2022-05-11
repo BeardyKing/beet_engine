@@ -24,6 +24,8 @@ class Asset {
 
     AssetState get_asset_state() { return m_assetState; };
     std::string get_fallback_name() { return m_fallbackName; };
+    std::string get_full_path() { return m_fullPath; };
+    std::string get_asset_name() { return m_assetName; };
 
    private:
     void set_fallback_name(AssetType type);
