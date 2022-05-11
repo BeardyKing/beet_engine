@@ -115,6 +115,28 @@ Material::Material(std::array<std::string, 5> textures) {
     set_texture_slot_path(TextureType::Roughness, textures[3]);
     set_texture_slot_path(TextureType::Occlusion, textures[4]);
 }
+std::shared_ptr<Texture> Material::get_texture(TextureType slot) {
+    if (slot == TextureType::Albedo) {
+        return m_albedo;
+    }
+    if (slot == TextureType::Normal) {
+        return m_normal;
+    }
+    if (slot == TextureType::Metallic) {
+        return m_metallic;
+    }
+    if (slot == TextureType::Roughness) {
+        return m_roughness;
+    }
+    if (slot == TextureType::Occlusion) {
+        return m_occlusion;
+    }
+    return nullptr;
+}
+
+GLuint Material::get_texture_handle(TextureType slot) {
+    return m_textureHandles[(size_t)slot];
+}
 
 }  // namespace components
 }  // namespace beet

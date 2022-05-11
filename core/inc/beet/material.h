@@ -45,6 +45,8 @@ class Material : public Component<Material> {
 
     void set_uniforms(const mat4& model);
     GLuint get_program() { return m_shader.get_program(); };
+    GLuint Material::get_texture_handle(TextureType slot);
+    std::shared_ptr<Texture> Material::get_texture(TextureType slot);
 
    private:
     std::array<GLint, (size_t)UniformHandle::LAST> m_uniformHandles;
@@ -71,12 +73,37 @@ class Material : public Component<Material> {
     float m_roughnessScalar = 1.0f;
     float m_occlusionScalar = 1.0f;
     float m_skyboxScalar = 0.2f;
-
     bool m_castShadows = true;
     bool m_receivesShadows = true;
-
     bool m_alphaCutoffEnabled = false;
     float m_alphaCutoffAmount = 0.0f;
+
+   public:
+    vec4 get_albedo_color() const { return m_albedoColor; };
+    vec2 get_texture_tiling() const { return m_textureTiling; };
+    float get_albedo_scalar() const { return m_albedoScalar; };
+    float get_normal_scalar() const { return m_normalScalar; };
+    float get_metallic_scalar() const { return m_metallicScalar; };
+    float get_roughness_scalar() const { return m_roughnessScalar; };
+    float get_occlusion_scalar() const { return m_occlusionScalar; };
+    float get_skybox_scalar() const { return m_skyboxScalar; };
+    bool get_cast_shadows() const { return m_castShadows; };
+    bool get_receives_shadows() const { return m_receivesShadows; };
+    bool get_alpha_cutoff_enabled() const { return m_alphaCutoffEnabled; };
+    float get_alpha_cutoff_amount() const { return m_alphaCutoffAmount; };
+
+    void set_albedo_color(vec4 albedoColor) { m_albedoColor = albedoColor; };
+    void set_texture_tiling(vec2 textureTiling) { m_textureTiling = textureTiling; };
+    void set_albedo_scalar(float albedoScalar) { m_albedoScalar = albedoScalar; };
+    void set_normal_scalar(float normalScalar) { m_normalScalar = normalScalar; };
+    void set_metallic_scalar(float metallicScalar) { m_metallicScalar = metallicScalar; };
+    void set_roughness_scalar(float roughnessScalar) { m_roughnessScalar = roughnessScalar; };
+    void set_occlusion_scalar(float occlusionScalar) { m_occlusionScalar = occlusionScalar; };
+    void set_skybox_scalar(float skyboxScalar) { m_skyboxScalar = skyboxScalar; };
+    void set_cast_shadows(bool castShadows) { m_castShadows = castShadows; };
+    void set_receives_shadows(bool receivesShadows) { m_receivesShadows = receivesShadows; };
+    void set_alpha_cutoff_enabled(bool alphaCutoffEnabled) { m_alphaCutoffEnabled = alphaCutoffEnabled; };
+    void set_alpha_cutoff_amount(float alphaCutoffAmount) { m_alphaCutoffAmount = alphaCutoffAmount; };
 };
 
 }  // namespace components

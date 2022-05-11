@@ -44,6 +44,10 @@ void InspectorWidget::render_inspector() {
         render_name_component(go.get_component<components::Name>());
     }
 
+    if (go.has_component<components::Tag>()) {
+        ImGui::Text("Tag");
+    }
+
     if (go.has_component<components::Transform>()) {
         render_transform_component(go.get_component<components::Transform>());
     }
@@ -78,15 +82,15 @@ void InspectorWidget::render_transform_component(components::Transform& transfor
         vec3 rotation = transform.get_rotation_euler();
         vec3 scale = transform.get_scale();
 
-        ImGui::Text("Position : ");
+        ImGui::Text("Position  ");
         ImGui::SameLine();
         ImGui::DragFloat3("##P", &position.x, -0.1f, 0.1f);
 
-        ImGui::Text("Rotation : ");
+        ImGui::Text("Rotation  ");
         ImGui::SameLine();
         ImGui::DragFloat3("##R", &rotation.x, -1.0f, 1.0f);
 
-        ImGui::Text("Scale :    ");
+        ImGui::Text("Scale     ");
         ImGui::SameLine();
         ImGui::DragFloat3("##S", &scale.x, -0.1f, 0.1f);
 
@@ -144,7 +148,7 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
             ImGui::EndTable();
         }
 
-        if (ImGui::CollapsingHeader("Vertex Layout", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        if (ImGui::TreeNode("Vertex Layout")) {
             if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
@@ -198,9 +202,9 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
+            ImGui::TreePop();
         }
-
-        if (ImGui::CollapsingHeader("Vertex Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        if (ImGui::TreeNode("Vertex Data")) {
             if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
@@ -231,9 +235,10 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
+            ImGui::TreePop();
         }
 
-        if (ImGui::CollapsingHeader("Index Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        if (ImGui::TreeNode("Index Data")) {
             if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -256,6 +261,7 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
+            ImGui::TreePop();
         }
         ImGui::Unindent();
     }
@@ -327,8 +333,157 @@ void InspectorWidget::render_camera_component(components::Camera& camera) {
 }
 
 void InspectorWidget::render_material_component(components::Material& material) {
-    ImGui::Text("Material");
+    auto albedoColor = material.get_albedo_color();
+    auto textureTiling = material.get_texture_tiling();
+    auto albedoScalar = material.get_albedo_scalar();
+    auto normalScalar = material.get_normal_scalar();
+    auto metallicScalar = material.get_metallic_scalar();
+    auto roughnessScalar = material.get_roughness_scalar();
+    auto occlusionScalar = material.get_occlusion_scalar();
+    auto skyboxScalar = material.get_skybox_scalar();
+    auto castShadows = material.get_cast_shadows();
+    auto receivesShadows = material.get_receives_shadows();
+    auto alphaCutoffEnabled = material.get_alpha_cutoff_enabled();
+    auto alphaCutoffAmount = material.get_alpha_cutoff_amount();
+
+    if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
+        if (ImGui::TreeNode("Surface inputs")) {
+            ImGui::Columns(2, "surfaceInputsColumns", false);
+
+            //--------------Albedo Map--------------//
+
+            static uint16_t albedoMap_Image_Scalar = 1;
+            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Albedo)->get_texture_handle(),
+                                   ImVec2(12.0f * albedoMap_Image_Scalar, 12.0f * albedoMap_Image_Scalar))) {
+                albedoMap_Image_Scalar = (albedoMap_Image_Scalar == 1) ? 10 : 1;
+            }
+            ImGui::SameLine();
+            ImGui::Selectable("Albedo map");
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##albedoScalar", &albedoScalar, 0.3f, 10.0f);
+            ImGui::SameLine();
+
+            //--------------Color picker------------//
+            if (ImGui::ColorButton("Albedo color",
+                                   ImVec4(albedoColor.x, albedoColor.y, albedoColor.z, albedoColor.w))) {
+                ImGui::SetNextWindowPos(ImVec2(ImGui::GetMousePos().x - 320, ImGui::GetMousePos().y - 120));
+                ImGui::OpenPopup("albedoColorPicker");
+            }
+            if (ImGui::BeginPopup("albedoColorPicker", ImGuiSelectableFlags_DontClosePopups)) {
+                ImGui::ColorPicker4("##picker", &albedoColor.x, ImGuiColorEditFlags_None, NULL);
+                ImGui::EndPopup();
+            }
+            ImGui::NextColumn();
+
+            //--------------Normal Map--------------//
+
+            static uint16_t normalMap_Image_Scalar = 1;
+            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Normal)->get_texture_handle(),
+                                   ImVec2(12.0f * normalMap_Image_Scalar, 12.0f * normalMap_Image_Scalar))) {
+                normalMap_Image_Scalar = (normalMap_Image_Scalar == 1) ? 10 : 1;
+            }
+
+            ImGui::SameLine();
+            ImGui::Selectable("Normal map");
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##normalScalar", &normalScalar, 0.3f, 15.0f);
+            ImGui::NextColumn();
+
+            //--------------Metallic Map--------------//
+            static uint16_t metallicMap_Image_Scalar = 1;
+            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Metallic)->get_texture_handle(),
+                                   ImVec2(12.0f * metallicMap_Image_Scalar, 12.0f * metallicMap_Image_Scalar))) {
+                metallicMap_Image_Scalar = (metallicMap_Image_Scalar == 1) ? 10 : 1;
+            }
+
+            ImGui::SameLine();
+            ImGui::Selectable("Metallic map");
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##metallicScalar", &metallicScalar, 0.0f, 1.0f);
+            ImGui::NextColumn();
+
+            //--------------Roughness Map--------------//
+            static uint16_t RoughnessMap_Image_Scalar = 1;
+            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Roughness)->get_texture_handle(),
+                                   ImVec2(12.0f * RoughnessMap_Image_Scalar, 12.0f * RoughnessMap_Image_Scalar))) {
+                RoughnessMap_Image_Scalar = (RoughnessMap_Image_Scalar == 1) ? 10 : 1;
+            }
+
+            ImGui::SameLine();
+            ImGui::Selectable("Roughness map");
+
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##toughnessScalar", &roughnessScalar, 0.0f, 4.0f);
+            ImGui::NextColumn();
+
+            //--------------Occlusion Map--------------//
+            static uint16_t OcclusionMap_Image_Scalar = 1;
+            if (ImGui::ImageButton((GLvoid*)material.get_texture(TextureType::Occlusion)->get_texture_handle(),
+                                   ImVec2(12.0f * OcclusionMap_Image_Scalar, 12.0f * OcclusionMap_Image_Scalar))) {
+                OcclusionMap_Image_Scalar = (OcclusionMap_Image_Scalar == 1) ? 10 : 1;
+            }
+
+            ImGui::SameLine();
+            ImGui::Selectable("Occlusion map");
+
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##cclusionScalar", &occlusionScalar, 0.0f, 10.0f);
+            ImGui::NextColumn();
+
+            ImGui::Columns(1);
+            ImGui::TreePop();
+        }
+
+        ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
+        if (ImGui::TreeNode("Advanced options")) {
+            ImGui::Columns(2, "advancedOptionsColumns", false);
+
+            ImGui::Selectable("Texture tiling");
+            ImGui::NextColumn();
+            ImGui::DragFloat2("##textureTiling", &textureTiling.x, -0.0125f, 0.0125f);
+            ImGui::NextColumn();
+
+            ImGui::Selectable("Skybox scalar");
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##skyboxScalar", &skyboxScalar, 0.0f, 2.0f);
+            ImGui::NextColumn();
+
+            ImGui::Selectable("Receives shadows");
+            ImGui::NextColumn();
+            ImGui::Checkbox("##Recieve shadows", &receivesShadows);
+            ImGui::NextColumn();
+
+            ImGui::Selectable("Alpha cutoff enabled");
+            ImGui::NextColumn();
+            ImGui::Checkbox("##alphaCutoffEnabled", &alphaCutoffEnabled);
+            ImGui::NextColumn();
+
+            ImGui::Selectable("Alpha cutoff amount");
+            ImGui::NextColumn();
+            ImGui::SliderFloat("##alphaCutoffAmount", &alphaCutoffAmount, 0.0f, 1.0f);
+            ImGui::NextColumn();
+
+            ImGui::TreePop();
+            ImGui::Columns(1);
+        }
+        ImGui::Unindent();
+    }
     ImGui::Separator();
+
+    material.set_albedo_color(albedoColor);
+    material.set_texture_tiling(textureTiling);
+    material.set_albedo_scalar(albedoScalar);
+    material.set_normal_scalar(normalScalar);
+    material.set_metallic_scalar(metallicScalar);
+    material.set_roughness_scalar(roughnessScalar);
+    material.set_occlusion_scalar(occlusionScalar);
+    material.set_skybox_scalar(skyboxScalar);
+    material.set_cast_shadows(castShadows);
+    material.set_receives_shadows(receivesShadows);
+    material.set_alpha_cutoff_enabled(alphaCutoffEnabled);
+    material.set_alpha_cutoff_amount(alphaCutoffAmount);
 }
 
 InspectorWidget::~InspectorWidget() {
