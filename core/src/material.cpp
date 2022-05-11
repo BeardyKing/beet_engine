@@ -115,6 +115,7 @@ Material::Material(std::array<std::string, 5> textures) {
     set_texture_slot_path(TextureType::Roughness, textures[3]);
     set_texture_slot_path(TextureType::Occlusion, textures[4]);
 }
+
 std::shared_ptr<Texture> Material::get_texture(TextureType slot) {
     if (slot == TextureType::Albedo) {
         return m_albedo;

@@ -45,8 +45,10 @@ class Material : public Component<Material> {
 
     void set_uniforms(const mat4& model);
     GLuint get_program() { return m_shader.get_program(); };
-    GLuint Material::get_texture_handle(TextureType slot);
-    std::shared_ptr<Texture> Material::get_texture(TextureType slot);
+    std::unique_ptr<ShaderProgram> get_shader() { return std::make_unique<ShaderProgram>(m_shader); };
+
+    GLuint get_texture_handle(TextureType slot);
+    std::shared_ptr<Texture> get_texture(TextureType slot);
 
    private:
     std::array<GLint, (size_t)UniformHandle::LAST> m_uniformHandles;

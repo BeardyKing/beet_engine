@@ -345,9 +345,30 @@ void InspectorWidget::render_material_component(components::Material& material) 
     auto receivesShadows = material.get_receives_shadows();
     auto alphaCutoffEnabled = material.get_alpha_cutoff_enabled();
     auto alphaCutoffAmount = material.get_alpha_cutoff_amount();
+    auto shader = material.get_shader();
 
     if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
         ImGui::Indent();
+
+        ImGui::Columns(2, "shader", false);
+        ImGui::Text("Shader");
+        ImGui::NextColumn();
+
+        // TODO currently only hard coded shaders can be bound to a material
+        static int selectedShader = 0;
+        std::string comboBoxContent;
+        comboBoxContent.append(shader->get_asset_name());
+        comboBoxContent.append("\0");
+
+        //        ImGui::Spacing();
+        ImGuiStyle& style = ImGui::GetStyle();
+        ImGui::Indent(style.FramePadding.x);
+
+        ImGui::Combo("##shader", &selectedShader, shader->get_asset_name().c_str());
+        ImGui::Unindent();
+        ImGui::Columns(1);
+        ImGui::Separator();
+
         ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
         if (ImGui::TreeNode("Surface inputs")) {
             ImGui::Columns(2, "surfaceInputsColumns", false);
