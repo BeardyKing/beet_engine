@@ -1,7 +1,6 @@
 #pragma once
 
 #include <beet/component.h>
-#include <beet/log.h>
 #include <beet/types.h>
 
 namespace beet {
@@ -30,7 +29,6 @@ class Transform {
    private:
     vec3 m_position;
     vec3 m_scale;
-    //    quat m_rotation;
     vec3 m_rotation;
 };
 

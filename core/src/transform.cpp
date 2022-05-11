@@ -1,4 +1,3 @@
-#include <beet/log.h>
 #include <beet/transform.h>
 
 namespace beet {
@@ -22,9 +21,11 @@ void Transform::set_rotation(const quat& rotation) {
 void Transform::set_rotation_euler(const vec3& euler) {
     m_rotation = radians(euler);
 }
+
 vec3 Transform::get_position() const {
     return m_position;
 }
+
 void Transform::set_position(const vec3& position) {
     m_position = position;
 }
