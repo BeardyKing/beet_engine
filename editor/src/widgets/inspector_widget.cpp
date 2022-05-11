@@ -72,11 +72,12 @@ void InspectorWidget::render_name_component(components::Name& name) {
 
 void InspectorWidget::render_transform_component(components::Transform& transform) {
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+
         vec3 position = transform.get_position();
         vec3 rotation = transform.get_rotation_euler();
         vec3 scale = transform.get_scale();
 
-        ImGui::Text("Transform");
         ImGui::Text("Position : ");
         ImGui::SameLine();
         ImGui::DragFloat3("##P", &position.x, -0.1f, 0.1f);
@@ -92,6 +93,7 @@ void InspectorWidget::render_transform_component(components::Transform& transfor
         transform.set_position(position);
         transform.set_rotation_euler(rotation);
         transform.set_scale(scale);
+        ImGui::Unindent();
     }
     ImGui::Separator();
 }
@@ -143,6 +145,7 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
         }
 
         if (ImGui::CollapsingHeader("Vertex Layout", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            ImGui::Indent();
             if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
@@ -163,7 +166,6 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 {
                     size = sizeof(VertexLayout::m_normal);
-
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("%s", "Normal");
@@ -197,9 +199,11 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
+            ImGui::Unindent();
         }
 
         if (ImGui::CollapsingHeader("Vertex Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            ImGui::Indent();
             if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
@@ -228,12 +232,13 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                                     vertexLayout[row].m_tangent.y, vertexLayout[row].m_tangent.z);
                     }
                 }
-
                 ImGui::EndTable();
             }
+            ImGui::Unindent();
         }
 
         if (ImGui::CollapsingHeader("Index Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
+            ImGui::Indent();
             if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -254,17 +259,34 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                         }
                     }
                 }
-
                 ImGui::EndTable();
             }
+            ImGui::Unindent();
         }
-
         ImGui::Unindent();
     }
     ImGui::Separator();
 }
 void InspectorWidget::render_camera_component(components::Camera& camera) {
-    ImGui::Text("Camera");
+    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        float fov = degrees(camera.get_fov());
+        auto zNear = camera.get_z_near();
+        auto zFar = camera.get_z_far();
+        //        auto lookTarget = camera.get_look_target();
+
+        ImGui::DragFloat("##nearPlane", &zNear, 0.125f);
+        ImGui::DragFloat("##farPlane", &zFar, 0.125f);
+        ImGui::Spacing();
+        ImGui::DragFloat("##fovY", &fov, 0.125f);
+
+        camera.set_fov(fov);
+        camera.set_z_near(zNear);
+        camera.set_z_far(zFar);
+        //        camera.set_look_target(lookTarget);
+
+        ImGui::Unindent();
+    }
     ImGui::Separator();
 }
 
