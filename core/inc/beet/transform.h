@@ -9,9 +9,7 @@ namespace components {
 
 class Transform {
    public:
-    Transform(const vec3& position = vec3(0.0f),
-              const vec3& scale = vec3(1.0f),
-              const quat& rotation = quat(1.0f, 0.0f, 0.0f, 0.0f));
+    Transform(const vec3& position = vec3(0.0f), const vec3& scale = vec3(1.0f), const vec3& rotation = vec4(0));
 
     vec3 get_position() const;
     vec3 get_scale() const;
@@ -32,7 +30,8 @@ class Transform {
    private:
     vec3 m_position;
     vec3 m_scale;
-    quat m_rotation;
+    //    quat m_rotation;
+    vec3 m_rotation;
 };
 
 }  // namespace components
