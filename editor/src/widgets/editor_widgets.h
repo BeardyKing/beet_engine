@@ -43,6 +43,7 @@ class EditorWidgets : public Subsystem {
     Engine& m_engine;
     double m_deltaTime = 0.01;
     uuids::uuid m_selectedEntity{};
+    void set_theme();
 
    public:
 };

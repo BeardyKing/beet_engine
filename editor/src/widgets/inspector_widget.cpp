@@ -145,7 +145,6 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
         }
 
         if (ImGui::CollapsingHeader("Vertex Layout", ImGuiTreeNodeFlags_AllowItemOverlap)) {
-            ImGui::Indent();
             if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
@@ -199,11 +198,9 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
-            ImGui::Unindent();
         }
 
         if (ImGui::CollapsingHeader("Vertex Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
-            ImGui::Indent();
             if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
@@ -234,11 +231,9 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
-            ImGui::Unindent();
         }
 
         if (ImGui::CollapsingHeader("Index Data", ImGuiTreeNodeFlags_AllowItemOverlap)) {
-            ImGui::Indent();
             if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
                 ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -261,7 +256,6 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
                 }
                 ImGui::EndTable();
             }
-            ImGui::Unindent();
         }
         ImGui::Unindent();
     }
@@ -273,17 +267,59 @@ void InspectorWidget::render_camera_component(components::Camera& camera) {
         float fov = degrees(camera.get_fov());
         auto zNear = camera.get_z_near();
         auto zFar = camera.get_z_far();
-        //        auto lookTarget = camera.get_look_target();
+        auto lookTarget = camera.get_look_target();
 
-        ImGui::DragFloat("##nearPlane", &zNear, 0.125f);
-        ImGui::DragFloat("##farPlane", &zFar, 0.125f);
-        ImGui::Spacing();
-        ImGui::DragFloat("##fovY", &fov, 0.125f);
+        const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+        static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_Resizable;
+
+        if (ImGui::BeginTable("VertexLayout", 2, flags, ImVec2(0, TEXT_BASE_HEIGHT * 4), 150.0f)) {
+            ImGui::TableSetupColumn("Type", ImGuiTableFlags_SizingStretchProp);
+            ImGui::TableSetupColumn("Control", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableHeadersRow();
+
+            {
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", "FOV");
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::DragFloat("##fovY", &fov, 0.125f);
+            }
+
+            {
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", "Clipping");
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", "Near");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::DragFloat("##zNearPlane", &zNear, 0.125f);
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", "Far");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::DragFloat("##zFarPlane", &zFar, 0.125f);
+                ImGui::TableNextRow();
+            }
+            {
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", "Look target");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", to_string(lookTarget).c_str());
+                ImGui::TableNextRow();
+            }
+
+            ImGui::EndTable();
+        }
 
         camera.set_fov(fov);
         camera.set_z_near(zNear);
         camera.set_z_far(zFar);
-        //        camera.set_look_target(lookTarget);
 
         ImGui::Unindent();
     }
