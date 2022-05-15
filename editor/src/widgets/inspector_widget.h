@@ -21,6 +21,7 @@ class InspectorWidget : public Widget {
     void render_mesh_component(components::InstanceMesh& mesh);
     void render_camera_component(components::Camera& camera);
     void render_material_component(components::Material& material);
+    void render_point_light_component(components::PointLight& pointLight);
 
    private:
     EditorWidgets& m_editorWidgets;

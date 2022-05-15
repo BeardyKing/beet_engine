@@ -63,6 +63,10 @@ void InspectorWidget::render_inspector() {
     if (go.has_component<components::Material>()) {
         render_material_component(go.get_component<components::Material>());
     }
+
+    if (go.has_component<components::PointLight>()) {
+        render_point_light_component(go.get_component<components::PointLight>());
+    }
 }
 
 void InspectorWidget::render_name_component(components::Name& name) {
@@ -360,12 +364,11 @@ void InspectorWidget::render_material_component(components::Material& material) 
         comboBoxContent.append(shader->get_asset_name());
         comboBoxContent.append("\0");
 
-        //        ImGui::Spacing();
         ImGuiStyle& style = ImGui::GetStyle();
         ImGui::Indent(style.FramePadding.x);
 
         ImGui::Combo("##shader", &selectedShader, shader->get_asset_name().c_str());
-        ImGui::Unindent();
+        ImGui::Unindent(style.FramePadding.x);
         ImGui::Columns(1);
         ImGui::Separator();
 
@@ -487,8 +490,8 @@ void InspectorWidget::render_material_component(components::Material& material) 
             ImGui::NextColumn();
 
             ImGui::TreePop();
-            ImGui::Columns(1);
         }
+        ImGui::Columns(1);
         ImGui::Unindent();
     }
     ImGui::Separator();
@@ -505,6 +508,46 @@ void InspectorWidget::render_material_component(components::Material& material) 
     material.set_receives_shadows(receivesShadows);
     material.set_alpha_cutoff_enabled(alphaCutoffEnabled);
     material.set_alpha_cutoff_amount(alphaCutoffAmount);
+}
+
+void InspectorWidget::render_point_light_component(components::PointLight& pointLight) {
+    auto lightColor = pointLight.get_color();
+    auto lightRange = pointLight.get_range();
+    auto lightIntensity = pointLight.get_intensity();
+
+    if (ImGui::CollapsingHeader("Point light", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        ImGui::Columns(2, "pointLights", false);
+        ImGui::Text("Light color");
+        ImGui::NextColumn();
+
+        if (ImGui::ColorButton("Color", ImVec4(lightColor.x, lightColor.y, lightColor.z, 1.0f))) {
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetMousePos().x - 320, ImGui::GetMousePos().y - 120));
+            ImGui::OpenPopup("lightColorPicker");
+        }
+        if (ImGui::BeginPopup("lightColorPicker", ImGuiSelectableFlags_DontClosePopups)) {
+            ImGui::ColorPicker3("##lightPicker", &lightColor.x, ImGuiColorEditFlags_None);
+            ImGui::EndPopup();
+        }
+
+        ImGui::NextColumn();
+        ImGui::Text("Range");
+        ImGui::NextColumn();
+        ImGui::DragFloat("##lightRangeDF", &lightRange, 0.125f);
+
+        ImGui::NextColumn();
+        ImGui::Text("Intensity");
+        ImGui::NextColumn();
+        ImGui::DragFloat("##lightIntensityDF", &lightIntensity, 0.125f);
+
+        ImGui::Unindent();
+        ImGui::Columns(1);
+    }
+    ImGui::Separator();
+
+    pointLight.set_color(lightColor);
+    pointLight.set_range(lightRange);
+    pointLight.set_intensity(lightIntensity);
 }
 
 InspectorWidget::~InspectorWidget() {
