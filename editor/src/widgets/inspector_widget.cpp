@@ -45,7 +45,7 @@ void InspectorWidget::render_inspector() {
     }
 
     if (go.has_component<components::Tag>()) {
-        ImGui::Text("Tag");
+        render_tag_component(go.get_component<components::Tag>());
     }
 
     if (go.has_component<components::Transform>()) {
@@ -76,6 +76,21 @@ void InspectorWidget::render_name_component(components::Name& name) {
     ImGui::InputText("##INSPECTOR_NAME", entityName, IM_ARRAYSIZE(entityName));
     name.name = entityName;
     ImGui::Separator();
+}
+
+void InspectorWidget::render_tag_component(components::Tag& tag) {
+    char tagName[64]{};
+    sprintf_s(tagName, "%s", tag.get_tag().c_str());
+
+    if (ImGui::CollapsingHeader("Tag", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        ImGui::Columns(2, "tagName", false);
+        ImGui::Text("Tag");
+        ImGui::NextColumn();
+        ImGui::InputText("##INSPECTOR_TAG", tagName, IM_ARRAYSIZE(tagName));
+        tag.register_tag(tagName);
+        ImGui::Unindent();
+    }
 }
 
 void InspectorWidget::render_transform_component(components::Transform& transform) {

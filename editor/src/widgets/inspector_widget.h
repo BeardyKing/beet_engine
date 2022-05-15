@@ -17,6 +17,7 @@ class InspectorWidget : public Widget {
     void render_inspector();
 
     void render_name_component(components::Name& name);
+    void render_tag_component(components::Tag& tag);
     void render_transform_component(components::Transform& transform);
     void render_mesh_component(components::InstanceMesh& mesh);
     void render_camera_component(components::Camera& camera);
