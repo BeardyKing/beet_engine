@@ -32,6 +32,8 @@ class Window : public Subsystem {
 
     int get_window_width() { return m_width; };
     int get_window_height() { return m_height; };
+    vec2i get_window_size() { return vec2i(m_width, m_height); };
+    
     float get_window_aspect_ratio() { return (float)m_width / (float)m_height; }
     void toggle_fullscreen();
 

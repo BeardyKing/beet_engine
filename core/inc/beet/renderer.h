@@ -2,6 +2,7 @@
 
 #include <beet/camera.h>
 #include <beet/components.h>
+#include <beet/framebuffer.h>
 #include <beet/log.h>
 #include <beet/mesh.h>
 #include <beet/shader_program.h>
@@ -57,6 +58,11 @@ class Renderer : public Subsystem {
 
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
     float m_timePassed{0.0f};
+
+    Framebuffer m_tempFramebufferColor;
+    components::ShaderProgram m_tempScreenShader;
+
+    unsigned int m_tempQuadVAO, m_tempQuadVBO;
 };
 
 }  // namespace beet

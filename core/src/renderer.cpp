@@ -42,6 +42,27 @@ void Renderer::on_awake() {
     glEnable(GL_CULL_FACE);
 
     m_bufferData.init();
+
+    m_tempFramebufferColor.create_color_depth(vec2(1920, 1080));
+
+    // QUAD
+    float quadVertices[] = {
+
+        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+
+        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+    // screen quad VAO
+    glGenVertexArrays(1, &m_tempQuadVAO);
+    glGenBuffers(1, &m_tempQuadVBO);
+    glBindVertexArray(m_tempQuadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_tempQuadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+    m_tempScreenShader.load_shader("post_process", "post_process.vert", "post_process.frag");
 }
 
 Renderer::~Renderer() {}
@@ -65,6 +86,7 @@ void Renderer::on_update(double deltaTime) {
 void Renderer::shadow_pass(uint16_t id) {}
 void Renderer::depth_pass(uint16_t id) {}
 void Renderer::color_pass(uint16_t id) {
+    m_tempFramebufferColor.bind();
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -142,10 +164,22 @@ void Renderer::color_pass(uint16_t id) {
         glCullFace(GL_BACK);
         mesh.draw();
     }
+    m_tempFramebufferColor.unbind();
 }
 void Renderer::gui_pass(uint16_t id) {}
 void Renderer::transparent_pass(uint16_t id) {}
-void Renderer::post_process_pass(uint16_t id) {}
+void Renderer::post_process_pass(uint16_t id) {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  // render back buffer
+    glDisable(GL_DEPTH_TEST);
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(m_tempScreenShader.get_program());
+    glBindVertexArray(m_tempQuadVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_tempFramebufferColor.get_color_texture());
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
 
 void Renderer::recreate_framebuffer(uint16_t width, uint16_t height, uint16_t id) {
     glViewport(0, 0, width, height);
