@@ -90,6 +90,13 @@ Editor::Editor() {
 
         light.add_component<components::InstanceMesh>("sphere.obj");
     }
+
+    {
+        auto postProcessing = m_scene->create_game_object("Post processing");
+
+        postProcessing.add_component<components::InstanceMesh>();
+        postProcessing.add_component<components::PostProcessing>();
+    }
 }
 
 void Editor::run() {

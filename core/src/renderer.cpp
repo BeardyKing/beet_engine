@@ -155,16 +155,37 @@ void Renderer::color_pass(uint16_t id) {
 void Renderer::gui_pass(uint16_t id) {}
 void Renderer::transparent_pass(uint16_t id) {}
 void Renderer::post_process_pass(uint16_t id) {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);  // render back buffer
+    using namespace components;
 
-    glDisable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(m_tempScreenShader.get_program());
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tempFramebufferColor.get_color_texture());
+    auto entities = registry.view<InstanceMesh, PostProcessing>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
 
-    m_tempPostProcessMesh->draw();
+        GameObject go = goOpt.value();
+        InstanceMesh& mesh = go.get_component<InstanceMesh>();
+        PostProcessing& postProcessing = go.get_component<PostProcessing>();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+        glDisable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        postProcessing.set_target_texture(m_tempFramebufferColor.get_color_texture());
+        postProcessing.apply_post_processing();
+
+        mesh.draw();
+        glEnable(GL_DEPTH_TEST);
+    }
 }
 
 void Renderer::recreate_framebuffer(uint16_t width, uint16_t height, uint16_t id) {
