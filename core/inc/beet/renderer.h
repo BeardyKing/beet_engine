@@ -52,17 +52,15 @@ class Renderer : public Subsystem {
     entt::registry test_registry;
 
     Engine& m_engine;
-    UniversalBufferData m_bufferData;
-
-    GLuint m_uboMatrices{0};
+    UniversalBufferData m_universalBufferData;
 
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
     float m_timePassed{0.0f};
 
-    Framebuffer m_tempFramebufferColor;
+    std::shared_ptr<components::Mesh> m_tempPostProcessMesh;
     components::ShaderProgram m_tempScreenShader;
 
-    unsigned int m_tempQuadVAO, m_tempQuadVBO;
+    Framebuffer m_tempFramebufferColor;
 };
 
 }  // namespace beet

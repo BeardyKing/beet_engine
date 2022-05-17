@@ -41,26 +41,12 @@ void Renderer::on_awake() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    m_bufferData.init();
+    m_universalBufferData.init();
 
     m_tempFramebufferColor.create_color_depth(vec2(1920, 1080));
-
-    // QUAD
-    float quadVertices[] = {
-
-        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-
-        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
-    // screen quad VAO
-    glGenVertexArrays(1, &m_tempQuadVAO);
-    glGenBuffers(1, &m_tempQuadVBO);
-    glBindVertexArray(m_tempQuadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_tempQuadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    m_tempPostProcessMesh = std::make_shared<components::Mesh>();
+    m_tempPostProcessMesh->generate_default_asset();
+    m_tempPostProcessMesh->on_awake();
 
     m_tempScreenShader.load_shader("post_process", "post_process.vert", "post_process.frag");
 }
@@ -123,7 +109,7 @@ void Renderer::color_pass(uint16_t id) {
 
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
-        m_bufferData.update_view_projection_data(view, proj, pos);
+        m_universalBufferData.update_view_projection_data(view, proj, pos);
     }
 
     auto lights = registry.view<Transform, PointLight>();
@@ -143,7 +129,7 @@ void Renderer::color_pass(uint16_t id) {
         m_lightData.emplace_back(data);
     }
     // TODO consider passing in as 2 arrays/vectors as size and intensity is unlikely to be updated as often as position
-    m_bufferData.update_point_light_data(m_lightData);
+    m_universalBufferData.update_point_light_data(m_lightData);
 
     auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
     for (auto& e : entities) {
@@ -170,15 +156,15 @@ void Renderer::gui_pass(uint16_t id) {}
 void Renderer::transparent_pass(uint16_t id) {}
 void Renderer::post_process_pass(uint16_t id) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  // render back buffer
+
     glDisable(GL_DEPTH_TEST);
-
     glClear(GL_COLOR_BUFFER_BIT);
-
     glUseProgram(m_tempScreenShader.get_program());
-    glBindVertexArray(m_tempQuadVAO);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_tempFramebufferColor.get_color_texture());
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    m_tempPostProcessMesh->draw();
 }
 
 void Renderer::recreate_framebuffer(uint16_t width, uint16_t height, uint16_t id) {
@@ -189,6 +175,7 @@ void Renderer::clear_framebuffer(uint16_t id) {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
+
 void Renderer::clear_all_framebuffer_objects() {
     // TODO when framebuffer manager in impl
     clear_framebuffer(0);
