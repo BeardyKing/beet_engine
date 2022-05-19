@@ -2,6 +2,7 @@
 #include <beet/assert.h>
 #include <beet/components.h>
 #include <beet/engine.h>
+#include <beet/framebuffer_manager.h>
 #include <beet/renderer.h>
 #include <beet/scene.h>
 #include <beet/types.h>
@@ -16,9 +17,8 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
 }
 
 void Renderer::on_awake() {
-    auto width = m_engine.get_window_module().lock()->get_window_width();
-    auto height = m_engine.get_window_module().lock()->get_window_height();
-    recreate_framebuffer(width, height);
+    auto size = m_engine.get_window_module().lock()->get_window_size();
+    resize_all_framebuffers(size);
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 
@@ -42,19 +42,14 @@ void Renderer::on_awake() {
     glEnable(GL_CULL_FACE);
 
     m_universalBufferData.init();
-
-    m_tempFramebufferColor.create_color_depth(vec2(1920, 1080));
-    m_tempPostProcessMesh = std::make_shared<components::Mesh>();
-    m_tempPostProcessMesh->generate_default_asset();
-    m_tempPostProcessMesh->on_awake();
-
-    m_tempScreenShader.load_shader("post_process", "post_process.vert", "post_process.frag");
 }
 
 Renderer::~Renderer() {}
 
 void Renderer::on_update(double deltaTime) {
-    clear_framebuffer(0);
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->clear_all_framebuffers();
+
     m_timePassed += (float)deltaTime;
 
     if (glm::isnan((float)m_engine.get_window_module().lock()->get_window_aspect_ratio())) {
@@ -72,7 +67,8 @@ void Renderer::on_update(double deltaTime) {
 void Renderer::shadow_pass(uint16_t id) {}
 void Renderer::depth_pass(uint16_t id) {}
 void Renderer::color_pass(uint16_t id) {
-    m_tempFramebufferColor.bind();
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Color);
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -150,12 +146,14 @@ void Renderer::color_pass(uint16_t id) {
         glCullFace(GL_BACK);
         mesh.draw();
     }
-    m_tempFramebufferColor.unbind();
+    fbm->unbind_framebuffer();
+    //    m_tempFramebufferColor.unbind();
 }
 void Renderer::gui_pass(uint16_t id) {}
 void Renderer::transparent_pass(uint16_t id) {}
 void Renderer::post_process_pass(uint16_t id) {
     using namespace components;
+    auto fbm = m_engine.get_framebuffer_module().lock();
 
     auto sceneOpt = Scene::get_active_scene();
     if (!sceneOpt) {
@@ -176,11 +174,11 @@ void Renderer::post_process_pass(uint16_t id) {
         PostProcessing& postProcessing = go.get_component<PostProcessing>();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
+
         glDisable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        postProcessing.set_target_texture(m_tempFramebufferColor.get_color_texture());
+        auto tex = fbm->get_color_attachment(FrameBufferType::Color);
+        postProcessing.set_target_texture(tex);
         postProcessing.apply_post_processing();
 
         mesh.draw();
@@ -188,18 +186,9 @@ void Renderer::post_process_pass(uint16_t id) {
     }
 }
 
-void Renderer::recreate_framebuffer(uint16_t width, uint16_t height, uint16_t id) {
-    glViewport(0, 0, width, height);
-}
-
-void Renderer::clear_framebuffer(uint16_t id) {
-    glBindFramebuffer(GL_FRAMEBUFFER, id);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
-
-void Renderer::clear_all_framebuffer_objects() {
-    // TODO when framebuffer manager in impl
-    clear_framebuffer(0);
+void Renderer::resize_all_framebuffers(const vec2i& size) {
+    glViewport(0, 0, size.x, size.y);
+    m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 
 void Renderer::on_late_update() {}

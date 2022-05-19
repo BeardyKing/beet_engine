@@ -7,6 +7,7 @@
 
 #include <beet/asset_manager.h>
 #include <beet/editor_camera.h>
+#include <beet/framebuffer_manager.h>
 #include <beet/renderer.h>
 #include <beet/window.h>
 
@@ -26,6 +27,7 @@ class Engine {
     std::weak_ptr<Window> get_window_module() { return m_windowModule; }
     std::weak_ptr<Renderer> get_renderer_module() { return m_rendererModule; }
     std::weak_ptr<EditorCameraController> get_editor_camera_module() { return m_editorCameraModule; }
+    std::weak_ptr<FramebufferManager> get_framebuffer_module() { return m_framebufferManager; }
 
     inline void swap_frame();
 
@@ -37,6 +39,7 @@ class Engine {
     std::shared_ptr<EditorCameraController> m_editorCameraModule;
     std::shared_ptr<AssetManager> m_assetManager;
     std::shared_ptr<EditorWidgets> m_widgetModule;
+    std::shared_ptr<FramebufferManager> m_framebufferManager;
 };
 
 }  // namespace beet

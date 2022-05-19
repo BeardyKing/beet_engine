@@ -22,6 +22,19 @@ enum class TextureType { Albedo, Normal, Metallic, Roughness, Occlusion, LAST };
 using namespace glm;
 using namespace uuids;
 
+enum class FrameBufferType : uint16_t {
+    Back,
+    Depth,
+    Color,
+    PostProcess,
+    Gui,
+    ShadowOne,
+    ShadowTwo,
+    ShadowThree,
+    ShadowFour,
+    LAST
+};
+
 struct PackedPointLightData {
     vec4 pointPosition_pointRange;
     vec4 pointColor_pointIntensity;

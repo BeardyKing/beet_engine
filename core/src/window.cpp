@@ -43,14 +43,15 @@ void Window::on_awake() {
         glfwSetInputMode(m_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSwapInterval(1);
     setup_callbacks();
-    m_engine.get_renderer_module().lock()->recreate_framebuffer(m_width, m_height);
+    m_engine.get_renderer_module().lock()->resize_all_framebuffers(vec2i(m_width, m_height));
 }
 
 void Window::window_size_callback(GLFWwindow* window, int width, int height) {
     auto* self = (Window*)glfwGetWindowUserPointer(window);
-    self->m_width = width;
-    self->m_height = height;
-    self->m_engine.get_renderer_module().lock()->recreate_framebuffer(width, height);
+    vec2i size{width, height};
+    self->m_width = size.x;
+    self->m_height = size.y;
+    self->m_engine.get_renderer_module().lock()->resize_all_framebuffers(size);
 }
 
 bool Window::is_open() {

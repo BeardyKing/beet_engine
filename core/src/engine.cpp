@@ -7,6 +7,7 @@ namespace beet {
 
 Engine::Engine() {
     m_windowModule = std::make_shared<Window>(1920, 1080, "beetroot", *this);
+    m_framebufferManager = std::make_shared<FramebufferManager>(*this);
     m_widgetModule = std::make_shared<EditorWidgets>(*this);
     m_assetManager = std::make_shared<AssetManager>();
     m_editorCameraModule = std::make_shared<EditorCameraController>(*this);
@@ -15,6 +16,7 @@ Engine::Engine() {
     // order dependent
     m_engineModules.emplace_back(m_windowModule);
     m_engineModules.emplace_back(m_assetManager);
+    m_engineModules.emplace_back(m_framebufferManager);
     m_engineModules.emplace_back(m_editorCameraModule);
     m_engineModules.emplace_back(m_rendererModule);
     m_engineModules.emplace_back(m_widgetModule);

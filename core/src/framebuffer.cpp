@@ -43,18 +43,16 @@ void Framebuffer::attach_color(const vec2& size) {
 void Framebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glEnable(GL_DEPTH_TEST);  // enable depth testing (is disabled for rendering screen-space quad)
-
-    glClear(m_flags);
+    clear_framebuffer();
 }
 
 void Framebuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::update_size(const vec2& size) {
-    glBindTexture(GL_TEXTURE_2D, m_fbo);
-
+void Framebuffer::update_size(const vec2i& size) {
     if (m_colorTexture) {
+        glBindTexture(GL_TEXTURE_2D, m_colorTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
 
@@ -62,8 +60,14 @@ void Framebuffer::update_size(const vec2& size) {
         glBindTexture(GL_TEXTURE_2D, m_depthTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     }
-
-    glViewport(0, 0, size.x, size.y);  // TODO CHECK IF THIS IS NEEDED
 }
+
+void Framebuffer::clear_framebuffer() {
+    glClear(m_flags);
+}
+
+void Framebuffer::add_capability(GLenum capability) {}
+void Framebuffer::remove_capability(GLenum capability) {}
+void Framebuffer::reset_capability() {}
 
 }  // namespace beet

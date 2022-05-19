@@ -14,13 +14,18 @@ class Framebuffer {
     void unbind();
 
     void create_color_depth(const vec2& size);
-    void update_size(const vec2& size);
+    void update_size(const vec2i& size);
 
     GLuint get_framebuffer() { return m_fbo; };
     GLuint get_color_texture() { return m_colorTexture; };
     GLuint get_depth_texture() { return m_depthTexture; };
 
     void set_clear_flags(const GLbitfield flags) { m_flags = flags; };
+    void clear_framebuffer();
+
+    void add_capability(GLenum capability);
+    void remove_capability(GLenum capability);
+    void reset_capability();
 
    private:
     void attach_color(const vec2& size);
