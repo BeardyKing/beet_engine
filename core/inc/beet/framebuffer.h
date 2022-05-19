@@ -13,9 +13,9 @@ class Framebuffer {
     void bind();
     void unbind();
 
-    void create_color_depth(const vec2& size);
-    void create_color(const vec2& size);
-    void create_depth(const vec2& size);
+    void create_color_depth(const vec2& size, bool updatableSize = true);
+    void create_color(const vec2& size, bool updatableSize = true);
+    void create_depth(const vec2& size, bool updatableSize = true);
     void update_size(const vec2i& size);
 
     GLuint get_framebuffer() { return m_fbo; };
@@ -26,7 +26,7 @@ class Framebuffer {
     void clear_framebuffer();
 
     vec2i get_size() { return m_size; };
-    
+
     void set_name(const std::string& name) { m_name = name; };
     std::string get_name() { return m_name; };
 
@@ -43,8 +43,9 @@ class Framebuffer {
    private:
     std::vector<GLenum> m_drawBuffers;
     GLbitfield m_flags{GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT};
-    vec2i m_size{1};
+    vec2i m_size{1024};
     std::string m_name{"unnamed framebuffer"};
+    bool m_updatableSize{true};
 };
 
 }  // namespace beet

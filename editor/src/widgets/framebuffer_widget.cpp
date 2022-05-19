@@ -13,6 +13,7 @@ void FramebufferWidget::on_widget_render() {
     render_frame_buffers();
     ImGui::End();
 }
+
 void FramebufferWidget::render_frame_buffers() {
     auto fbm = m_editorWidgets.get_engine().get_framebuffer_module().lock();
     auto fbos = fbm->get_all_framebuffers();
@@ -28,6 +29,7 @@ void FramebufferWidget::render_frame_buffers() {
         std::string name = fbo.get_name();
         auto rawSize = fbo.get_size();
         float aspectX = (float)rawSize.y / (float)rawSize.x;
+        float aspectY = (float)rawSize.x / (float)rawSize.y;
 
         float width = ImGui::GetWindowContentRegionWidth();
         float height = width * aspectX;
@@ -38,12 +40,20 @@ void FramebufferWidget::render_frame_buffers() {
 
         if (colorTexture) {
             if (ImGui::CollapsingHeader((name + " : color texture").c_str(), flags)) {
+                ImGui::Indent();
+                ImGui::Text("%s", ("size : " + to_string(rawSize)).c_str());
+                ImGui::Text("%s", ("aspect ratio : " + std::to_string(aspectY)).c_str());
+                ImGui::Unindent();
                 ImGui::Image((GLuint*)fbo.get_color_texture(), imageSize);
             }
         }
 
         if (depthTexture) {
             if (ImGui::CollapsingHeader((name + " : depth texture").c_str(), flags)) {
+                ImGui::Indent();
+                ImGui::Text("%s", ("size : " + to_string(rawSize)).c_str());
+                ImGui::Text("%s", ("aspect : " + std::to_string(aspectY)).c_str());
+                ImGui::Unindent();
                 ImGui::Image((GLuint*)fbo.get_depth_texture(), imageSize);
             }
         }

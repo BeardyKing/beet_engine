@@ -9,8 +9,9 @@ Framebuffer::~Framebuffer() {
     }
 }
 
-void Framebuffer::create_color_depth(const vec2& size) {
+void Framebuffer::create_color_depth(const vec2& size, bool updatableSize) {
     m_size = size;
+    m_updatableSize = updatableSize;
 
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -21,8 +22,9 @@ void Framebuffer::create_color_depth(const vec2& size) {
     set_draw_buffers();
 }
 
-void Framebuffer::create_color(const vec2& size) {
+void Framebuffer::create_color(const vec2& size, bool updatableSize) {
     m_size = size;
+    m_updatableSize = updatableSize;
 
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -32,8 +34,9 @@ void Framebuffer::create_color(const vec2& size) {
     set_draw_buffers();
 }
 
-void Framebuffer::create_depth(const vec2& size) {
+void Framebuffer::create_depth(const vec2& size, bool updatableSize) {
     m_size = size;
+    m_updatableSize = updatableSize;
     
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -84,6 +87,10 @@ void Framebuffer::unbind() {
 }
 
 void Framebuffer::update_size(const vec2i& size) {
+    if (m_updatableSize == false) {
+        return;
+    }
+
     m_size = size;
 
     if (m_colorTexture) {

@@ -24,8 +24,8 @@ void FramebufferManager::on_awake() {
     m_framebuffers[(size_t)FrameBufferType::Color].create_color_depth(windowSize);
     m_framebuffers[(size_t)FrameBufferType::PostProcess].create_color(windowSize);
     m_framebuffers[(size_t)FrameBufferType::Gui].create_color_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::ShadowOne].create_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].create_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::ShadowOne].create_depth(vec2i(1024), false);
+    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].create_depth(vec2i(1024), false);
 
     m_framebuffers[(size_t)FrameBufferType::Back].set_clear_flags(clearFlagsColorDepth);
     m_framebuffers[(size_t)FrameBufferType::Depth].set_clear_flags(clearFlagsDepth);
