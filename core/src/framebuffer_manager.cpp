@@ -41,8 +41,9 @@ void FramebufferManager::on_update(double m_delta_time) {}
 void FramebufferManager::on_late_update() {}
 
 void FramebufferManager::on_destroy() {
-    log::info("FramebufferManager destroyed");
+    log::debug("FramebufferManager destroyed");
 }
+
 FramebufferManager::~FramebufferManager() {}
 
 void FramebufferManager::resize_all_framebuffers(const vec2i& size) {

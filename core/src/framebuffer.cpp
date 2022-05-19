@@ -3,7 +3,11 @@ namespace beet {
 
 Framebuffer::Framebuffer() {}
 
-Framebuffer::~Framebuffer() {}
+Framebuffer::~Framebuffer() {
+    if (m_fbo) {
+        glDeleteBuffers(1, &m_fbo);
+    }
+}
 
 void Framebuffer::create_color_depth(const vec2& size) {
     glGenFramebuffers(1, &m_fbo);
