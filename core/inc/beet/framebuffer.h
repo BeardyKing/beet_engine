@@ -14,6 +14,8 @@ class Framebuffer {
     void unbind();
 
     void create_color_depth(const vec2& size);
+    void create_color(const vec2& size);
+    void create_depth(const vec2& size);
     void update_size(const vec2i& size);
 
     GLuint get_framebuffer() { return m_fbo; };
@@ -23,13 +25,10 @@ class Framebuffer {
     void set_clear_flags(const GLbitfield flags) { m_flags = flags; };
     void clear_framebuffer();
 
-    void add_capability(GLenum capability);
-    void remove_capability(GLenum capability);
-    void reset_capability();
-
    private:
-    void attach_color(const vec2& size);
-    void attach_depth(const vec2& size);
+    void create_color_attachment(const vec2& size);
+    void create_depth_attachment(const vec2& size);
+    void set_draw_buffers();
 
    private:
     GLuint m_fbo{0};

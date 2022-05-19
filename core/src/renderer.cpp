@@ -69,6 +69,8 @@ void Renderer::depth_pass(uint16_t id) {}
 void Renderer::color_pass(uint16_t id) {
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Color);
+    glEnable(GL_DEPTH_TEST);
+
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();

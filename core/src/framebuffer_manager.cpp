@@ -19,22 +19,21 @@ void FramebufferManager::on_awake() {
     m_framebuffers[(size_t)FrameBufferType::ShadowOne] = Framebuffer();
     m_framebuffers[(size_t)FrameBufferType::ShadowTwo] = Framebuffer();
 
-    // TODO IMPL depth & color only
     m_framebuffers[(size_t)FrameBufferType::Back];  // fbo default = 0;
-    m_framebuffers[(size_t)FrameBufferType::Depth].create_color_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::Depth].create_depth(windowSize);
     m_framebuffers[(size_t)FrameBufferType::Color].create_color_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::PostProcess].create_color_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::PostProcess].create_color(windowSize);
     m_framebuffers[(size_t)FrameBufferType::Gui].create_color_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::ShadowOne].create_color_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].create_color_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::ShadowOne].create_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].create_depth(windowSize);
 
     m_framebuffers[(size_t)FrameBufferType::Back].set_clear_flags(clearFlagsColorDepth);
-    m_framebuffers[(size_t)FrameBufferType::Depth].set_clear_flags(clearFlagsColorDepth);
+    m_framebuffers[(size_t)FrameBufferType::Depth].set_clear_flags(clearFlagsDepth);
     m_framebuffers[(size_t)FrameBufferType::Color].set_clear_flags(clearFlagsColorDepth);
-    m_framebuffers[(size_t)FrameBufferType::PostProcess].set_clear_flags(clearFlagsColorDepth);
+    m_framebuffers[(size_t)FrameBufferType::PostProcess].set_clear_flags(clearFlagsColor);
     m_framebuffers[(size_t)FrameBufferType::Gui].set_clear_flags(clearFlagsColorDepth);
-    m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_clear_flags(clearFlagsColorDepth);
-    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].set_clear_flags(clearFlagsColorDepth);
+    m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_clear_flags(clearFlagsDepth);
+    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].set_clear_flags(clearFlagsDepth);
 }
 
 void FramebufferManager::on_update(double m_delta_time) {}

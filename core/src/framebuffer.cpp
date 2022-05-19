@@ -9,14 +9,38 @@ void Framebuffer::create_color_depth(const vec2& size) {
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-    attach_color(size);
-    attach_depth(size);
+    create_color_attachment(size);
+    create_depth_attachment(size);
 
-    glDrawBuffers(m_drawBuffers.size(), m_drawBuffers.data());
-    glBindBuffer(GL_FRAMEBUFFER, 0);
+    set_draw_buffers();
 }
 
-void Framebuffer::attach_depth(const vec2& size) {
+void Framebuffer::create_color(const vec2& size) {
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+    create_color_attachment(size);
+
+    set_draw_buffers();
+}
+
+void Framebuffer::create_depth(const vec2& size) {
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+    create_depth_attachment(size);
+
+    set_draw_buffers();
+}
+
+void Framebuffer::set_draw_buffers() {
+    glBindBuffer(GL_FRAMEBUFFER, m_fbo);
+    glDrawBuffers(m_drawBuffers.size(), m_drawBuffers.data());
+    glBindBuffer(GL_FRAMEBUFFER, 0);
+    log::info("Created framebuffer {} - with [{}] attachments", m_fbo, m_drawBuffers.size());
+}
+
+void Framebuffer::create_depth_attachment(const vec2& size) {
     glGenTextures(1, &m_depthTexture);
     glBindTexture(GL_TEXTURE_2D, m_depthTexture);
 
@@ -28,7 +52,7 @@ void Framebuffer::attach_depth(const vec2& size) {
     m_drawBuffers.emplace_back(GL_DEPTH_ATTACHMENT);
 }
 
-void Framebuffer::attach_color(const vec2& size) {
+void Framebuffer::create_color_attachment(const vec2& size) {
     glGenTextures(1, &m_colorTexture);
     glBindTexture(GL_TEXTURE_2D, m_colorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -42,8 +66,6 @@ void Framebuffer::attach_color(const vec2& size) {
 
 void Framebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glEnable(GL_DEPTH_TEST);  // enable depth testing (is disabled for rendering screen-space quad)
-    clear_framebuffer();
 }
 
 void Framebuffer::unbind() {
@@ -63,11 +85,8 @@ void Framebuffer::update_size(const vec2i& size) {
 }
 
 void Framebuffer::clear_framebuffer() {
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glClear(m_flags);
 }
-
-void Framebuffer::add_capability(GLenum capability) {}
-void Framebuffer::remove_capability(GLenum capability) {}
-void Framebuffer::reset_capability() {}
 
 }  // namespace beet
