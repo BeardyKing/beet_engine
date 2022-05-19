@@ -34,6 +34,14 @@ void FramebufferManager::on_awake() {
     m_framebuffers[(size_t)FrameBufferType::Gui].set_clear_flags(clearFlagsColorDepth);
     m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_clear_flags(clearFlagsDepth);
     m_framebuffers[(size_t)FrameBufferType::ShadowTwo].set_clear_flags(clearFlagsDepth);
+
+    m_framebuffers[(size_t)FrameBufferType::Back].set_name("Back buffer");
+    m_framebuffers[(size_t)FrameBufferType::Depth].set_name("Depth pre pass");
+    m_framebuffers[(size_t)FrameBufferType::Color].set_name("Main render");
+    m_framebuffers[(size_t)FrameBufferType::PostProcess].set_name("Post process");
+    m_framebuffers[(size_t)FrameBufferType::Gui].set_name("Gui");
+    m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_name("Shadow one");
+    m_framebuffers[(size_t)FrameBufferType::ShadowTwo].set_name("Shadow two");
 }
 
 void FramebufferManager::on_update(double m_delta_time) {}

@@ -1,6 +1,7 @@
 #include "editor_widgets.h"
 
 #include "demo_widget.h"
+#include "framebuffer_widget.h"
 #include "hierarchy_widget.h"
 #include "inspector_widget.h"
 
@@ -9,6 +10,7 @@ EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
     add_widget(std::make_shared<DemoWidget>("Demo widget"));
     add_widget(std::make_shared<HierarchyWidget>("Hierarchy widget", *this));
     add_widget(std::make_shared<InspectorWidget>("Inspector Widget", *this));
+    add_widget(std::make_shared<FramebufferWidget>("Framebuffer Widget", *this));
 }
 
 void EditorWidgets::add_widget(std::shared_ptr<Widget> widget) {

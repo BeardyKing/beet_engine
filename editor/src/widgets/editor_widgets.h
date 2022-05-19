@@ -35,8 +35,11 @@ class EditorWidgets : public Subsystem {
     void on_update(double m_delta_time) override;
     void on_late_update() override;
     void on_destroy() override;
+
     uuids::uuid get_selected_entity() { return m_selectedEntity; };
     void set_selected_entity(uuids::uuid selectedEntity) { m_selectedEntity = selectedEntity; };
+
+    Engine& get_engine() { return m_engine; };
 
    private:
     std::vector<std::shared_ptr<Widget>> m_widgets;

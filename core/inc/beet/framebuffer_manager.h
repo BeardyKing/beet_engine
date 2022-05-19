@@ -30,6 +30,9 @@ class FramebufferManager : public Subsystem {
     void unbind_framebuffer();
 
     GLuint get_color_attachment(FrameBufferType type);
+    
+    std::array<Framebuffer, (size_t)FrameBufferType::LAST> get_all_framebuffers() { return m_framebuffers; };
+    Framebuffer get_framebuffer(FrameBufferType type) { return m_framebuffers[(size_t)type]; };
 
    private:
     std::array<Framebuffer, (size_t)FrameBufferType::LAST> m_framebuffers;
