@@ -39,12 +39,13 @@ class Renderer : public Subsystem {
     // 6) SYSTEM : Sorted Transparent Render Pass
     // 7) SYSTEM : Post Processing Stack
 
-    void shadow_pass(uint16_t id);
-    void depth_pass(uint16_t id);
-    void color_pass(uint16_t id);
-    void gui_pass(uint16_t id);
-    void transparent_pass(uint16_t id);
-    void post_process_pass(uint16_t id);
+    void update_universal_buffer_data();
+    void shadow_pass();
+    void depth_pass();
+    void color_pass();
+    void gui_pass();
+    void transparent_pass();
+    void post_process_pass();
 
    private:
     entt::registry test_registry;
@@ -55,10 +56,8 @@ class Renderer : public Subsystem {
     vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
     float m_timePassed{0.0f};
 
-    std::shared_ptr<components::Mesh> m_tempPostProcessMesh;
-    components::ShaderProgram m_tempScreenShader;
-
-    Framebuffer m_tempFramebufferColor;
+    components::ShaderProgram m_depthProgram;
+    GLuint m_modelUniform{0};
 };
 
 }  // namespace beet

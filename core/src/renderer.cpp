@@ -2,7 +2,6 @@
 #include <beet/assert.h>
 #include <beet/components.h>
 #include <beet/engine.h>
-#include <beet/framebuffer_manager.h>
 #include <beet/renderer.h>
 #include <beet/scene.h>
 #include <beet/types.h>
@@ -42,9 +41,10 @@ void Renderer::on_awake() {
     glEnable(GL_CULL_FACE);
 
     m_universalBufferData.init();
-}
 
-Renderer::~Renderer() {}
+    m_depthProgram.load_shader("depth", "depth.vert", "depth.frag");
+    m_modelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
+}
 
 void Renderer::on_update(double deltaTime) {
     auto fbm = m_engine.get_framebuffer_module().lock();
@@ -55,22 +55,16 @@ void Renderer::on_update(double deltaTime) {
     if (glm::isnan((float)m_engine.get_window_module().lock()->get_window_aspect_ratio())) {
         return;
     }
-
-    depth_pass(0);
-    shadow_pass(0);
-    color_pass(0);
-    transparent_pass(0);
-    post_process_pass(0);
-    gui_pass(0);
+    update_universal_buffer_data();
+    depth_pass();
+    shadow_pass();
+    color_pass();
+    transparent_pass();
+    post_process_pass();
+    gui_pass();
 }
 
-void Renderer::shadow_pass(uint16_t id) {}
-void Renderer::depth_pass(uint16_t id) {}
-void Renderer::color_pass(uint16_t id) {
-    auto fbm = m_engine.get_framebuffer_module().lock();
-    fbm->bind_framebuffer(FrameBufferType::Color);
-    glEnable(GL_DEPTH_TEST);
-
+void Renderer::update_universal_buffer_data() {
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -80,7 +74,6 @@ void Renderer::color_pass(uint16_t id) {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
-    //=CAMERA===========================
     auto cameras = registry.view<Transform, Camera, Name>();
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 proj = glm::mat4(1.0f);
@@ -128,6 +121,56 @@ void Renderer::color_pass(uint16_t id) {
     }
     // TODO consider passing in as 2 arrays/vectors as size and intensity is unlikely to be updated as often as position
     m_universalBufferData.update_point_light_data(m_lightData);
+}
+
+void Renderer::depth_pass() {
+    using namespace components;
+    auto fbm = m_engine.get_framebuffer_module().lock();
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
+
+    auto entities = registry.view<InstanceMesh, Transform>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        InstanceMesh& instanceMesh = go.get_component<InstanceMesh>();
+        Transform& transform = go.get_component<Transform>();
+
+        fbm->bind_framebuffer(FrameBufferType::Depth);
+        glUseProgram(m_depthProgram.get_program());
+
+        glUniformMatrix4fv(m_modelUniform, 1, GL_FALSE, value_ptr(transform.get_model_matrix()));
+
+        instanceMesh.draw();
+
+        glUseProgram(0);
+        fbm->unbind_framebuffer();
+    }
+}
+
+void Renderer::color_pass() {
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Color);
+
+    glEnable(GL_DEPTH_TEST);
+
+    using namespace components;
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
 
     auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
     for (auto& e : entities) {
@@ -149,11 +192,9 @@ void Renderer::color_pass(uint16_t id) {
         mesh.draw();
     }
     fbm->unbind_framebuffer();
-    //    m_tempFramebufferColor.unbind();
 }
-void Renderer::gui_pass(uint16_t id) {}
-void Renderer::transparent_pass(uint16_t id) {}
-void Renderer::post_process_pass(uint16_t id) {
+
+void Renderer::post_process_pass() {
     using namespace components;
     auto fbm = m_engine.get_framebuffer_module().lock();
 
@@ -189,10 +230,16 @@ void Renderer::resize_all_framebuffers(const vec2i& size) {
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 
+void Renderer::shadow_pass() {}
+void Renderer::gui_pass() {}
+void Renderer::transparent_pass() {}
+
 void Renderer::on_late_update() {}
 
 void Renderer::on_destroy() {
     log::debug("Renderer destroyed");
 }
+
+Renderer::~Renderer() {}
 
 }  // namespace beet
