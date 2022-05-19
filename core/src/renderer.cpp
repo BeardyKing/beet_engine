@@ -164,7 +164,7 @@ void Renderer::post_process_pass(uint16_t id) {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
-    auto entities = registry.view<InstanceMesh, PostProcessing>();
+    auto entities = registry.view<PostProcessing>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
@@ -172,19 +172,15 @@ void Renderer::post_process_pass(uint16_t id) {
         }
 
         GameObject go = goOpt.value();
-        InstanceMesh& mesh = go.get_component<InstanceMesh>();
         PostProcessing& postProcessing = go.get_component<PostProcessing>();
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        fbm->bind_framebuffer(FrameBufferType::Back);
 
-        glDisable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT);
         auto tex = fbm->get_color_attachment(FrameBufferType::Color);
+
         postProcessing.set_target_texture(tex);
         postProcessing.apply_post_processing();
-
-        mesh.draw();
-        glEnable(GL_DEPTH_TEST);
+        postProcessing.draw();
     }
 }
 

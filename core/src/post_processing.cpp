@@ -5,6 +5,7 @@ namespace components {
 
 void PostProcessing::on_awake() {
     m_shader.load_shader("post_process", "post_process.vert", "post_process.frag");
+    m_mesh.on_awake();
 }
 void PostProcessing::on_destroy() {}
 
@@ -17,6 +18,10 @@ void PostProcessing::apply_post_processing() {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_targetTexture);
+}
+
+void PostProcessing::draw() {
+    m_mesh.draw();
 }
 
 }  // namespace components
