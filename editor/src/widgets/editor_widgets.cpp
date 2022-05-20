@@ -4,6 +4,7 @@
 #include "framebuffer_widget.h"
 #include "hierarchy_widget.h"
 #include "inspector_widget.h"
+#include "terminal_widget.h"
 
 namespace beet {
 EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
@@ -11,6 +12,7 @@ EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
     add_widget(std::make_shared<HierarchyWidget>("Hierarchy widget", *this));
     add_widget(std::make_shared<InspectorWidget>("Inspector Widget", *this));
     add_widget(std::make_shared<FramebufferWidget>("Framebuffer Widget", *this));
+    add_widget(std::make_shared<TerminalWidget>("Terminal Widget", *this));
 }
 
 void EditorWidgets::add_widget(std::shared_ptr<Widget> widget) {
