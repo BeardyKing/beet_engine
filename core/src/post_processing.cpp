@@ -4,6 +4,7 @@ namespace beet {
 namespace components {
 
 void PostProcessing::on_awake() {
+    m_shader.set_asset_name("post process");
     m_shader.load_shader("post_process", "post_process.vert", "post_process.frag");
     m_mesh.on_awake();
 }
