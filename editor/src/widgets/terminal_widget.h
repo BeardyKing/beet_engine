@@ -24,10 +24,15 @@ class TerminalWidget : public Widget {
     void split();
     EditorWidgets& m_editorWidgets;
 
-    std::ostringstream oss;
-    std::vector<std::string> messages;
-    std::vector<std::string> test_messages;
-    std::vector<TermMessage> m_messages;
+    std::ostringstream m_oss;
+    // TODO consider using large array or circular buffer
+    std::vector<TermMessage> m_terminalMessages;
+
+   private:
+    std::vector<std::string> m_rawMessages;
+    TermMessage m_tempTermMessage;
+    std::string m_tempToken{};
+    int m_lastAmountOfLogs{0};
 };
 
 }  // namespace beet
