@@ -64,3 +64,18 @@ target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backen
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCES})
 
+#======= IMGUI ========#
+
+project(imguizmo)
+file(GLOB IMGUIZMO_SOURCES
+        imguizmo/GraphEditor.cpp
+        imguizmo/ImCurveEdit.cpp
+        imguizmo/ImGradient.cpp
+        imguizmo/ImGuizmo.cpp
+        imguizmo/ImSequencer.cpp
+        )
+add_library(imguizmo ${IMGUIZMO_SOURCES})
+target_link_libraries(imguizmo PRIVATE imgui)
+target_include_directories(imguizmo PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imguizmo)
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUIZMO_SOURCES})
+

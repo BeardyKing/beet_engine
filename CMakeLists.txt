@@ -43,6 +43,7 @@ target_link_libraries(beet
         EnTT::EnTT
         stduuid
         imgui
+        imguizmo
         )
 
 #======= PROPERTIES ========#

@@ -2,6 +2,7 @@
 
 #include "demo_widget.h"
 #include "framebuffer_widget.h"
+#include "gizmo_widget.h"
 #include "hierarchy_widget.h"
 #include "inspector_widget.h"
 #include "terminal_widget.h"
@@ -13,6 +14,7 @@ EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
     add_widget(std::make_shared<InspectorWidget>("Inspector Widget", *this));
     add_widget(std::make_shared<FramebufferWidget>("Framebuffer Widget", *this));
     add_widget(std::make_shared<TerminalWidget>("Terminal Widget", *this));
+    add_widget(std::make_shared<GizmoWidget>("Gizmo Widget", *this));
 }
 
 void EditorWidgets::add_widget(std::shared_ptr<Widget> widget) {
