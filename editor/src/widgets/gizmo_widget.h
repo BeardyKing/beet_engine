@@ -2,8 +2,8 @@
 #include <beet/types.h>
 #include "editor_widgets.h"
 #include "widget.h"
-#include <ImGuizmo.h>
 
+#include <ImGuizmo.h>
 
 namespace beet {
 
@@ -15,7 +15,8 @@ class GizmoWidget : public Widget {
     void on_widget_render() override;
 
    private:
-    void render_gizmo();
+    void render_editor_scene(Framebuffer& fbo);
+    void render_gizmo(const ImVec2& windowPos, const ImVec2& imageSize);
 
    private:
     EditorWidgets& m_editorWidgets;

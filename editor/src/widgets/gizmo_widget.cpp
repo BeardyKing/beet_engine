@@ -11,17 +11,46 @@ void GizmoWidget::on_widget_render() {
         return;
     }
 
+    auto fbm = m_editorWidgets.get_engine().get_framebuffer_module().lock();
+    auto fbo = fbm->get_framebuffer(FrameBufferType::Color);
+
+    if (!fbo.get_framebuffer()) {
+        return;
+    }
+
     ImGuizmo::BeginFrame();
-    auto windowSize = m_editorWidgets.get_engine().get_window_module().lock()->get_window_size();
+    ImGui::Begin(m_name.c_str(), &m_isActive, ImGuiWindowFlags_MenuBar);
 
-    ImGui::Begin(m_name.c_str(), NULL,
-                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration);
-
-    render_gizmo();
+    render_editor_scene(fbo);
 
     ImGui::End();
 }
-void GizmoWidget::render_gizmo() {
+
+void GizmoWidget::render_editor_scene(Framebuffer& fbo) {
+    auto colorTexture = fbo.get_color_texture();
+
+    auto rawSize = fbo.get_size();
+    float aspectX = (float)rawSize.y / (float)rawSize.x;
+    float width = ImGui::GetWindowContentRegionWidth();
+    float height = width * aspectX;
+
+    ImVec2 imageSize(width, height);
+
+    auto imagePos = ImGui::GetCursorScreenPos();
+
+    if (colorTexture) {
+        ImVec2 uv_min = ImVec2(0.0f, 0.0f);
+        ImVec2 uv_max = ImVec2(1.0f, -1.0f);
+        ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+
+        ImGui::Image((GLuint*)colorTexture, imageSize, uv_min, uv_max, tint_col, border_col);
+    }
+
+    render_gizmo(imagePos, imageSize);
+}
+
+void GizmoWidget::render_gizmo(const ImVec2& windowPos, const ImVec2& imageSize) {
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -79,7 +108,7 @@ void GizmoWidget::render_gizmo() {
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(0, 0, windowSize.x, windowSize.y);
+    ImGuizmo::SetRect(windowPos.x, windowPos.y, imageSize.x, imageSize.y);
 
     // TODO setup buttons
     // TODO set imgui window to size of active render window / editor window
@@ -91,21 +120,14 @@ void GizmoWidget::render_gizmo() {
     if (ImGui::IsKeyPressed(51))
         m_currentGizmoOperation = ImGuizmo::OPERATION::SCALE;  // key "3"
     if (ImGui::IsKeyPressed(52))
-        m_currentGizmoOperation = ImGuizmo::OPERATION::BOUNDS;  // key "4"
+        m_currentGizmoOperation = ImGuizmo::OPERATION::UNIVERSAL;  // key "4"
 
-    vec3 position = transform.get_position();
-    vec3 rotation = transform.get_rotation_euler();
-    vec3 scale = transform.get_scale();
-    mat4 mtx{};
+    vec3 position{0};
+    vec3 rotation{0};
+    vec3 scale{0};
+    mat4 mtx = transform.get_model_matrix();
 
     // clang-format off
-
-    ImGuizmo::RecomposeMatrixFromComponents(
-        value_ptr(position),
-        value_ptr(rotation),
-        value_ptr(scale),
-        value_ptr(mtx)
-    );
 
     ImGuizmo::Manipulate(
         value_ptr(view),

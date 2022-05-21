@@ -12,7 +12,7 @@ Editor::Editor() {
     {
         auto editorCamera = m_scene->create_game_object("camera");
         auto& cam = editorCamera.add_component<components::Camera>();
-        editorCamera.get_component<components::Transform>().set_position(glm::vec3(0.0f, 0.0f, -5.5));
+        editorCamera.get_component<components::Transform>().set_position(glm::vec3(0.0f, 1.125f, -5.5));
     }
 
     {
