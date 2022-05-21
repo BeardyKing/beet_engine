@@ -21,9 +21,43 @@ void GizmoWidget::on_widget_render() {
     ImGuizmo::BeginFrame();
     ImGui::Begin(m_name.c_str(), &m_isActive, ImGuiWindowFlags_MenuBar);
 
+    mouse_picking();
     render_editor_scene(fbo);
 
     ImGui::End();
+}
+
+void GizmoWidget::mouse_picking() {
+    auto selected = m_editorWidgets.get_selected_entity();
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+
+    Scene& scene = sceneOpt.value();
+
+    auto goOpt = scene.get_game_object_from_id(selected);
+    if (!goOpt) {
+        return;
+    }
+
+    GameObject go = goOpt.value();
+
+    log::debug("Selected entity ID : {}", uuids::to_string(selected));
+    uint8_t red = (uint8_t)selected.as_bytes()[0];
+    uint8_t green = (uint8_t)selected.as_bytes()[1];
+    uint8_t blue = (uint8_t)selected.as_bytes()[2];
+    uint8_t alpha = (uint8_t)selected.as_bytes()[3];
+
+    uint32_t color = (uint32_t)((red << 24) | (green << 16) | (blue << 8) | (alpha << 0));
+
+    red = (uint8_t)((color >> 24) & 0xFF);
+    green = (uint8_t)((color >> 16) & 0xFF);
+    blue = (uint8_t)((color >> 8) & 0xFF);
+    alpha = (uint8_t)((color >> 0) & 0xFF);
+
+    log::info("Color: {},{},{},{}", red, green, blue, alpha);
 }
 
 void GizmoWidget::render_editor_scene(Framebuffer& fbo) {

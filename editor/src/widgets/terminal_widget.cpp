@@ -15,12 +15,15 @@ TerminalWidget::~TerminalWidget() {}
 
 void TerminalWidget::on_widget_render() {
     ImGui::Begin(m_name.c_str());
+
     const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
     static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_BordersOuterH |
                                    ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_Resizable;
     static ImGuiInputTextFlags readFlags = ImGuiInputTextFlags_ReadOnly;
 
     split();
+
+    ImGui::Checkbox("lock scroll to bottom", &m_setScrollBottom);
 
     // TODO setup imgui clipper
     if (ImGui::BeginTable("Terminal", 3, flags)) {
@@ -34,8 +37,7 @@ void TerminalWidget::on_widget_render() {
         clipper.Begin(m_terminalMessages.size());
         while (clipper.Step()) {
             for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                    ImGui::SetScrollHereY(0.0f);
+                scroll_to_bottom();
 
                 ImGui::TableNextRow();
                 {
@@ -129,6 +131,14 @@ void TerminalWidget::set_text_color(const std::string& str) {
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(229, 191, 1, 255));
     } else {  // fallback
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 255, 255));
+    }
+}
+void TerminalWidget::scroll_to_bottom() {
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() || m_setScrollBottom) {
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+            m_setScrollBottom = false;
+        }
+        ImGui::SetScrollHereY(0.0f);
     }
 }
 }  // namespace beet

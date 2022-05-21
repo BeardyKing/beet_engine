@@ -13,7 +13,7 @@ void HierarchyWidget::on_widget_render() {
     ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
 
     ImGui::Begin(m_name.c_str());
-    
+
     auto sceneOpt = Scene::get_active_scene();
     if (!sceneOpt) {
         return;

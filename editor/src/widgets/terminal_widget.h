@@ -22,6 +22,7 @@ class TerminalWidget : public Widget {
    private:
     void set_text_color(const std::string& str);
     void split();
+    void scroll_to_bottom();
     EditorWidgets& m_editorWidgets;
 
     std::ostringstream m_oss;
@@ -33,6 +34,7 @@ class TerminalWidget : public Widget {
     TermMessage m_tempTermMessage;
     std::string m_tempToken{};
     int m_lastAmountOfLogs{0};
+    bool m_setScrollBottom = false;
 };
 
 }  // namespace beet
