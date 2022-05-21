@@ -9,6 +9,7 @@
 
 namespace beet {
 EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
+
     add_widget(std::make_shared<DemoWidget>("Demo widget"));
     add_widget(std::make_shared<HierarchyWidget>("Hierarchy widget", *this));
     add_widget(std::make_shared<InspectorWidget>("Inspector Widget", *this));
@@ -41,6 +42,8 @@ void EditorWidgets::on_awake() {
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
+
+
 }
 void EditorWidgets::on_update(double m_delta_time) {}
 void EditorWidgets::on_late_update() {
@@ -50,6 +53,8 @@ void EditorWidgets::on_late_update() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
 
     for (auto& widget : m_widgets) {
         widget->on_widget_render();
