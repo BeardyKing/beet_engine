@@ -44,11 +44,12 @@ void GizmoWidget::mouse_picking() {
 
     GameObject go = goOpt.value();
 
-    log::debug("Selected entity ID : {}", uuids::to_string(selected));
-    uint8_t red = (uint8_t)selected.as_bytes()[0];
-    uint8_t green = (uint8_t)selected.as_bytes()[1];
-    uint8_t blue = (uint8_t)selected.as_bytes()[2];
-    uint8_t alpha = (uint8_t)selected.as_bytes()[3];
+    auto handle = (uint32_t)go.get_handle();
+
+    uint8_t red = (uint8_t)((handle >> 24) & 0xFF);
+    uint8_t green = (uint8_t)((handle >> 16) & 0xFF);
+    uint8_t blue = (uint8_t)((handle >> 8) & 0xFF);
+    uint8_t alpha = (uint8_t)((handle >> 0) & 0xFF);
 
     uint32_t color = (uint32_t)((red << 24) | (green << 16) | (blue << 8) | (alpha << 0));
 

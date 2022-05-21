@@ -186,6 +186,9 @@ void Renderer::color_pass() {
         Name& name = go.get_component<Name>();
 
         glm::mat4 model = transform.get_model_matrix();
+        auto handle = (uint32_t)go.get_handle();
+        material.set_entt_handle(handle);
+        
         material.set_uniforms(model);
 
         glCullFace(GL_BACK);

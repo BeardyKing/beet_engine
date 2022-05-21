@@ -16,6 +16,9 @@ void Material::on_destroy() {
 
 void Material::on_awake() {
     // clang-format off
+    // m_shader.set_asset_name("lit");
+    // m_shader.load_shader("lit", "lit.vert", "lit.frag");
+
     m_shader.set_asset_name("lit");
     m_shader.load_shader("lit", "lit.vert", "lit.frag");
 
@@ -41,6 +44,7 @@ void Material::on_awake() {
     m_uniformHandles[(size_t)UniformHandle::ReceivesShadows]    = glGetUniformLocation(program, "receivesShadows");
     m_uniformHandles[(size_t)UniformHandle::AlphaCutoffEnabled] = glGetUniformLocation(program, "alphaCutoffEnabled");
     m_uniformHandles[(size_t)UniformHandle::AlphaCutoffAmount]  = glGetUniformLocation(program, "alphaCutoffAmount");
+    m_uniformHandles[(size_t)UniformHandle::EnttHandle]         = glGetUniformLocation(program, "enttHandle");
 
     m_textureHandles[(size_t)TextureType::Albedo]       = glGetUniformLocation(program, "albedoMap");
     m_textureHandles[(size_t)TextureType::Normal]       = glGetUniformLocation(program, "normalMap");
@@ -76,6 +80,8 @@ void Material::set_uniforms(const mat4& model) {
     glUniform1i(m_uniformHandles[(size_t)UniformHandle::ReceivesShadows],       m_receivesShadows);
     glUniform1i(m_uniformHandles[(size_t)UniformHandle::AlphaCutoffEnabled],    m_alphaCutoffEnabled);
     glUniform1f(m_uniformHandles[(size_t)UniformHandle::AlphaCutoffAmount],     m_alphaCutoffAmount);
+
+    glUniform1i(m_uniformHandles[(size_t)UniformHandle::EnttHandle],           m_enttHandle);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_albedo->get_texture_handle());
