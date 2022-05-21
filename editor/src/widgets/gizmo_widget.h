@@ -16,8 +16,8 @@ struct PixelInfo {
         ObjectID = 0.0f;
         DrawID = 0.0f;
         PrimID = 0.0f;
-    }
-}
+    };
+};
 
 class GizmoWidget : public Widget {
    public:
