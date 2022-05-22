@@ -4,6 +4,7 @@ layout (std140) uniform Matrices{
     mat4 projection;
     mat4 view;
     vec3 viewPos;
+    mat4 invProj;
 };
 
 uniform sampler2D albedo;

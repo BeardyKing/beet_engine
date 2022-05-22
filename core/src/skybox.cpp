@@ -26,7 +26,6 @@ void SkyBox::on_awake() {
     m_textureHandles[(size_t)SkyBoxTextureType::Radiance]       = glGetUniformLocation(program, "radiance");
 
     m_uniformSkyboxData = glGetUniformLocation(program, "skyboxData");
-    m_invProj = glGetUniformLocation(program, "invProj");
 
     m_albedo        = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(int)SkyBoxTextureType::SkyBox]).lock();
     m_irradiance    = AssetManager::load_asset<components::Texture>(m_textureSlotPath[(int)SkyBoxTextureType::Irradiance]).lock();
@@ -34,7 +33,7 @@ void SkyBox::on_awake() {
 
     // clang-format on
 }
-void SkyBox::set_uniforms(const mat4& invProj) {
+void SkyBox::set_uniforms() {
     glUseProgram(m_shader.get_program());
 
     m_skyboxData.x = m_exposure;
@@ -42,7 +41,6 @@ void SkyBox::set_uniforms(const mat4& invProj) {
     m_skyboxData.z = 0.0f;
     m_skyboxData.w = 0.0f;
 
-    glUniformMatrix4fv(m_invProj, 1, GL_FALSE, value_ptr(invProj));
     glUniform4fv(m_uniformSkyboxData, 1, value_ptr(m_skyboxData));
 
     glActiveTexture(GL_TEXTURE0);

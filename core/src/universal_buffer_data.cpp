@@ -9,7 +9,7 @@ void UniversalBufferData::init() {
 }
 
 void UniversalBufferData::init_matrix_ubo() {
-    const size_t uboMatrixSize = sizeof(mat4) * 2 + sizeof(vec4);
+    const size_t uboMatrixSize = sizeof(mat4) * 3 + sizeof(vec4);
 
     glGenBuffers(1, &m_matrixDataHandle);
     glBindBuffer(GL_UNIFORM_BUFFER, m_matrixDataHandle);
@@ -30,7 +30,7 @@ void UniversalBufferData::init_point_light_ubo() {
 
 void UniversalBufferData::update_point_light_data(const std::vector<PackedPointLightData>& pointLightData) {
     size_t amountOfActiveLights = pointLightData.size();
-    
+
     std::array<PackedPointLightData, MAX_POINT_LIGHTS> lightData{};
     std::copy_n(pointLightData.begin(),
                 (pointLightData.size() > MAX_POINT_LIGHTS) ? MAX_POINT_LIGHTS : pointLightData.size(),
@@ -51,10 +51,13 @@ void UniversalBufferData::update_point_light_data(const std::vector<PackedPointL
 }
 
 void UniversalBufferData::update_view_projection_data(const mat4& view, const mat4& projection, const vec3& viewPos) {
+    auto inverseProj = inverse(projection);
+
     glBindBuffer(GL_UNIFORM_BUFFER, m_matrixDataHandle);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), value_ptr(projection));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), value_ptr(view));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(vec4), value_ptr(vec4(viewPos, 0)));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2 + sizeof(vec4), sizeof(mat4), value_ptr(inverseProj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

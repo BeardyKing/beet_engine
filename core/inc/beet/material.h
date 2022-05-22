@@ -80,7 +80,7 @@ class Material : public Component<Material> {
     bool m_receivesShadows = true;
     bool m_alphaCutoffEnabled = false;
     float m_alphaCutoffAmount = 0.0f;
-    int m_enttHandle = 0;
+    unsigned int m_enttHandle = 0;
 
    public:
     vec4 get_albedo_color() const { return m_albedoColor; };
@@ -108,7 +108,7 @@ class Material : public Component<Material> {
     void set_receives_shadows(bool receivesShadows) { m_receivesShadows = receivesShadows; };
     void set_alpha_cutoff_enabled(bool alphaCutoffEnabled) { m_alphaCutoffEnabled = alphaCutoffEnabled; };
     void set_alpha_cutoff_amount(float alphaCutoffAmount) { m_alphaCutoffAmount = alphaCutoffAmount; };
-    void set_entt_handle(int enttHandle) { m_enttHandle = enttHandle; };
+    void set_entt_handle(unsigned int enttHandle) { m_enttHandle = enttHandle; };
 };
 
 }  // namespace components

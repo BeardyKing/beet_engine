@@ -5,9 +5,8 @@ layout (std140) uniform Matrices{
     mat4 projection;
     mat4 view;
     vec3 viewPos;
+    mat4 invProj;
 };
-
-uniform mat4 invProj;
 
 out vec3 skyboxViewPos;
 out vec3 fragPos;

@@ -100,7 +100,6 @@ void Renderer::update_universal_buffer_data() {
 
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
-        m_tmpInverseProj = inverse(proj);
         m_universalBufferData.update_view_projection_data(view, proj, pos);
     }
 
@@ -184,7 +183,7 @@ void Renderer::color_pass() {
         glDepthFunc(GL_EQUAL);
         glCullFace(GL_BACK);
 
-        skybox.set_uniforms(m_tmpInverseProj);
+        skybox.set_uniforms();
         skybox.draw();
     }
 

@@ -24,7 +24,7 @@ class SkyBox : public Component<SkyBox> {
    public:
     void set_texture_slot_path(const SkyBoxTextureType slot, const std::string& path);
 
-    void set_uniforms(const mat4& invProj);
+    void set_uniforms();
     GLint get_program() { return m_shader.get_program(); };
     void draw();
     void set_uniform_exposure(float exposure) { m_exposure = exposure; };
