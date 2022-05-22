@@ -127,15 +127,20 @@ void Texture::load_texture_hdri(const std::string& path) {
 
     glGenTextures(1, &m_textureHandle);
 
-    const GLenum format = GL_RGB16F;
+    GLenum format;
+    if (m_channels == 1)
+        format = GL_RED;
+    else if (m_channels == 3)
+        format = GL_RGB;
+    else if (m_channels == 4)
+        format = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, m_textureHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, m_imageSize.x, m_imageSize.y, 0, format, GL_UNSIGNED_BYTE, imageData);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_imageSize.x, m_imageSize.y, 0, format, GL_UNSIGNED_BYTE, imageData);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

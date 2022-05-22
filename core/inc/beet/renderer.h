@@ -58,6 +58,8 @@ class Renderer : public Subsystem {
 
     components::ShaderProgram m_depthProgram;
     GLuint m_modelUniform{0};
+
+    mat4 m_tmpInverseProj{0};
 };
 
 }  // namespace beet

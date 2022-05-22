@@ -35,6 +35,8 @@ enum class FrameBufferType : uint16_t {
     LAST
 };
 
+enum class SkyBoxTextureType { SkyBox, Irradiance, Radiance, LAST };
+
 struct PackedPointLightData {
     vec4 pointPosition_pointRange;
     vec4 pointColor_pointIntensity;

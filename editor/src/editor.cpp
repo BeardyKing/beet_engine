@@ -24,7 +24,9 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("default_cube.obj");
 
         auto material = components::Material();
-        material.set_texture_slot_path(TextureType::Albedo, "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
+        material.set_texture_slot_path(TextureType::Albedo, "skybox/cmft_skybox.hdr");
+        //        material.set_texture_slot_path(TextureType::Albedo,
+        //        "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
         material.set_texture_slot_path(TextureType::Normal, "darkOceanTiles07/DarkOceanTiles07_1K_Normal.png");
         material.set_texture_slot_path(TextureType::Metallic, "darkOceanTiles07/DarkOceanTiles07_1K_Height.png");
         material.set_texture_slot_path(TextureType::Roughness, "darkOceanTiles07/DarkOceanTiles07_1K_Roughness.png");
@@ -97,6 +99,18 @@ Editor::Editor() {
         postProcessing.add_component<components::InstanceMesh>();
         postProcessing.add_component<components::PostProcessing>();
     }
+
+    auto cubeObj = m_scene->create_game_object("skybox");
+    //    //        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-2, 1.0f, -15.0f - 5));
+    //    cubeObj.get_component<components::Transform>().set_scale(glm::vec3(30, 30, 30));
+    //    //        cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 240, 0));
+    //    cubeObj.add_component<components::InstanceMesh>("uv_cube.obj");
+
+    auto skybox = components::SkyBox();
+    skybox.set_texture_slot_path(SkyBoxTextureType::SkyBox, "skybox/cmft_skybox.hdr");
+    skybox.set_texture_slot_path(SkyBoxTextureType::Irradiance, "skybox/cmtr_irradiance.hdr");
+    skybox.set_texture_slot_path(SkyBoxTextureType::Radiance, "skybox/cmtr_radiance.hdr");
+    cubeObj.add_component<components::SkyBox>(skybox);
 }
 
 void Editor::run() {

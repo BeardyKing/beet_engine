@@ -100,6 +100,7 @@ void Renderer::update_universal_buffer_data() {
 
         view = glm::lookAt(pos, lookTarget, up);
         proj = glm::perspective(fovY, aspectRatio, zNear, zFar);
+        m_tmpInverseProj = inverse(proj);
         m_universalBufferData.update_view_projection_data(view, proj, pos);
     }
 
@@ -161,8 +162,6 @@ void Renderer::color_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Color);
 
-    glEnable(GL_DEPTH_TEST);
-
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -172,7 +171,24 @@ void Renderer::color_pass() {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
-    auto entities = registry.view<Transform, InstanceMesh, Name, Material>();
+    auto skyboxes = registry.view<SkyBox>();
+    for (auto& e : skyboxes) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        SkyBox& skybox = go.get_component<SkyBox>();
+
+        glDepthFunc(GL_EQUAL);
+        glCullFace(GL_BACK);
+
+        skybox.set_uniforms(m_tmpInverseProj);
+        skybox.draw();
+    }
+
+    auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
@@ -183,14 +199,13 @@ void Renderer::color_pass() {
         Transform& transform = go.get_component<Transform>();
         InstanceMesh& mesh = go.get_component<InstanceMesh>();
         Material& material = go.get_component<Material>();
-        Name& name = go.get_component<Name>();
 
         glm::mat4 model = transform.get_model_matrix();
         auto handle = (uint32_t)go.get_handle();
         material.set_entt_handle(handle);
-        
-        material.set_uniforms(model);
 
+        material.set_uniforms(model);
+        glDepthFunc(GL_LESS);
         glCullFace(GL_BACK);
         mesh.draw();
     }
