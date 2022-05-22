@@ -74,5 +74,17 @@ void SkyBox::on_destroy() {
     m_uniformSkyboxData = 0;
 }
 
+std::shared_ptr<Texture> SkyBox::get_texture(SkyBoxTextureType slot) {
+    if (slot == SkyBoxTextureType::SkyBox) {
+        return m_albedo;
+    }
+    if (slot == SkyBoxTextureType::Irradiance) {
+        return m_irradiance;
+    }
+    if (slot == SkyBoxTextureType::Radiance) {
+        return m_radiance;
+    }
+}
+
 }  // namespace components
 }  // namespace beet

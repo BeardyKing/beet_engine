@@ -67,6 +67,10 @@ void InspectorWidget::render_inspector() {
     if (go.has_component<components::PointLight>()) {
         render_point_light_component(go.get_component<components::PointLight>());
     }
+
+    if (go.has_component<components::SkyBox>()) {
+        render_skybox_component(go.get_component<components::SkyBox>());
+    }
 }
 
 void InspectorWidget::render_name_component(components::Name& name) {
@@ -563,6 +567,47 @@ void InspectorWidget::render_point_light_component(components::PointLight& point
     pointLight.set_color(lightColor);
     pointLight.set_range(lightRange);
     pointLight.set_intensity(lightIntensity);
+}
+void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
+    if (ImGui::CollapsingHeader("skybox", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
+        ImGui::Indent();
+        ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
+
+        if (ImGui::TreeNode("Skybox Textures - HDRi")) {
+            ImGui::Spacing();
+            ImGui::Columns(2, "surfaceInputsColumns", false);
+            //=ALBEDO================
+            ImGui::Selectable("Albedo map");
+            ImGui::NextColumn();
+            static uint16_t skyboxImageScalarAlbedo = 1;
+            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::SkyBox)->get_texture_handle(),
+                                   ImVec2(12.0f * skyboxImageScalarAlbedo, 12.0f * skyboxImageScalarAlbedo))) {
+                skyboxImageScalarAlbedo = (skyboxImageScalarAlbedo == 1) ? 10 : 1;
+            }
+            ImGui::NextColumn();
+            //=IRRADIANCE================
+            ImGui::Selectable("Irradiance map");
+            ImGui::NextColumn();
+            static uint16_t skyboxImageScalarIrradiance = 1;
+            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::Irradiance)->get_texture_handle(),
+                                   ImVec2(12.0f * skyboxImageScalarIrradiance, 12.0f * skyboxImageScalarIrradiance))) {
+                skyboxImageScalarIrradiance = (skyboxImageScalarIrradiance == 1) ? 10 : 1;
+            }
+            ImGui::NextColumn();
+
+            //=RADIANCE================
+            ImGui::Selectable("Radiance map");
+            ImGui::NextColumn();
+            static uint16_t skyboxImageScalarRadiance = 1;
+            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::Radiance)->get_texture_handle(),
+                                   ImVec2(12.0f * skyboxImageScalarRadiance, 12.0f * skyboxImageScalarRadiance))) {
+                skyboxImageScalarRadiance = (skyboxImageScalarRadiance == 1) ? 10 : 1;
+            }
+            ImGui::Columns(1);
+            ImGui::TreePop();
+        }
+        ImGui::Unindent();
+    }
 }
 
 InspectorWidget::~InspectorWidget() {

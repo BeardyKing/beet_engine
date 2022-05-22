@@ -23,6 +23,7 @@ class InspectorWidget : public Widget {
     void render_camera_component(components::Camera& camera);
     void render_material_component(components::Material& material);
     void render_point_light_component(components::PointLight& pointLight);
+    void render_skybox_component(components::SkyBox& skyBox);
 
    private:
     EditorWidgets& m_editorWidgets;

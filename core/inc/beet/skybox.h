@@ -29,6 +29,7 @@ class SkyBox : public Component<SkyBox> {
     void draw();
     void set_uniform_exposure(float exposure) { m_exposure = exposure; };
     float get_uniform_exposure() { return m_exposure; };
+    std::shared_ptr<Texture> get_texture(SkyBoxTextureType slot);
 
     void set_uniform_background_type(SkyBoxTextureType type) { m_skyboxType = type; };
     SkyBoxTextureType get_uniform_background_type() { return m_skyboxType; };
