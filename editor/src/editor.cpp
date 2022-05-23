@@ -21,7 +21,7 @@ Editor::Editor() {
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 45, 0));
 
-        cubeObj.add_component<components::InstanceMesh>("default_cube.obj");
+        cubeObj.add_component<components::InstanceMesh>("default_cube.fbx");
 
         auto material = components::Material();
         material.set_texture_slot_path(TextureType::Albedo, "skybox/cmft_skybox.hdr");
@@ -51,7 +51,7 @@ Editor::Editor() {
         material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
         light.add_component<components::Material>(material);
 
-        light.add_component<components::InstanceMesh>("sphere.obj");
+        light.add_component<components::InstanceMesh>("sphere.fbx");
     }
     {
         auto light = m_scene->create_game_object("pLight1");
@@ -71,7 +71,7 @@ Editor::Editor() {
         material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
         light.add_component<components::Material>(material);
 
-        light.add_component<components::InstanceMesh>("sphere.obj");
+        light.add_component<components::InstanceMesh>("sphere.fbx");
     }
     {
         auto light = m_scene->create_game_object("pLight2");
@@ -90,7 +90,7 @@ Editor::Editor() {
         material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
         light.add_component<components::Material>(material);
 
-        light.add_component<components::InstanceMesh>("sphere.obj");
+        light.add_component<components::InstanceMesh>("sphere.fbx");
     }
 
     {
@@ -101,11 +101,6 @@ Editor::Editor() {
     }
 
     auto cubeObj = m_scene->create_game_object("skybox");
-    //    //        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-2, 1.0f, -15.0f - 5));
-    //    cubeObj.get_component<components::Transform>().set_scale(glm::vec3(30, 30, 30));
-    //    //        cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 240, 0));
-    //    cubeObj.add_component<components::InstanceMesh>("uv_cube.obj");
-
     auto skybox = components::SkyBox();
     skybox.set_texture_slot_path(SkyBoxTextureType::SkyBox, "skybox/cmft_skybox.hdr");
     skybox.set_texture_slot_path(SkyBoxTextureType::Irradiance, "skybox/cmtr_irradiance.hdr");

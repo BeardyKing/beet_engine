@@ -2,7 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <beet/asset_manager.h>
 #include <beet/component.h>
 #include <beet/instance_mesh.h>
 #include <beet/shader_program.h>

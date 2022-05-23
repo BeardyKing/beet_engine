@@ -1,5 +1,8 @@
 #include <beet/asset_manager.h>
 
+#include <beet/mesh.h>
+#include <beet/texture.h>
+
 namespace beet {
 
 void AssetManager::on_awake() {
@@ -41,8 +44,8 @@ void AssetManager::load_assets_manual() {
     AssetManager::load_asset<components::Texture>("skybox/cmtr_radiance.hdr");
     AssetManager::load_asset<components::Texture>("skybox/cmtr_irradiance.hdr");
 
-    AssetManager::load_asset<components::Mesh>("primitive_plane.obj");
-    AssetManager::load_asset<components::Mesh>("default_cube.obj");
+    AssetManager::load_asset<components::Mesh>("plane.fbx");
+    AssetManager::load_asset<components::Mesh>("default_cube.fbx");
 }
 
 void AssetManager::load_assets_serialize() {}

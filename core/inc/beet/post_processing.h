@@ -22,7 +22,7 @@ class PostProcessing : public Component<PostProcessing> {
    private:
     GLuint m_targetTexture;
     ShaderProgram m_shader;
-    InstanceMesh m_mesh;
+    std::shared_ptr<InstanceMesh> m_mesh;
 };
 }  // namespace components
 }  // namespace beet

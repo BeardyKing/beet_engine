@@ -10,7 +10,7 @@ SkyBox::~SkyBox() {}
 void SkyBox::on_awake() {
     m_shader.load_shader("skybox", "skybox.vert", "skybox.frag");
 
-    m_mesh = std::make_shared<components::InstanceMesh>("default_cube.obj");
+    m_mesh = std::make_shared<components::InstanceMesh>("default_cube.fbx");
     m_mesh->on_awake();
 
     auto program = m_shader.get_program();

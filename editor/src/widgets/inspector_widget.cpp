@@ -398,7 +398,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
             //--------------Albedo Map--------------//
 
             static uint16_t albedoMap_Image_Scalar = 1;
-            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Albedo)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)material.get_texture(TextureType::Albedo)->get_texture_handle(),
                                    ImVec2(12.0f * albedoMap_Image_Scalar, 12.0f * albedoMap_Image_Scalar))) {
                 albedoMap_Image_Scalar = (albedoMap_Image_Scalar == 1) ? 10 : 1;
             }
@@ -423,7 +423,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
             //--------------Normal Map--------------//
 
             static uint16_t normalMap_Image_Scalar = 1;
-            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Normal)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)material.get_texture(TextureType::Normal)->get_texture_handle(),
                                    ImVec2(12.0f * normalMap_Image_Scalar, 12.0f * normalMap_Image_Scalar))) {
                 normalMap_Image_Scalar = (normalMap_Image_Scalar == 1) ? 10 : 1;
             }
@@ -436,7 +436,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
 
             //--------------Metallic Map--------------//
             static uint16_t metallicMap_Image_Scalar = 1;
-            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Metallic)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)material.get_texture(TextureType::Metallic)->get_texture_handle(),
                                    ImVec2(12.0f * metallicMap_Image_Scalar, 12.0f * metallicMap_Image_Scalar))) {
                 metallicMap_Image_Scalar = (metallicMap_Image_Scalar == 1) ? 10 : 1;
             }
@@ -449,7 +449,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
 
             //--------------Roughness Map--------------//
             static uint16_t RoughnessMap_Image_Scalar = 1;
-            if (ImGui::ImageButton((void*)material.get_texture(TextureType::Roughness)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)material.get_texture(TextureType::Roughness)->get_texture_handle(),
                                    ImVec2(12.0f * RoughnessMap_Image_Scalar, 12.0f * RoughnessMap_Image_Scalar))) {
                 RoughnessMap_Image_Scalar = (RoughnessMap_Image_Scalar == 1) ? 10 : 1;
             }
@@ -463,7 +463,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
 
             //--------------Occlusion Map--------------//
             static uint16_t OcclusionMap_Image_Scalar = 1;
-            if (ImGui::ImageButton((GLvoid*)material.get_texture(TextureType::Occlusion)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)material.get_texture(TextureType::Occlusion)->get_texture_handle(),
                                    ImVec2(12.0f * OcclusionMap_Image_Scalar, 12.0f * OcclusionMap_Image_Scalar))) {
                 OcclusionMap_Image_Scalar = (OcclusionMap_Image_Scalar == 1) ? 10 : 1;
             }
@@ -580,7 +580,7 @@ void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
             ImGui::Selectable("Albedo map");
             ImGui::NextColumn();
             static uint16_t skyboxImageScalarAlbedo = 1;
-            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::SkyBox)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::SkyBox)->get_texture_handle(),
                                    ImVec2(12.0f * skyboxImageScalarAlbedo, 12.0f * skyboxImageScalarAlbedo))) {
                 skyboxImageScalarAlbedo = (skyboxImageScalarAlbedo == 1) ? 10 : 1;
             }
@@ -589,7 +589,7 @@ void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
             ImGui::Selectable("Irradiance map");
             ImGui::NextColumn();
             static uint16_t skyboxImageScalarIrradiance = 1;
-            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::Irradiance)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::Irradiance)->get_texture_handle(),
                                    ImVec2(12.0f * skyboxImageScalarIrradiance, 12.0f * skyboxImageScalarIrradiance))) {
                 skyboxImageScalarIrradiance = (skyboxImageScalarIrradiance == 1) ? 10 : 1;
             }
@@ -599,7 +599,7 @@ void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
             ImGui::Selectable("Radiance map");
             ImGui::NextColumn();
             static uint16_t skyboxImageScalarRadiance = 1;
-            if (ImGui::ImageButton((void*)skyBox.get_texture(SkyBoxTextureType::Radiance)->get_texture_handle(),
+            if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::Radiance)->get_texture_handle(),
                                    ImVec2(12.0f * skyboxImageScalarRadiance, 12.0f * skyboxImageScalarRadiance))) {
                 skyboxImageScalarRadiance = (skyboxImageScalarRadiance == 1) ? 10 : 1;
             }

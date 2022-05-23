@@ -37,6 +37,8 @@ void FramebufferWidget::render_frame_buffers() {
         ImVec2 imageSize(width, height);
 
         auto flags = ImGuiTreeNodeFlags_AllowItemOverlap;
+        ImVec2 uv_min = ImVec2(0.0f, 0.0f);
+        ImVec2 uv_max = ImVec2(1.0f, -1.0f);
 
         if (colorTexture) {
             if (ImGui::CollapsingHeader((name + " : color texture").c_str(), flags)) {
@@ -44,7 +46,7 @@ void FramebufferWidget::render_frame_buffers() {
                 ImGui::Text("%s", ("size : " + to_string(rawSize)).c_str());
                 ImGui::Text("%s", ("aspect ratio : " + std::to_string(aspectY)).c_str());
                 ImGui::Unindent();
-                ImGui::Image((GLuint*)fbo.get_color_texture(), imageSize);
+                ImGui::Image((GLuint*)fbo.get_color_texture(), imageSize, uv_min, uv_max);
             }
         }
 
@@ -54,7 +56,7 @@ void FramebufferWidget::render_frame_buffers() {
                 ImGui::Text("%s", ("size : " + to_string(rawSize)).c_str());
                 ImGui::Text("%s", ("aspect : " + std::to_string(aspectY)).c_str());
                 ImGui::Unindent();
-                ImGui::Image((GLuint*)fbo.get_depth_texture(), imageSize);
+                ImGui::Image((GLuint*)fbo.get_depth_texture(), imageSize, uv_min, uv_max);
             }
         }
     }

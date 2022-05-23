@@ -1,11 +1,8 @@
 #pragma once
 #include <beet/assert.h>
-#include <beet/mesh.h>
-#include <beet/shader_program.h>
+#include <beet/asset.h>
 #include <beet/subsystem.h>
-#include <beet/texture.h>
 #include <beet/types.h>
-#include <uuid.h>
 #include <filesystem>
 #include <map>
 
@@ -21,7 +18,7 @@ class AssetManager : public Subsystem {
 
     void load_assets_manual();
     void load_assets_serialize();
-    
+
     static std::optional<std::reference_wrapper<AssetManager>> get_asset_manager() { return s_assetManager; };
 
     template <typename T>

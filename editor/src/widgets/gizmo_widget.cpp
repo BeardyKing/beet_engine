@@ -58,7 +58,8 @@ void GizmoWidget::mouse_picking() {
     blue = (uint8_t)((color >> 8) & 0xFF);
     alpha = (uint8_t)((color >> 0) & 0xFF);
 
-    log::info("Color: {},{},{},{}", red, green, blue, alpha);
+    // TODO IMPL MOUSE PICKING
+    //    log::info("Color: {},{},{},{}", red, green, blue, alpha);
 }
 
 void GizmoWidget::render_editor_scene(Framebuffer& fbo) {
