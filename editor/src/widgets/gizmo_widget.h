@@ -37,5 +37,7 @@ class GizmoWidget : public Widget {
    private:
     ImGuizmo::OPERATION m_currentGizmoOperation{ImGuizmo::OPERATION::TRANSLATE};
     ImGuizmo::MODE m_currentGizmoMode{ImGuizmo::MODE::LOCAL};
+    bool m_isSceneMouseOver{false};
+    vec2 m_sceneToScreenPos{0};
 };
 }  // namespace beet

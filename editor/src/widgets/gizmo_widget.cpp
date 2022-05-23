@@ -59,7 +59,8 @@ void GizmoWidget::mouse_picking() {
     //    alpha = (uint8_t)((color >> 0) & 0xFF);
     auto input = m_editorWidgets.get_engine().get_window_module().lock()->get_input_manager();
     auto size = m_editorWidgets.get_engine().get_window_module().lock()->get_window_size();
-    auto mousePos = input->get_absolute_position();
+    //    auto mousePos = input->get_absolute_position();
+    //    auto mousePos = m_sceneToScreenPos;
 
     auto imMousePos = ImGui::GetMousePos();
     glFlush();
@@ -72,19 +73,23 @@ void GizmoWidget::mouse_picking() {
     auto fbo = fbm->get_framebuffer(FrameBufferType::Gui);
 
     glReadBuffer(fbo.get_color_texture());
-    glReadPixels(mousePos.x, fbo.get_size().y - mousePos.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glReadPixels(m_sceneToScreenPos.x, fbo.get_size().y - m_sceneToScreenPos.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
     vec4 readCol{data[0], data[1], data[2], data[3]};
+
+    auto imagePos = ImGui::GetCursorScreenPos();
+    log::info("OVER WINDOW {}", m_isSceneMouseOver);
+
     // TODO IMPL MOUSE PICKING
     //    log::info("Color: {},{},{},{}", red, green, blue, alpha);
     if (input->mouse_button_pressed(MouseButtonCode::Left) && !ImGuizmo::IsUsing()) {
         uint32_t handle = (uint32_t)((0x00 << 24) | (data[2] << 16) | (data[1] << 8) | (data[0] << 0));
 
+        log::info("pos : {}, color : {}", to_string(m_sceneToScreenPos), to_string(readCol));
         auto goOpt = scene.get_game_object_from_handle((entt::entity)handle);
         if (!goOpt) {
             return;
         }
-        
-        log::info("pos : {}, color : {}", to_string(mousePos), to_string(readCol));
+
         log::info("HANDLE : {}", handle);
         auto id = goOpt->get_id();
         m_editorWidgets.set_selected_entity(id);
@@ -108,8 +113,25 @@ void GizmoWidget::render_editor_scene(Framebuffer& fbo) {
         ImVec2 uv_max = ImVec2(1.0f, -1.0f);
         ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
-
         ImGui::Image((GLuint*)colorTexture, imageSize, uv_min, uv_max, tint_col, border_col);
+        m_isSceneMouseOver = ImGui::IsItemHovered();
+        if (m_isSceneMouseOver) {
+            auto input = m_editorWidgets.get_engine().get_window_module().lock()->get_input_manager();
+            auto size = m_editorWidgets.get_engine().get_window_module().lock()->get_window_size();
+            auto mousePos = input->get_absolute_position();
+
+            float screenAspectX = (float)size.y / (float)size.x;
+
+            auto pos = ImVec2(ImGui::GetMousePos().x - imagePos.x, ImGui::GetMousePos().y - imagePos.y);
+            log::info("local image pos : {},{}", pos.x, pos.y);
+
+            auto diff = ImVec2(imageSize.x / size.x, imageSize.y / size.y);
+            log::info("screen diff : {},{}", diff.x, diff.y);
+
+            m_sceneToScreenPos = vec2(pos.x / diff.x, pos.y / diff.y);
+
+            log::info("screen pos : {},{}", m_sceneToScreenPos.x, m_sceneToScreenPos.y);
+        }
     }
 
     render_gizmo(imagePos, imageSize);
