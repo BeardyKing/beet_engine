@@ -29,5 +29,6 @@ void main(){
 
     //    vec4 lightCol = vec4(pointColor_pointIntensity[2].rgb, 1);
     vec4 lightCol = vec4(1);
-    FragColor = texture(ourTexture, TexCoords) * lightCol;
+    //    FragColor = texture(ourTexture, TexCoords) * lightCol;
+    FragColor = vec4(rgb, 1.0);
 }

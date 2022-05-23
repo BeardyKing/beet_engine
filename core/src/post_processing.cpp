@@ -6,7 +6,7 @@ namespace components {
 void PostProcessing::on_awake() {
     m_shader.set_asset_name("post process");
     m_shader.load_shader("post_process", "post_process.vert", "post_process.frag");
-    m_mesh = std::make_shared<components::InstanceMesh>("plane.fbx");
+    m_mesh = std::make_shared<components::InstanceMesh>();
     m_mesh->on_awake();
 }
 void PostProcessing::on_destroy() {}

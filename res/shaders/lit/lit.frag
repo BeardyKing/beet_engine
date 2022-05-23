@@ -41,6 +41,7 @@ uniform int castShadows;
 uniform int receivesShadows;
 uniform int alphaCutoffEnabled;
 uniform float alphaCutoffAmount;
+uniform int enttHandle;
 
 const float PI = 3.14159265359;
 const float EPSILON = 0.0001;
@@ -114,7 +115,18 @@ void main(){
         diffuse += diff * pointColor_pointIntensity[i].xyz;
     }
     vec3 result = (ambient + diffuse) * objectColor;
-    fragColor = vec4(result, 1.0);
+
+    //read from abgr as handle from entt starts at 0 ie 0x00 00 00 00
+    //int a = ((enttHandle >> 24) & 0xFF);
+    int b = ((enttHandle >> 16) & 0xFF);
+    int g = ((enttHandle >> 8) & 0xFF);
+    int r = ((enttHandle >> 0) & 0xFF);
+
+    //    vec4 lightCol = vec4(pointColor_pointIntensity[2].rgb, 1);
+    //    FragColor = texture(ourTexture, TexCoords) * lightCol;
+    fragColor = vec4(r/255.0, g/255.0, b/255.0, 1.0);
+
+    //    fragColor = vec4(result, 1.0);
 
     //    vec2 uv = fs_in.texCoords;
     //
