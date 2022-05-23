@@ -24,9 +24,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("default_cube.fbx");
 
         auto material = components::Material();
-        material.set_texture_slot_path(TextureType::Albedo, "skybox/cmft_skybox.hdr");
-        //        material.set_texture_slot_path(TextureType::Albedo,
-        //        "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
+        material.set_texture_slot_path(TextureType::Albedo, "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
         material.set_texture_slot_path(TextureType::Normal, "darkOceanTiles07/DarkOceanTiles07_1K_Normal.png");
         material.set_texture_slot_path(TextureType::Metallic, "darkOceanTiles07/DarkOceanTiles07_1K_Height.png");
         material.set_texture_slot_path(TextureType::Roughness, "darkOceanTiles07/DarkOceanTiles07_1K_Roughness.png");
@@ -95,8 +93,6 @@ Editor::Editor() {
 
     {
         auto postProcessing = m_scene->create_game_object("Post processing");
-
-        postProcessing.add_component<components::InstanceMesh>();
         postProcessing.add_component<components::PostProcessing>();
     }
 

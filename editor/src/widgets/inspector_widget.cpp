@@ -571,38 +571,68 @@ void InspectorWidget::render_point_light_component(components::PointLight& point
 void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
     if (ImGui::CollapsingHeader("skybox", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
         ImGui::Indent();
-        ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
+        ImGui::Columns(2, "skyboxColumns", false);
 
+
+        int selectedSkybox = (size_t)skyBox.get_uniform_background_type();
+        const char* comboBoxContent = "Albedo\0Radiance\0Irradiance\0";
+
+        ImGui::Text("Active skybox type");
+        ImGui::NextColumn();
+
+        ImGui::Combo("##active_skybox", &selectedSkybox, comboBoxContent);
+        skyBox.set_uniform_background_type((SkyBoxTextureType)selectedSkybox);
+        ImGui::NextColumn();
+
+        auto exposure = skyBox.get_uniform_exposure();
+        ImGui::Text("exposure");
+        ImGui::NextColumn();
+
+        ImGui::DragFloat("##exposure", &exposure, 0.0625f);
+        skyBox.set_uniform_exposure(exposure);
+        ImGui::Spacing();
+
+        ImGui::Columns(1);
+
+        ImGui::SetNextItemOpen(true, ImGuiTreeNodeFlags_DefaultOpen);
         if (ImGui::TreeNode("Skybox Textures - HDRi")) {
             ImGui::Spacing();
             ImGui::Columns(2, "surfaceInputsColumns", false);
             //=ALBEDO================
-            ImGui::Selectable("Albedo map");
-            ImGui::NextColumn();
             static uint16_t skyboxImageScalarAlbedo = 1;
             if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::SkyBox)->get_texture_handle(),
                                    ImVec2(12.0f * skyboxImageScalarAlbedo, 12.0f * skyboxImageScalarAlbedo))) {
                 skyboxImageScalarAlbedo = (skyboxImageScalarAlbedo == 1) ? 10 : 1;
             }
+            ImGui::SameLine();
+            ImGui::Selectable("Albedo map");
             ImGui::NextColumn();
-            //=IRRADIANCE================
-            ImGui::Selectable("Irradiance map");
-            ImGui::NextColumn();
-            static uint16_t skyboxImageScalarIrradiance = 1;
-            if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::Irradiance)->get_texture_handle(),
-                                   ImVec2(12.0f * skyboxImageScalarIrradiance, 12.0f * skyboxImageScalarIrradiance))) {
-                skyboxImageScalarIrradiance = (skyboxImageScalarIrradiance == 1) ? 10 : 1;
-            }
             ImGui::NextColumn();
 
             //=RADIANCE================
-            ImGui::Selectable("Radiance map");
-            ImGui::NextColumn();
+
             static uint16_t skyboxImageScalarRadiance = 1;
             if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::Radiance)->get_texture_handle(),
                                    ImVec2(12.0f * skyboxImageScalarRadiance, 12.0f * skyboxImageScalarRadiance))) {
                 skyboxImageScalarRadiance = (skyboxImageScalarRadiance == 1) ? 10 : 1;
             }
+            ImGui::SameLine();
+            ImGui::Selectable("Radiance map");
+            ImGui::NextColumn();
+            ImGui::NextColumn();
+
+            //=IRRADIANCE================
+
+            static uint16_t skyboxImageScalarIrradiance = 1;
+            if (ImGui::ImageButton((GLuint*)skyBox.get_texture(SkyBoxTextureType::Irradiance)->get_texture_handle(),
+                                   ImVec2(12.0f * skyboxImageScalarIrradiance, 12.0f * skyboxImageScalarIrradiance))) {
+                skyboxImageScalarIrradiance = (skyboxImageScalarIrradiance == 1) ? 10 : 1;
+            }
+            ImGui::SameLine();
+            ImGui::Selectable("Irradiance map");
+            ImGui::NextColumn();
+            ImGui::NextColumn();
+
             ImGui::Columns(1);
             ImGui::TreePop();
         }

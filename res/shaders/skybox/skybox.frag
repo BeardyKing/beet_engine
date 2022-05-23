@@ -37,9 +37,9 @@ void main(){
     if (skyboxType == 0.0) {
         color = textureLod(albedo, uv, lod);
     } else if (skyboxType == 1.0) {
-        color = textureLod(irradiance, uv, lod);
-    } else if (skyboxType == 2.0) {
         color = textureLod(radiance, uv, lod);
+    } else if (skyboxType == 2.0) {
+        color = textureLod(irradiance, uv, lod);
     }
 
     color = linear(color);
