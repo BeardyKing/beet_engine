@@ -25,9 +25,9 @@ using namespace uuids;
 enum class FrameBufferType : uint16_t {
     Back,
     Depth,
+    ObjectPicking,
     Color,
     PostProcess,
-    Gui,
     ShadowOne,
     ShadowTwo,
     ShadowThree,

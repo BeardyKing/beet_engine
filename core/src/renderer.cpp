@@ -43,7 +43,14 @@ void Renderer::on_awake() {
     m_universalBufferData.init();
 
     m_depthProgram.load_shader("depth", "depth.vert", "depth.frag");
-    m_modelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
+    m_depthModelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
+
+    m_pickingProgram.load_shader("picking", "picking.vert", "picking.frag");
+    m_pickingModelUniform = glGetUniformLocation(m_pickingProgram.get_program(), "model");
+    m_pickingenttHandleUniform = glGetUniformLocation(m_pickingProgram.get_program(), "enttHandle");
+
+    GLuint uboMatrixIndex = glGetUniformBlockIndex(m_pickingProgram.get_program(), "Matrices");
+    glUniformBlockBinding(m_pickingProgram.get_program(), uboMatrixIndex, 0);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -57,6 +64,7 @@ void Renderer::on_update(double deltaTime) {
     }
     update_universal_buffer_data();
     depth_pass();
+    picking_pass();
     shadow_pass();
     color_pass();
     transparent_pass();
@@ -148,13 +156,49 @@ void Renderer::depth_pass() {
         fbm->bind_framebuffer(FrameBufferType::Depth);
         glUseProgram(m_depthProgram.get_program());
 
-        glUniformMatrix4fv(m_modelUniform, 1, GL_FALSE, value_ptr(transform.get_model_matrix()));
+        glUniformMatrix4fv(m_depthModelUniform, 1, GL_FALSE, value_ptr(transform.get_model_matrix()));
 
         instanceMesh.draw();
 
         glUseProgram(0);
         fbm->unbind_framebuffer();
     }
+}
+
+void Renderer::picking_pass() {
+    using namespace components;
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::ObjectPicking);
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
+
+    glDepthFunc(GL_LESS);
+    glCullFace(GL_BACK);
+
+    glUseProgram(m_pickingProgram.get_program());
+    auto entities = registry.view<InstanceMesh, Transform>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        InstanceMesh& instanceMesh = go.get_component<InstanceMesh>();
+        Transform& transform = go.get_component<Transform>();
+
+        glUniformMatrix4fv(m_pickingModelUniform, 1, GL_FALSE, value_ptr(transform.get_model_matrix()));
+        auto handle = (uint32_t)go.get_handle();
+        glUniform1i(m_pickingenttHandleUniform, handle);
+        instanceMesh.draw();
+    }
+    glUseProgram(0);
+    fbm->unbind_framebuffer();
 }
 
 void Renderer::color_pass() {
@@ -200,8 +244,6 @@ void Renderer::color_pass() {
         Material& material = go.get_component<Material>();
 
         glm::mat4 model = transform.get_model_matrix();
-        auto handle = (uint32_t)go.get_handle();
-        material.set_entt_handle(handle);
 
         material.set_uniforms(model);
         glDepthFunc(GL_LESS);

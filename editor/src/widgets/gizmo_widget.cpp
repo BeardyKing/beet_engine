@@ -32,8 +32,6 @@ void GizmoWidget::mouse_picking() {
     auto input = window->get_input_manager();
 
     if (input->mouse_button_pressed(MouseButtonCode::Left) && !ImGuizmo::IsUsing() && m_isSceneMouseOver) {
-        auto selected = m_editorWidgets.get_selected_entity();
-
         auto sceneOpt = Scene::get_active_scene();
         if (!sceneOpt) {
             return;
@@ -49,15 +47,16 @@ void GizmoWidget::mouse_picking() {
         unsigned char data[4];
 
         auto fbm = m_editorWidgets.get_engine().get_framebuffer_module().lock();
-        auto fbo = fbm->get_framebuffer(FrameBufferType::Gui);
+        auto fbo = fbm->get_framebuffer(FrameBufferType::ObjectPicking);
 
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.get_framebuffer());
         glReadBuffer(fbo.get_color_texture());
         auto screenPosFlipY = vec2(m_sceneToScreenPos.x, fbo.get_size().y - m_sceneToScreenPos.y);
 
         glReadPixels(screenPosFlipY.x, screenPosFlipY.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
         vec4 readCol{data[0], data[1], data[2], data[3]};
-
         uint32_t handle = (uint32_t)((0x00 << 24) | (data[2] << 16) | (data[1] << 8) | (data[0] << 0));
 
         log::info("pos : {}, color : {}", to_string(m_sceneToScreenPos), to_string(readCol));

@@ -41,6 +41,7 @@ class Renderer : public Subsystem {
 
     void update_universal_buffer_data();
     void shadow_pass();
+    void picking_pass();
     void depth_pass();
     void color_pass();
     void gui_pass();
@@ -57,7 +58,11 @@ class Renderer : public Subsystem {
     float m_timePassed{0.0f};
 
     components::ShaderProgram m_depthProgram;
-    GLuint m_modelUniform{0};
+    GLuint m_depthModelUniform{0};
+
+    components::ShaderProgram m_pickingProgram;
+    GLuint m_pickingModelUniform{0};
+    GLuint m_pickingenttHandleUniform{0};
 };
 
 }  // namespace beet

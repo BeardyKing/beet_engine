@@ -124,9 +124,9 @@ void main(){
 
     //    vec4 lightCol = vec4(pointColor_pointIntensity[2].rgb, 1);
     //    FragColor = texture(ourTexture, TexCoords) * lightCol;
-    fragColor = vec4(r/255.0, g/255.0, b/255.0, 1.0);
+    //    fragColor = vec4(r/255.0, g/255.0, b/255.0, 1.0);
 
-    //    fragColor = vec4(result, 1.0);
+    fragColor = vec4(result, 1.0);
 
     //    vec2 uv = fs_in.texCoords;
     //
