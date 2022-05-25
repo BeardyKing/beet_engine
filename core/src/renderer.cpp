@@ -13,6 +13,18 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     auto loaded = gladLoadGL();
     BEET_ASSERT_MESSAGE(loaded, "Failed to initialize GLAD");
     log::debug("GLAD initialized");
+
+    log::debug("Vendor graphic card: {}", glGetString(GL_VENDOR));
+    log::debug("Renderer: {}", glGetString(GL_RENDERER));
+    log::debug("Version GL: {}", glGetString(GL_VERSION));
+    log::debug("Version GLSL: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    GLint nExtensions;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
+
+    for (int i = 0; i < nExtensions; i++) {
+        log::debug("[{}] : {}", i, glGetStringi(GL_EXTENSIONS, i));
+    }
 }
 
 void Renderer::on_awake() {

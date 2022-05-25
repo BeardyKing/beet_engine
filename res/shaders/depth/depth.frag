@@ -1,5 +1,7 @@
 #version 330 core
 
-layout(early_fragment_tests) in;
+out vec4 fragColor;
 
-void main(){ }
+void main() {
+    fragColor = vec4(1.0);
+}
