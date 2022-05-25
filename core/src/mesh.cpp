@@ -37,7 +37,7 @@ void Mesh::generate_default_asset() {
     m_assetState = AssetState::Loading;
     m_fullPath = "fallbackMesh";
 
-    create_plane();
+    generate_cube();
 
     if (!m_vbo) {
         log::error("VBO : fallbackMesh failed to be created");
@@ -55,7 +55,7 @@ void Mesh::generate_default_asset() {
     log::info("Fallback created");
 }
 
-void Mesh::create_plane() {
+void Mesh::generate_plane() {
     // clang-format off
     m_vertexLayout.emplace_back(
         VertexLayout{
@@ -129,6 +129,7 @@ bool Mesh::internal_load_obj(const std::string& path) {
     }
 
     const aiMesh* model = scene->mMeshes[0];
+    log::warn(m_assetName);
 
     for (size_t i = 0; i < model->mNumVertices; i++) {
         aiVector3D position;
@@ -156,7 +157,6 @@ bool Mesh::internal_load_obj(const std::string& path) {
                 vec3(tangent.x, tangent.y, tangent.z)
             }
         );
-        // clang-format on
     }
 
     for (size_t i = 0; i < model->mNumFaces; i++) {
@@ -221,6 +221,109 @@ void Mesh::draw() {
         glDrawArrays(GL_TRIANGLES, 0, m_vertexLayout.size());
     }
     glBindVertexArray(0);
+}
+
+void Mesh::generate_cube() {
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, 1.000000), vec3(-1.000000, 0.000000, 0.000000),
+                                             vec2(0.000000, 3.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, 1.000000), vec3(-1.000000, 0.000000, 0.000000),
+                                             vec2(1.000000, 3.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, -1.000000), vec3(-1.000000, 0.000000, 0.000000),
+                                             vec2(1.000000, 2.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, -1.000000), vec3(-1.000000, 0.000000, 0.000000),
+                                             vec2(0.000000, 2.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, -1.000000), vec3(0.000000, 0.000000, -1.000000),
+                                             vec2(0.000000, 2.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, -1.000000), vec3(0.000000, 0.000000, -1.000000),
+                                             vec2(1.000000, 2.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, -1.000000), vec3(0.000000, 0.000000, -1.000000),
+                                             vec2(1.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, -1.000000), vec3(0.000000, 0.000000, -1.000000),
+                                             vec2(0.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, -1.000000), vec3(1.000000, 0.000000, 0.000000),
+                                             vec2(0.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, -1.000000), vec3(1.000000, 0.000000, 0.000000),
+                                             vec2(1.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, 1.000000), vec3(1.000000, 0.000000, 0.000000),
+                                             vec2(1.000000, 0.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, 1.000000), vec3(1.000000, 0.000000, 0.000000),
+                                             vec2(0.000000, 0.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, 1.000000), vec3(0.000000, 0.000000, 1.000000),
+                                             vec2(0.000000, 0.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, 1.000000), vec3(0.000000, 0.000000, 1.000000),
+                                             vec2(1.000000, 0.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, 1.000000), vec3(0.000000, 0.000000, 1.000000),
+                                             vec2(1.000000, -1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, 1.000000), vec3(0.000000, 0.000000, 1.000000),
+                                             vec2(0.000000, -1.000000), vec3(0.000000, 1.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, -1.000000), vec3(0.000000, -1.000000, 0.000000),
+                                             vec2(-1.000000, 1.000000), vec3(1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, -1.000000), vec3(0.000000, -1.000000, 0.000000),
+                                             vec2(0.000000, 1.000000), vec3(1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, -1.000000, 1.000000), vec3(0.000000, -1.000000, 0.000000),
+                                             vec2(0.000000, 0.000000), vec3(1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, -1.000000, 1.000000), vec3(0.000000, -1.000000, 0.000000),
+                                             vec2(-1.000000, 0.000000), vec3(1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, -1.000000), vec3(0.000000, 1.000000, 0.000000),
+                                             vec2(1.000000, 1.000000), vec3(-1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, -1.000000), vec3(0.000000, 1.000000, 0.000000),
+                                             vec2(2.000000, 1.000000), vec3(-1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(-1.000000, 1.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000),
+                                             vec2(2.000000, 0.000000), vec3(-1.000000, 0.000000, 0.000000)});
+    m_vertexLayout.emplace_back(VertexLayout{vec3(1.000000, 1.000000, 1.000000), vec3(0.000000, 1.000000, 0.000000),
+                                             vec2(1.000000, 0.000000), vec3(-1.000000, 0.000000, 0.000000)});
+
+    m_indices.push_back(0);
+    m_indices.push_back(1);
+    m_indices.push_back(2);
+
+    m_indices.push_back(0);
+    m_indices.push_back(2);
+    m_indices.push_back(3);
+
+    m_indices.push_back(4);
+    m_indices.push_back(5);
+    m_indices.push_back(6);
+
+    m_indices.push_back(4);
+    m_indices.push_back(6);
+    m_indices.push_back(7);
+
+    m_indices.push_back(8);
+    m_indices.push_back(9);
+    m_indices.push_back(10);
+
+    m_indices.push_back(8);
+    m_indices.push_back(10);
+    m_indices.push_back(11);
+
+    m_indices.push_back(12);
+    m_indices.push_back(13);
+    m_indices.push_back(14);
+
+    m_indices.push_back(12);
+    m_indices.push_back(14);
+    m_indices.push_back(15);
+
+    m_indices.push_back(16);
+    m_indices.push_back(17);
+    m_indices.push_back(18);
+
+    m_indices.push_back(16);
+    m_indices.push_back(18);
+    m_indices.push_back(19);
+
+    m_indices.push_back(20);
+    m_indices.push_back(21);
+    m_indices.push_back(22);
+
+    m_indices.push_back(20);
+    m_indices.push_back(22);
+    m_indices.push_back(23);
+
+    log::debug("Generated cube");
+
+    init_buffers();
 }
 
 }  // namespace components

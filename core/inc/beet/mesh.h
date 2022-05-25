@@ -22,6 +22,8 @@ class Mesh : public Asset {
     //=For Asset=======
     void generate_default_asset() override;
     //=================
+    void generate_cube();
+    void generate_plane();
 
     void draw();
 
@@ -34,8 +36,6 @@ class Mesh : public Asset {
    private:
     bool internal_load_obj(const std::string& path);
     void init_buffers();
-
-    void create_plane();
 
    private:
     std::vector<VertexLayout> m_vertexLayout;

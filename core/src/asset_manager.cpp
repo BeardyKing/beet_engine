@@ -36,6 +36,14 @@ void AssetManager::load_assets_manual() {
     m_assets.insert({fallbackMesh, std::make_shared<components::Mesh>()});
     std::static_pointer_cast<components::Mesh>(m_assets[fallbackMesh])->generate_default_asset();
 
+    const std::string cube = "cube";
+    m_assets.insert({cube, std::make_shared<components::Mesh>()});
+    std::static_pointer_cast<components::Mesh>(m_assets[fallbackMesh])->generate_cube();
+
+    const std::string plane = "plane";
+    m_assets.insert({plane, std::make_shared<components::Mesh>()});
+    std::static_pointer_cast<components::Mesh>(m_assets[fallbackMesh])->generate_plane();
+
     //=From File======
     AssetManager::load_asset<components::Texture>("UV_Grid_test.png");
     AssetManager::load_asset<components::Texture>("normal_tiles_1k.png");

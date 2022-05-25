@@ -21,7 +21,7 @@ Editor::Editor() {
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 45, 0));
 
-        cubeObj.add_component<components::InstanceMesh>("default_cube.fbx");
+        cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
         material.set_texture_slot_path(TextureType::Albedo, "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
