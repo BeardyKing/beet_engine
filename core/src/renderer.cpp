@@ -78,7 +78,7 @@ void Renderer::on_update(double deltaTime) {
     depth_pass();
     picking_pass();
     shadow_pass();
-    color_pass();
+    opaque_pass();
     transparent_pass();
     post_process_pass();
     gui_pass();
@@ -213,9 +213,9 @@ void Renderer::picking_pass() {
     fbm->unbind_framebuffer();
 }
 
-void Renderer::color_pass() {
+void Renderer::opaque_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
-    fbm->bind_framebuffer(FrameBufferType::Color);
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
 
     using namespace components;
 
@@ -288,7 +288,7 @@ void Renderer::post_process_pass() {
 
         fbm->bind_framebuffer(FrameBufferType::Back);
 
-        auto tex = fbm->get_color_attachment(FrameBufferType::Color);
+        auto tex = fbm->get_color_attachment(FrameBufferType::Opaque);
 
         postProcessing.set_target_texture(tex);
         postProcessing.apply_post_processing();

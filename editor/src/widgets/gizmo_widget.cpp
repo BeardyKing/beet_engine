@@ -12,7 +12,7 @@ void GizmoWidget::on_widget_render() {
     }
 
     auto fbm = m_editorWidgets.get_engine().get_framebuffer_module().lock();
-    auto fbo = fbm->get_framebuffer(FrameBufferType::Color);
+    auto fbo = fbm->get_framebuffer(FrameBufferType::Opaque);
 
     if (!fbo.get_framebuffer()) {
         return;
@@ -59,13 +59,19 @@ void GizmoWidget::mouse_picking() {
         vec4 readCol{data[0], data[1], data[2], data[3]};
         uint32_t handle = (uint32_t)((0x00 << 24) | (data[2] << 16) | (data[1] << 8) | (data[0] << 0));
 
-        log::info("pos : {}, color : {}", to_string(m_sceneToScreenPos), to_string(readCol));
+        // log::info("pos : {}, color : {}", to_string(m_sceneToScreenPos), to_string(readCol));
         auto goOpt = scene.get_game_object_from_handle((entt::entity)handle);
         if (!goOpt) {
             return;
         }
 
-        log::info("HANDLE : {}", handle);
+        auto guizmoHovered = ImGuizmo::IsOver();
+        // log::info(guizmoHovered);
+        if (guizmoHovered) {
+            return;
+        }
+
+        // log::info("HANDLE : {}", handle);
         auto id = goOpt->get_id();
         m_editorWidgets.set_selected_entity(id);
     }
@@ -99,9 +105,9 @@ void GizmoWidget::render_editor_scene(Framebuffer& fbo) {
 
             m_sceneToScreenPos = vec2(localMousePos.x / sizeDifference.x, localMousePos.y / sizeDifference.y);
 
-            log::info("local image pos : {},{}", localMousePos.x, localMousePos.y);
-            log::info("screen diff : {},{}", sizeDifference.x, sizeDifference.y);
-            log::info("screen pos : {},{}", m_sceneToScreenPos.x, m_sceneToScreenPos.y);
+            // log::info("local image pos : {},{}", localMousePos.x, localMousePos.y);
+            // log::info("screen diff : {},{}", sizeDifference.x, sizeDifference.y);
+            // log::info("screen pos : {},{}", m_sceneToScreenPos.x, m_sceneToScreenPos.y);
         }
     }
 

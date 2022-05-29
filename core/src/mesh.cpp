@@ -60,37 +60,37 @@ void Mesh::generate_plane() {
     m_vertexLayout.emplace_back(
         VertexLayout{
             vec3(-1.0f, 1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(0.0f, 1.0f),
             vec3(0)});
     m_vertexLayout.emplace_back(
     VertexLayout{
             vec3(-1.0f, -1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(0.0f, 0.0f),
             vec3(0)});
     m_vertexLayout.emplace_back(
     VertexLayout{
             vec3(1.0f, -1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(1.0f, 0.0f),
             vec3(0)});
     m_vertexLayout.emplace_back(
         VertexLayout{
             vec3(-1.0f, 1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(0.0f, 1.0f),
             vec3(0)});
     m_vertexLayout.emplace_back(
         VertexLayout{
             vec3(1.0f, -1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(1.0f, 0.0f),
             vec3(0)});
     m_vertexLayout.emplace_back(
         VertexLayout{
             vec3(1.0f, 1.0f, 0.0f),
-            vec3(0.0f, 0.0f, -1.0f),
+            vec3(0.0f, 0.0f, 1.0f),
             vec2(1.0f, 1.0f),
             vec3(0)});
     // clang-format on

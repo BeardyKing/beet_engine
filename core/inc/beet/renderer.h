@@ -35,17 +35,17 @@ class Renderer : public Subsystem {
     // 2) SYSTEM : Update Active Camera (Runtime / Editor)
     // 3) SYSTEM : Depth Pass (No Transparent Objects)
     // 4) SYSTEM : Color Render Pass
+    // 6) SYSTEM : Order Independent Transparency Render Pass
     // 5) SYSTEM : Skybox Render
-    // 6) SYSTEM : Sorted Transparent Render Pass
     // 7) SYSTEM : Post Processing Stack
 
     void update_universal_buffer_data();
     void shadow_pass();
     void picking_pass();
     void depth_pass();
-    void color_pass();
-    void gui_pass();
+    void opaque_pass();
     void transparent_pass();
+    void gui_pass();
     void post_process_pass();
 
    private:

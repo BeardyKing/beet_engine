@@ -49,6 +49,10 @@ class Material : public Component<Material> {
 
     GLuint get_texture_handle(TextureType slot);
     std::shared_ptr<Texture> get_texture(TextureType slot);
+    void temp_set_shader(const std::string& folderName,
+                         const std::string& vertexShaderPath,
+                         const std::string& fragmentShaderPath,
+                         const std::string& assetName);
 
    private:
     std::array<GLint, (size_t)UniformHandle::LAST> m_uniformHandles;
@@ -62,6 +66,7 @@ class Material : public Component<Material> {
     std::shared_ptr<Texture> m_occlusion;
 
     std::string m_textureSlotPath[5] = {"", "", "", "", ""};
+    std::string m_tempShaderData[4] = {"lit", "lit.vert", "lit.frag", "lit"};
 
     ShaderProgram m_shader;
 
@@ -80,6 +85,9 @@ class Material : public Component<Material> {
     bool m_alphaCutoffEnabled = false;
     float m_alphaCutoffAmount = 0.0f;
 
+    bool m_isOpaque = false;
+    float m_opacity = 0.5f;
+
    public:
     vec4 get_albedo_color() const { return m_albedoColor; };
     vec2 get_texture_tiling() const { return m_textureTiling; };
@@ -94,6 +102,9 @@ class Material : public Component<Material> {
     bool get_alpha_cutoff_enabled() const { return m_alphaCutoffEnabled; };
     float get_alpha_cutoff_amount() const { return m_alphaCutoffAmount; };
 
+    bool get_is_opaque() const { return m_isOpaque; };
+    float get_opacity() const { return m_opacity; };
+
     void set_albedo_color(vec4 albedoColor) { m_albedoColor = albedoColor; };
     void set_texture_tiling(vec2 textureTiling) { m_textureTiling = textureTiling; };
     void set_albedo_scalar(float albedoScalar) { m_albedoScalar = albedoScalar; };
@@ -106,6 +117,9 @@ class Material : public Component<Material> {
     void set_receives_shadows(bool receivesShadows) { m_receivesShadows = receivesShadows; };
     void set_alpha_cutoff_enabled(bool alphaCutoffEnabled) { m_alphaCutoffEnabled = alphaCutoffEnabled; };
     void set_alpha_cutoff_amount(float alphaCutoffAmount) { m_alphaCutoffAmount = alphaCutoffAmount; };
+
+    void set_is_opaque(bool isOpaque) { m_isOpaque = isOpaque; };
+    void set_opacity(float opacity) { m_opacity = opacity; };
 };
 
 }  // namespace components

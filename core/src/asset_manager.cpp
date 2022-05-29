@@ -38,11 +38,11 @@ void AssetManager::load_assets_manual() {
 
     const std::string cube = "cube";
     m_assets.insert({cube, std::make_shared<components::Mesh>()});
-    std::static_pointer_cast<components::Mesh>(m_assets[fallbackMesh])->generate_cube();
+    std::static_pointer_cast<components::Mesh>(m_assets[cube])->generate_cube();
 
     const std::string plane = "plane";
     m_assets.insert({plane, std::make_shared<components::Mesh>()});
-    std::static_pointer_cast<components::Mesh>(m_assets[fallbackMesh])->generate_plane();
+    std::static_pointer_cast<components::Mesh>(m_assets[plane])->generate_plane();
 
     //=From File======
     AssetManager::load_asset<components::Texture>("UV_Grid_test.png");

@@ -14,9 +14,21 @@ void Material::on_destroy() {
     m_textureHandles.fill(0);
 }
 
+void Material::temp_set_shader(const std::string& folderName,
+                               const std::string& vertexShaderPath,
+                               const std::string& fragmentShaderPath,
+                               const std::string& assetName) {
+    m_tempShaderData[0] = folderName;
+    m_tempShaderData[1] = vertexShaderPath;
+    m_tempShaderData[2] = fragmentShaderPath;
+    m_tempShaderData[3] = assetName;
+}
+
 void Material::on_awake() {
-    m_shader.set_asset_name("lit");
-    m_shader.load_shader("lit", "lit.vert", "lit.frag");
+    // TODO REPLACE WITH SINGLE SHADER FILE LOADER THAT USES ASSET MANAGER
+    // temp [0] = folder [1] = shader.vert [2] = shader.frag [3] = assetName;
+    m_shader.set_asset_name(m_tempShaderData[3]);
+    m_shader.load_shader(m_tempShaderData[0], m_tempShaderData[1], m_tempShaderData[2]);
 
     auto program = m_shader.get_program();
     glUseProgram(program);

@@ -12,7 +12,9 @@ Editor::Editor() {
     {
         auto editorCamera = m_scene->create_game_object("camera");
         auto& cam = editorCamera.add_component<components::Camera>();
-        editorCamera.get_component<components::Transform>().set_position(glm::vec3(0.0f, 1.125f, -5.5));
+        editorCamera.get_component<components::Transform>().set_position(glm::vec3(0.0f, 1.125f, -6.5));
+        cam.set_look_target(editorCamera.get_component<components::Transform>().get_position() +
+                            editorCamera.get_component<components::Transform>().forward());
     }
 
     {
@@ -29,6 +31,63 @@ Editor::Editor() {
         material.set_texture_slot_path(TextureType::Metallic, "darkOceanTiles07/DarkOceanTiles07_1K_Height.png");
         material.set_texture_slot_path(TextureType::Roughness, "darkOceanTiles07/DarkOceanTiles07_1K_Roughness.png");
         material.set_texture_slot_path(TextureType::Occlusion, "darkOceanTiles07/DarkOceanTiles07_1K_AO.png");
+        cubeObj.add_component<components::Material>(material);
+    }
+
+    {
+        auto cubeObj = m_scene->create_game_object("red glass");
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.2, -0.2, -1.2));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
+
+        cubeObj.add_component<components::InstanceMesh>("plane");
+
+        auto material = components::Material();
+        material.set_albedo_color(vec4(1, 0, 0, 1));
+        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
+
+        cubeObj.add_component<components::Material>(material);
+    }
+
+    {
+        auto cubeObj = m_scene->create_game_object("green glass");
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.4, -0.4, -1.4));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
+
+        cubeObj.add_component<components::InstanceMesh>("plane");
+
+        auto material = components::Material();
+        material.set_albedo_color(vec4(0, 1, 0, 1));
+        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
+
+        cubeObj.add_component<components::Material>(material);
+    }
+
+    {
+        auto cubeObj = m_scene->create_game_object("blue glass");
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.6, -0.6, -1.6));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
+
+        cubeObj.add_component<components::InstanceMesh>("plane");
+
+        auto material = components::Material();
+        material.set_albedo_color(vec4(0, 0, 1, 1));
+        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
+
         cubeObj.add_component<components::Material>(material);
     }
 

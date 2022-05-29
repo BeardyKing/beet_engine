@@ -13,7 +13,7 @@ void FramebufferManager::on_awake() {
 
     m_framebuffers[(size_t)FrameBufferType::Back] = Framebuffer();
     m_framebuffers[(size_t)FrameBufferType::Depth] = Framebuffer();
-    m_framebuffers[(size_t)FrameBufferType::Color] = Framebuffer();
+    m_framebuffers[(size_t)FrameBufferType::Opaque] = Framebuffer();
     m_framebuffers[(size_t)FrameBufferType::PostProcess] = Framebuffer();
     m_framebuffers[(size_t)FrameBufferType::ObjectPicking] = Framebuffer();
     m_framebuffers[(size_t)FrameBufferType::ShadowOne] = Framebuffer();
@@ -21,15 +21,15 @@ void FramebufferManager::on_awake() {
 
     m_framebuffers[(size_t)FrameBufferType::Back];  // fbo default = 0;
     m_framebuffers[(size_t)FrameBufferType::Depth].create_depth(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::Color].create_color_depth(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::Opaque].create_color_depth(windowSize);
     m_framebuffers[(size_t)FrameBufferType::PostProcess].create_color(windowSize);
-    m_framebuffers[(size_t)FrameBufferType::ObjectPicking].create_color(windowSize);
+    m_framebuffers[(size_t)FrameBufferType::ObjectPicking].create_color_depth(windowSize);
     m_framebuffers[(size_t)FrameBufferType::ShadowOne].create_depth(vec2i(1024), false);
     m_framebuffers[(size_t)FrameBufferType::ShadowTwo].create_depth(vec2i(1024), false);
 
     m_framebuffers[(size_t)FrameBufferType::Back].set_clear_flags(clearFlagsColorDepth);
     m_framebuffers[(size_t)FrameBufferType::Depth].set_clear_flags(clearFlagsDepth);
-    m_framebuffers[(size_t)FrameBufferType::Color].set_clear_flags(clearFlagsColorDepth);
+    m_framebuffers[(size_t)FrameBufferType::Opaque].set_clear_flags(clearFlagsColorDepth);
     m_framebuffers[(size_t)FrameBufferType::PostProcess].set_clear_flags(clearFlagsColor);
     m_framebuffers[(size_t)FrameBufferType::ObjectPicking].set_clear_flags(clearFlagsColorDepth);
     m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_clear_flags(clearFlagsDepth);
@@ -37,7 +37,7 @@ void FramebufferManager::on_awake() {
 
     m_framebuffers[(size_t)FrameBufferType::Back].set_name("Back buffer");
     m_framebuffers[(size_t)FrameBufferType::Depth].set_name("Depth pre pass");
-    m_framebuffers[(size_t)FrameBufferType::Color].set_name("Main render");
+    m_framebuffers[(size_t)FrameBufferType::Opaque].set_name("Main render");
     m_framebuffers[(size_t)FrameBufferType::PostProcess].set_name("Post process");
     m_framebuffers[(size_t)FrameBufferType::ObjectPicking].set_name("Picking pre pass");
     m_framebuffers[(size_t)FrameBufferType::ShadowOne].set_name("Shadow one");
