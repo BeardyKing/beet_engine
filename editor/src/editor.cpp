@@ -43,6 +43,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.set_is_opaque(false);
         material.set_albedo_color(vec4(1, 0, 0, 1));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
@@ -62,6 +63,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.set_is_opaque(false);
         material.set_albedo_color(vec4(0, 1, 0, 1));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
@@ -81,6 +83,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.set_is_opaque(false);
         material.set_albedo_color(vec4(0, 0, 1, 1));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");

@@ -85,7 +85,7 @@ class Material : public Component<Material> {
     bool m_alphaCutoffEnabled = false;
     float m_alphaCutoffAmount = 0.0f;
 
-    bool m_isOpaque = false;
+    bool m_isOpaque = true;
     float m_opacity = 0.5f;
 
    public:

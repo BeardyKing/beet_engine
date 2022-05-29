@@ -213,6 +213,43 @@ void Renderer::picking_pass() {
     fbm->unbind_framebuffer();
 }
 
+void Renderer::transparent_pass() {
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Transparency);
+
+    using namespace components;
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
+    auto entities = registry.view<Transform, InstanceMesh, Material>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        Transform& transform = go.get_component<Transform>();
+        InstanceMesh& mesh = go.get_component<InstanceMesh>();
+        Material& material = go.get_component<Material>();
+        if (material.get_is_opaque() == true) {
+            continue;
+        }
+
+        glm::mat4 model = transform.get_model_matrix();
+
+        material.set_uniforms(model);
+        glDepthFunc(GL_LESS);
+        glCullFace(GL_BACK);
+        mesh.draw();
+    }
+    fbm->unbind_framebuffer();
+}
+
 void Renderer::opaque_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Opaque);
@@ -254,6 +291,10 @@ void Renderer::opaque_pass() {
         Transform& transform = go.get_component<Transform>();
         InstanceMesh& mesh = go.get_component<InstanceMesh>();
         Material& material = go.get_component<Material>();
+
+        if (material.get_is_opaque() == false) {
+            continue;
+        }
 
         glm::mat4 model = transform.get_model_matrix();
 
@@ -303,7 +344,6 @@ void Renderer::resize_all_framebuffers(const vec2i& size) {
 
 void Renderer::shadow_pass() {}
 void Renderer::gui_pass() {}
-void Renderer::transparent_pass() {}
 
 void Renderer::on_late_update() {}
 

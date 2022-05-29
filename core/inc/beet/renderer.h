@@ -54,7 +54,7 @@ class Renderer : public Subsystem {
     Engine& m_engine;
     UniversalBufferData m_universalBufferData;
 
-    vec4 m_clearCol{1.0f, 0.4f, 0.4f, 1.0f};
+    vec4 m_clearCol{1.0f, 1.0f, 1.0f, 1.0f};
     float m_timePassed{0.0f};
 
     components::ShaderProgram m_depthProgram;
