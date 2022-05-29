@@ -74,6 +74,7 @@ void Renderer::on_update(double deltaTime) {
     if (glm::isnan((float)m_engine.get_window_module().lock()->get_window_aspect_ratio())) {
         return;
     }
+
     update_universal_buffer_data();
     depth_pass();
     picking_pass();
@@ -82,6 +83,7 @@ void Renderer::on_update(double deltaTime) {
     transparent_pass();
     post_process_pass();
     gui_pass();
+    back_buffer_pass();
 }
 
 void Renderer::update_universal_buffer_data() {
@@ -181,6 +183,9 @@ void Renderer::picking_pass() {
     using namespace components;
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::ObjectPicking);
+    // TODO cannot have color as 0,0,0,0 as that is a valid entt handle
+    glClearColor(1.0f, 1.0, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     auto sceneOpt = Scene::get_active_scene();
     if (!sceneOpt) {
@@ -211,48 +216,17 @@ void Renderer::picking_pass() {
     }
     glUseProgram(0);
     fbm->unbind_framebuffer();
-}
 
-void Renderer::transparent_pass() {
-    auto fbm = m_engine.get_framebuffer_module().lock();
-    fbm->bind_framebuffer(FrameBufferType::Transparency);
-
-    using namespace components;
-
-    auto sceneOpt = Scene::get_active_scene();
-    if (!sceneOpt) {
-        return;
-    }
-    Scene& scene = sceneOpt.value();
-    entt::registry& registry = scene.get_registry();
-    auto entities = registry.view<Transform, InstanceMesh, Material>();
-    for (auto& e : entities) {
-        auto goOpt = scene.get_game_object_from_handle(e);
-        if (!goOpt) {
-            continue;
-        }
-
-        GameObject go = goOpt.value();
-        Transform& transform = go.get_component<Transform>();
-        InstanceMesh& mesh = go.get_component<InstanceMesh>();
-        Material& material = go.get_component<Material>();
-        if (material.get_is_opaque() == true) {
-            continue;
-        }
-
-        glm::mat4 model = transform.get_model_matrix();
-
-        material.set_uniforms(model);
-        glDepthFunc(GL_LESS);
-        glCullFace(GL_BACK);
-        mesh.draw();
-    }
-    fbm->unbind_framebuffer();
+    glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
 }
 
 void Renderer::opaque_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Opaque);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     using namespace components;
 
@@ -280,6 +254,11 @@ void Renderer::opaque_pass() {
         skybox.draw();
     }
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
@@ -299,16 +278,16 @@ void Renderer::opaque_pass() {
         glm::mat4 model = transform.get_model_matrix();
 
         material.set_uniforms(model);
-        glDepthFunc(GL_LESS);
-        glCullFace(GL_BACK);
         mesh.draw();
     }
     fbm->unbind_framebuffer();
 }
 
-void Renderer::post_process_pass() {
-    using namespace components;
+void Renderer::transparent_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Transparency);
+
+    using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
     if (!sceneOpt) {
@@ -316,6 +295,55 @@ void Renderer::post_process_pass() {
     }
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
+
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunci(0, GL_ONE, GL_ONE);
+    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    glBlendEquation(GL_FUNC_ADD);
+
+    auto entities = registry.view<Transform, InstanceMesh, Material>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        Transform& transform = go.get_component<Transform>();
+        InstanceMesh& mesh = go.get_component<InstanceMesh>();
+        Material& material = go.get_component<Material>();
+        if (material.get_is_opaque() == true) {
+            continue;
+        }
+
+        glm::mat4 model = transform.get_model_matrix();
+
+        material.set_uniforms(model);
+        glDepthFunc(GL_LESS);
+        glCullFace(GL_BACK);
+        mesh.draw();
+    }
+    fbm->unbind_framebuffer();
+}
+
+void Renderer::post_process_pass() {}
+
+void Renderer::back_buffer_pass() {
+    using namespace components;
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Back);
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 
     auto entities = registry.view<PostProcessing>();
     for (auto& e : entities) {

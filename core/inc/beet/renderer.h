@@ -47,6 +47,7 @@ class Renderer : public Subsystem {
     void transparent_pass();
     void gui_pass();
     void post_process_pass();
+    void back_buffer_pass();
 
    private:
     entt::registry test_registry;
@@ -54,7 +55,7 @@ class Renderer : public Subsystem {
     Engine& m_engine;
     UniversalBufferData m_universalBufferData;
 
-    vec4 m_clearCol{1.0f, 1.0f, 1.0f, 1.0f};
+    vec4 m_clearCol{0.0f, 0.0f, 0.0f, 0.0f};
     float m_timePassed{0.0f};
 
     components::ShaderProgram m_depthProgram;
