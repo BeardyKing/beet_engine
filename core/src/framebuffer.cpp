@@ -50,19 +50,16 @@ void Framebuffer::create_transparent(const vec2& size, bool updatableSize) {
     m_size = size;
     m_updatableSize = updatableSize;
 
+    m_colorComponents = GL_RGBA16F;
+    m_colorFormat = GL_RGBA;
+    m_colorPixelData = GL_HALF_FLOAT;
+
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-    //    glGenTextures(1, &m_colorTexture);
-    //    glBindTexture(GL_TEXTURE_2D, m_colorTexture);
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_size.x, m_size.y, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //    glBindTexture(GL_TEXTURE_2D, 0);
-
     glGenTextures(1, &m_colorTexture);
     glBindTexture(GL_TEXTURE_2D, m_colorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_size.x, m_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, m_colorComponents, m_size.x, m_size.y, 0, m_colorFormat, m_colorPixelData, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -84,7 +81,7 @@ void Framebuffer::create_transparent(const vec2& size, bool updatableSize) {
 
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture, 0);
     } else {
-        log::info("using existing depth texture");
+        log::info("using existing depth texture {} - on fbo : {}", m_depthTexture, m_fbo);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -111,21 +108,28 @@ void Framebuffer::set_draw_buffers() {
 }
 
 void Framebuffer::create_depth_attachment() {
-    glGenTextures(1, &m_depthTexture);
-    glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+    if (m_depthTexture == 0) {
+        glGenTextures(1, &m_depthTexture);
+        glBindTexture(GL_TEXTURE_2D, m_depthTexture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_size.x, m_size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, m_size.x, m_size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture, 0);
-    m_drawBuffers.emplace_back(GL_DEPTH_ATTACHMENT);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture, 0);
+    } else {
+        log::info("using existing depth texture {} - on fbo : {}", m_depthTexture, m_fbo);
+    }
 }
 
 void Framebuffer::create_color_attachment() {
+    m_colorComponents = GL_RGB16;
+    m_colorFormat = GL_RGB;
+    m_colorPixelData = GL_UNSIGNED_BYTE;
+
     glGenTextures(1, &m_colorTexture);
     glBindTexture(GL_TEXTURE_2D, m_colorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_size.x, m_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, m_colorComponents, m_size.x, m_size.y, 0, m_colorFormat, m_colorPixelData, 0);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -149,9 +153,13 @@ void Framebuffer::update_size(const vec2i& size) {
 
     m_size = size;
 
+    // TODO component vector of texture attachment class that manages storing
+    // attachment data for easy editor modifying and size updating
+    // (ie this is going to become hard to maintain unless can be managed via editor)
+
     if (m_colorTexture) {
         glBindTexture(GL_TEXTURE_2D, m_colorTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_size.x, m_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_colorComponents, m_size.x, m_size.y, 0, m_colorFormat, m_colorPixelData, 0);
     }
 
     if (m_depthTexture) {

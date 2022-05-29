@@ -43,6 +43,11 @@ class Framebuffer {
    private:
     GLuint m_fbo{0};
     GLuint m_colorTexture{0};
+
+    GLenum m_colorComponents = GL_RGB;
+    GLenum m_colorFormat = GL_RGB;
+    GLenum m_colorPixelData = GL_UNSIGNED_BYTE;
+
     GLuint m_depthTexture{0};
     GLuint m_revealTexture{0};
 
