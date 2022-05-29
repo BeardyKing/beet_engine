@@ -16,11 +16,16 @@ class Framebuffer {
     void create_color_depth(const vec2& size, bool updatableSize = true);
     void create_color(const vec2& size, bool updatableSize = true);
     void create_depth(const vec2& size, bool updatableSize = true);
+    void create_transparent(const vec2& size, bool updatableSize = true);
+
     void update_size(const vec2i& size);
 
     GLuint get_framebuffer() { return m_fbo; };
     GLuint get_color_texture() { return m_colorTexture; };
     GLuint get_depth_texture() { return m_depthTexture; };
+    GLuint get_reveal_texture() { return m_revealTexture; };
+
+    void set_depth_to_existing_texture(GLuint depthTexture) { m_depthTexture = depthTexture; };
 
     void set_clear_flags(const GLbitfield flags) { m_flags = flags; };
     void clear_framebuffer();
@@ -39,6 +44,7 @@ class Framebuffer {
     GLuint m_fbo{0};
     GLuint m_colorTexture{0};
     GLuint m_depthTexture{0};
+    GLuint m_revealTexture{0};
 
    private:
     std::vector<GLenum> m_drawBuffers;

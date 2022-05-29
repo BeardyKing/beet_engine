@@ -25,6 +25,7 @@ void FramebufferWidget::render_frame_buffers() {
 
         auto colorTexture = fbo.get_color_texture();
         auto depthTexture = fbo.get_depth_texture();
+        auto revealTexture = fbo.get_reveal_texture();
 
         std::string name = fbo.get_name();
         auto rawSize = fbo.get_size();
@@ -57,6 +58,15 @@ void FramebufferWidget::render_frame_buffers() {
                 ImGui::Text("%s", ("aspect : " + std::to_string(aspectY)).c_str());
                 ImGui::Unindent();
                 ImGui::Image((GLuint*)fbo.get_depth_texture(), imageSize, uv_min, uv_max);
+            }
+        }
+        if (revealTexture) {
+            if (ImGui::CollapsingHeader((name + " : reveal texture").c_str(), flags)) {
+                ImGui::Indent();
+                ImGui::Text("%s", ("size : " + to_string(rawSize)).c_str());
+                ImGui::Text("%s", ("aspect : " + std::to_string(aspectY)).c_str());
+                ImGui::Unindent();
+                ImGui::Image((GLuint*)fbo.get_reveal_texture(), imageSize, uv_min, uv_max);
             }
         }
     }

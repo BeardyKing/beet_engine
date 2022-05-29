@@ -22,9 +22,9 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     GLint nExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
 
-    for (int i = 0; i < nExtensions; i++) {
-        log::debug("[{}] : {}", i, glGetStringi(GL_EXTENSIONS, i));
-    }
+    // for (int i = 0; i < nExtensions; i++) {
+    //     log::debug("[{}] : {}", i, glGetStringi(GL_EXTENSIONS, i));
+    // }
 }
 
 void Renderer::on_awake() {
@@ -296,11 +296,17 @@ void Renderer::transparent_pass() {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
+    glm::vec4 zeroFillerVec(0.0f);
+    glm::vec4 oneFillerVec(1.0f);
+
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFunci(0, GL_ONE, GL_ONE);
     glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
     glBlendEquation(GL_FUNC_ADD);
+
+    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
+    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {

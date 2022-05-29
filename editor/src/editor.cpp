@@ -43,8 +43,10 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
+
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(1, 0, 0, 1));
+        material.set_albedo_color(vec4(1.0f, 0.0f, 0.0f, 0.5f));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
@@ -63,8 +65,9 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(0, 1, 0, 1));
+        material.set_albedo_color(vec4(0.0f, 1.0f, 0.0f, 0.5f));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
@@ -83,8 +86,9 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("plane");
 
         auto material = components::Material();
+        material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(0, 0, 1, 1));
+        material.set_albedo_color(vec4(0.0f, 0.0f, 1.0f, 0.5f));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
