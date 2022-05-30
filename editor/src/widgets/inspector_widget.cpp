@@ -368,6 +368,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
     auto receivesShadows = material.get_receives_shadows();
     auto alphaCutoffEnabled = material.get_alpha_cutoff_enabled();
     auto alphaCutoffAmount = material.get_alpha_cutoff_amount();
+    auto isOpaque = material.get_is_opaque();
     auto shader = material.get_shader();
 
     if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
@@ -483,6 +484,11 @@ void InspectorWidget::render_material_component(components::Material& material) 
         if (ImGui::TreeNode("Advanced options")) {
             ImGui::Columns(2, "advancedOptionsColumns", false);
 
+            ImGui::Selectable("Is Opaque");
+            ImGui::NextColumn();
+            ImGui::Checkbox("##isOpaque", &isOpaque);
+            ImGui::NextColumn();
+
             ImGui::Selectable("Texture tiling");
             ImGui::NextColumn();
             ImGui::DragFloat2("##textureTiling", &textureTiling.x, -0.0125f, 0.0125f);
@@ -526,6 +532,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
     material.set_cast_shadows(castShadows);
     material.set_receives_shadows(receivesShadows);
     material.set_alpha_cutoff_enabled(alphaCutoffEnabled);
+    material.set_is_opaque(isOpaque);
     material.set_alpha_cutoff_amount(alphaCutoffAmount);
 }
 
@@ -572,7 +579,6 @@ void InspectorWidget::render_skybox_component(components::SkyBox& skyBox) {
     if (ImGui::CollapsingHeader("skybox", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap)) {
         ImGui::Indent();
         ImGui::Columns(2, "skyboxColumns", false);
-
 
         int selectedSkybox = (size_t)skyBox.get_uniform_background_type();
         const char* comboBoxContent = "Albedo\0Radiance\0Irradiance\0";
