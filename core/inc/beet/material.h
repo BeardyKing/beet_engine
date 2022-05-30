@@ -25,6 +25,7 @@ enum class UniformHandle {
     ReceivesShadows,
     AlphaCutoffEnabled,
     AlphaCutoffAmount,
+    IsOpaque,
     LAST
 };
 

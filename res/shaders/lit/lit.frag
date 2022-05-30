@@ -1,5 +1,7 @@
-#version 330 core
-out vec4 fragColor;
+#version 420 core
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out float reveal;
+
 
 in VS_OUT {
     vec3 fragPos;
@@ -42,6 +44,7 @@ uniform int receivesShadows;
 uniform int alphaCutoffEnabled;
 uniform float alphaCutoffAmount;
 uniform int enttHandle;
+uniform bool isOpaque;
 
 const float PI = 3.14159265359;
 const float EPSILON = 0.0001;
@@ -126,9 +129,24 @@ void main(){
     //    FragColor = texture(ourTexture, TexCoords) * lightCol;
     //    fragColor = vec4(r/255.0, g/255.0, b/255.0, 1.0);
 
-    fragColor = vec4(result, 1.0);
+    if (isOpaque){
+        fragColor = vec4(result, 1.0);
+    }
+    else {
+        float alphaAmount = albedoColor.a;
+        float weight = clamp(pow(min(1.0, albedoColor.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
 
-    //    vec2 uv = fs_in.texCoords;
+        // store pixel color accumulation
+        fragColor = vec4(albedoColor.rgb * albedoColor.a, albedoColor.a) * weight;
+
+        // store pixel revealage threshold
+        reveal = alphaAmount;
+
+        //    reveal = albedoColor.a;
+        vec2 uv = fs_in.texCoords;
+        reveal = texture(albedoMap, uv).a * albedoColor.a;
+    }
+
     //
     //    vec3 albedo     = pow(texture(albedoMap, uv).rgb, vec3(2.2));
     //    float metallic  = texture(metallicMap, uv).r;

@@ -26,7 +26,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
-        material.set_texture_slot_path(TextureType::Albedo, "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
+        material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "darkOceanTiles07/DarkOceanTiles07_1K_Normal.png");
         material.set_texture_slot_path(TextureType::Metallic, "darkOceanTiles07/DarkOceanTiles07_1K_Height.png");
         material.set_texture_slot_path(TextureType::Roughness, "darkOceanTiles07/DarkOceanTiles07_1K_Roughness.png");
@@ -47,7 +47,7 @@ Editor::Editor() {
 
         material.set_is_opaque(false);
         material.set_albedo_color(vec4(1.0f, 0.0f, 0.0f, 0.5f));
-        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
         material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
@@ -68,7 +68,7 @@ Editor::Editor() {
         material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
         material.set_is_opaque(false);
         material.set_albedo_color(vec4(0.0f, 1.0f, 0.0f, 0.5f));
-        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
         material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
@@ -89,7 +89,7 @@ Editor::Editor() {
         material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
         material.set_is_opaque(false);
         material.set_albedo_color(vec4(0.0f, 0.0f, 1.0f, 0.5f));
-        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+        material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
         material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");

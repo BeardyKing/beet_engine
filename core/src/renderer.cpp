@@ -205,7 +205,8 @@ void Renderer::picking_pass() {
     }
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
-
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
