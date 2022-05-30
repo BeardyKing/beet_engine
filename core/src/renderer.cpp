@@ -53,16 +53,28 @@ void Renderer::on_awake() {
     glEnable(GL_CULL_FACE);
 
     m_universalBufferData.init();
+    {
+        m_depthProgram.load_shader("depth", "depth.vert", "depth.frag");
+        m_depthModelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
+    }
+    {
+        m_pickingProgram.load_shader("picking", "picking.vert", "picking.frag");
+        m_pickingModelUniform = glGetUniformLocation(m_pickingProgram.get_program(), "model");
+        m_pickingenttHandleUniform = glGetUniformLocation(m_pickingProgram.get_program(), "enttHandle");
 
-    m_depthProgram.load_shader("depth", "depth.vert", "depth.frag");
-    m_depthModelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
-
-    m_pickingProgram.load_shader("picking", "picking.vert", "picking.frag");
-    m_pickingModelUniform = glGetUniformLocation(m_pickingProgram.get_program(), "model");
-    m_pickingenttHandleUniform = glGetUniformLocation(m_pickingProgram.get_program(), "enttHandle");
-
-    GLuint uboMatrixIndex = glGetUniformBlockIndex(m_pickingProgram.get_program(), "Matrices");
-    glUniformBlockBinding(m_pickingProgram.get_program(), uboMatrixIndex, 0);
+        GLuint uboMatrixIndex = glGetUniformBlockIndex(m_pickingProgram.get_program(), "Matrices");
+        glUniformBlockBinding(m_pickingProgram.get_program(), uboMatrixIndex, 0);
+    }
+    {
+        m_plane = std::make_shared<components::InstanceMesh>("plane");
+        m_plane->on_awake();
+    }
+    {
+        m_compositeProgram.set_asset_name("composite");
+        m_compositeProgram.load_shader("transparency", "composite.vert", "composite.frag");
+        m_compositeAccum = glGetUniformLocation(m_compositeProgram.get_program(), "accum");
+        m_compositeReveal = glGetUniformLocation(m_compositeProgram.get_program(), "reveal");
+    }
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -330,6 +342,33 @@ void Renderer::transparent_pass() {
         glCullFace(GL_BACK);
         mesh.draw();
     }
+    fbm->unbind_framebuffer();
+
+    // Draw Transparent objects on top of opaque geometry
+
+    GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
+    GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
+
+    if (!accumTexture || !revealTexture) {
+        return;
+    }
+
+    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
+
+    glUseProgram(m_compositeProgram.get_program());
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, accumTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, revealTexture);
+
+    m_plane->draw();
+    glUseProgram(0);
     fbm->unbind_framebuffer();
 }
 

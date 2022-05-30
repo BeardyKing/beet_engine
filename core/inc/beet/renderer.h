@@ -64,6 +64,11 @@ class Renderer : public Subsystem {
     components::ShaderProgram m_pickingProgram;
     GLuint m_pickingModelUniform{0};
     GLuint m_pickingenttHandleUniform{0};
+
+    components::ShaderProgram m_compositeProgram;
+    std::shared_ptr<components::InstanceMesh> m_plane;
+    GLuint m_compositeAccum{0};
+    GLuint m_compositeReveal{0};
 };
 
 }  // namespace beet

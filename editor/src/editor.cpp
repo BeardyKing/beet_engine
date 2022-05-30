@@ -37,10 +37,10 @@ Editor::Editor() {
     {
         auto cubeObj = m_scene->create_game_object("red glass");
         cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.2, -0.2, -1.2));
-        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
-        cubeObj.add_component<components::InstanceMesh>("plane");
+        cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
         material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
@@ -59,10 +59,10 @@ Editor::Editor() {
     {
         auto cubeObj = m_scene->create_game_object("green glass");
         cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.4, -0.4, -1.4));
-        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
-        cubeObj.add_component<components::InstanceMesh>("plane");
+        cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
         material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
@@ -80,10 +80,10 @@ Editor::Editor() {
     {
         auto cubeObj = m_scene->create_game_object("blue glass");
         cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.6, -0.6, -1.6));
-        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
+        cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
-        cubeObj.add_component<components::InstanceMesh>("plane");
+        cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
         material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");

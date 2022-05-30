@@ -86,4 +86,8 @@ GLuint FramebufferManager::get_color_attachment(FrameBufferType type) {
     return m_framebuffers[(size_t)type].get_color_texture();
 }
 
+GLuint FramebufferManager::get_reveal_attachment(FrameBufferType type) {
+    return m_framebuffers[(size_t)type].get_reveal_texture();
+}
+
 }  // namespace beet
