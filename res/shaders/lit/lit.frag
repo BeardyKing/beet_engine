@@ -135,9 +135,9 @@ void main(){
     else {
         float alphaAmount = albedoColor.a;
         float weight = clamp(pow(min(1.0, albedoColor.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
-
+        //        vec4(result, 1.0)
         // store pixel color accumulation
-        fragColor = vec4(albedoColor.rgb * albedoColor.a, albedoColor.a) * weight;
+        fragColor = vec4(result.rgb * albedoColor.a, albedoColor.a) * weight;
 
         // store pixel revealage threshold
         reveal = alphaAmount;

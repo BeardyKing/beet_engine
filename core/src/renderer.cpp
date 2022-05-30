@@ -168,6 +168,11 @@ void Renderer::depth_pass() {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+
     auto entities = registry.view<InstanceMesh, Transform>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
