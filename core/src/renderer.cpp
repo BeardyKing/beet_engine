@@ -276,6 +276,8 @@ void Renderer::opaque_pass() {
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
+    glCullFace(GL_NONE);
+    glDisable(GL_CULL_FACE);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
@@ -299,6 +301,8 @@ void Renderer::opaque_pass() {
         mesh.draw();
     }
     fbm->unbind_framebuffer();
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 }
 
 void Renderer::transparent_pass() {

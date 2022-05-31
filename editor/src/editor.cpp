@@ -26,7 +26,7 @@ Editor::Editor() {
         cubeObj.add_component<components::InstanceMesh>("cube");
 
         auto material = components::Material();
-        material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
+        material.set_texture_slot_path(TextureType::Albedo, "darkOceanTiles07/DarkOceanTiles07_1K_Albedo.png");
         material.set_texture_slot_path(TextureType::Normal, "darkOceanTiles07/DarkOceanTiles07_1K_Normal.png");
         material.set_texture_slot_path(TextureType::Metallic, "darkOceanTiles07/DarkOceanTiles07_1K_Height.png");
         material.set_texture_slot_path(TextureType::Roughness, "darkOceanTiles07/DarkOceanTiles07_1K_Roughness.png");
