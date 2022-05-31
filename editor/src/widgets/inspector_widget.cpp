@@ -406,7 +406,7 @@ void InspectorWidget::render_material_component(components::Material& material) 
             ImGui::SameLine();
             ImGui::Selectable("Albedo map");
             ImGui::NextColumn();
-            ImGui::SliderFloat("##albedoScalar", &albedoScalar, 0.3f, 10.0f);
+            ImGui::SliderFloat("##albedoScalar", &albedoScalar, 0.0f, 1.0f);
             ImGui::SameLine();
 
             //--------------Color picker------------//

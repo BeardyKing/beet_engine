@@ -19,7 +19,7 @@ Editor::Editor() {
 
     {
         auto cubeObj = m_scene->create_game_object("loaded_cube");
-        cubeObj.get_component<components::Transform>().set_position(glm::vec3(0, 0, 0));
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(0, -4, 0));
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 45, 0));
 
@@ -36,7 +36,7 @@ Editor::Editor() {
 
     {
         auto cubeObj = m_scene->create_game_object("stanford dragon");
-        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-2.2, -0.2, -2.2));
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(0));
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, 1));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
@@ -44,9 +44,14 @@ Editor::Editor() {
 
         auto material = components::Material();
         //        material.temp_set_shader("transparency", "transparent.vert", "transparent.frag", "transparent");
+        material.set_albedo_scalar(1.0f);
+        material.set_normal_scalar(1.29);
+        material.set_metallic_scalar(1.0f);
+        material.set_roughness_scalar(2.6f);
+        material.set_occlusion_scalar(1.0f);
 
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(1.0f, 0.0f, 0.0f, 0.5f));
+        material.set_albedo_color(vec4(1.0f, 0.0f, 0.0f, 0.9f));
         material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
@@ -58,7 +63,7 @@ Editor::Editor() {
 
     {
         auto cubeObj = m_scene->create_game_object("red glass");
-        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.2, -0.2, -1.2));
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(7, -0.2, -1.2));
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
@@ -80,7 +85,7 @@ Editor::Editor() {
 
     {
         auto cubeObj = m_scene->create_game_object("green glass");
-        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.4, -0.4, -1.4));
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(7, -0.4, -1.4));
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 
@@ -101,7 +106,7 @@ Editor::Editor() {
 
     {
         auto cubeObj = m_scene->create_game_object("blue glass");
-        cubeObj.get_component<components::Transform>().set_position(glm::vec3(-0.6, -0.6, -1.6));
+        cubeObj.get_component<components::Transform>().set_position(glm::vec3(7, -0.6, -1.6));
         cubeObj.get_component<components::Transform>().set_scale(glm::vec3(1, 1, .1f));
         cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
 

@@ -111,8 +111,8 @@ void main(){
     vec2 TexCoords = fs_in.texCoords;
 
 
-    vec4 v4_albedo  = texture(albedoMap, TexCoords) * albedoScalar;
-    v4_albedo = v4_albedo * albedoColor;
+    vec4 v4_albedo  = texture(albedoMap, TexCoords);
+    v4_albedo = mix(v4_albedo, albedoColor, albedoScalar);
     vec3 albedo     = pow(v4_albedo.rgb, vec3(2.2));
     float metallic = texture(metallicMap, TexCoords).r * metallicScalar;
     float roughness = texture(roughnessMap, TexCoords).r * roughnessScalar;
