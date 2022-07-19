@@ -74,7 +74,7 @@ Editor::Editor() {
         material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
 
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(0.2f, 0.2f, 0.9f, 0.55f));
+        material.set_albedo_color(vec4(1.0f, 0.2f, 0.2f, 0.3f));
         material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
@@ -97,7 +97,7 @@ Editor::Editor() {
         material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
 
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(0.2f, 0.2f, 0.9f, 0.55f));
+        material.set_albedo_color(vec4(0.2f, 1.0f, 0.2f, 0.3f));
         material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
@@ -120,7 +120,7 @@ Editor::Editor() {
         material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
 
         material.set_is_opaque(false);
-        material.set_albedo_color(vec4(0.2f, 0.2f, 0.9f, 0.55f));
+        material.set_albedo_color(vec4(0.2, 0.2f, 1.0f, 0.3f));
         material.set_texture_slot_path(TextureType::Albedo, "alpha_test.png");
         material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
         material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");

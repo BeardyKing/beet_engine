@@ -317,18 +317,25 @@ void Renderer::transparent_pass() {
     }
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
+    //
+    //    glm::vec4 zeroFillerVec(0.0f);
+    //    glm::vec4 oneFillerVec(1.0f);
+    //
+    //    glDepthMask(GL_FALSE);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunci(0, GL_ONE, GL_ONE);
+    //    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    //    glBlendEquation(GL_FUNC_ADD);
+    //
+    //    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
+    //    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
 
-    glm::vec4 zeroFillerVec(0.0f);
-    glm::vec4 oneFillerVec(1.0f);
-
-    glDepthMask(GL_FALSE);
-    glEnable(GL_BLEND);
-    glBlendFunci(0, GL_ONE, GL_ONE);
-    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-    glBlendEquation(GL_FUNC_ADD);
-
-    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
-    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+    glCullFace(GL_NONE);
+    glDisable(GL_CULL_FACE);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
@@ -353,32 +360,34 @@ void Renderer::transparent_pass() {
         mesh.draw();
     }
     fbm->unbind_framebuffer();
+    // DO PIXEL SORTING HERE
+    //
+    //     // Draw Transparent objects on top of opaque geometry
+    //
+    //     GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
+    //     GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
+    //
+    //     if (!accumTexture || !revealTexture) {
+    //         return;
+    //     }
+    //
+    //     glDepthFunc(GL_ALWAYS);
+    //     glEnable(GL_BLEND);
+    //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Draw Transparent objects on top of opaque geometry
-
-    GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
-    GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
-
-    if (!accumTexture || !revealTexture) {
-        return;
-    }
-
-    glDepthFunc(GL_ALWAYS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    fbm->bind_framebuffer(FrameBufferType::Opaque);
-
-    glUseProgram(m_compositeProgram.get_program());
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, accumTexture);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, revealTexture);
-
-    m_plane->draw();
-    glUseProgram(0);
+    //    fbm->bind_framebuffer(FrameBufferType::Opaque);
+    //
+    //    glUseProgram(m_compositeProgram.get_program());
+    //
+    //    glActiveTexture(GL_TEXTURE0);
+    //    glBindTexture(GL_TEXTURE_2D, accumTexture);
+    //
+    //    glActiveTexture(GL_TEXTURE1);
+    //    glBindTexture(GL_TEXTURE_2D, revealTexture);
+    //
+    //    m_plane->draw();
+    //    glUseProgram(0);
+    //    fbm->unbind_framebuffer();
     fbm->unbind_framebuffer();
 }
 
