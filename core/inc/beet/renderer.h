@@ -49,6 +49,8 @@ class Renderer : public Subsystem {
     void post_process_pass();
     void back_buffer_pass();
 
+    void clear_ssbo();
+
    private:
     entt::registry test_registry;
 

@@ -71,9 +71,11 @@ void Material::on_awake() {
     // clang-format on
 }
 
-void Material::set_uniforms(const mat4& model) {
+void Material::set_uniforms(const mat4& model, bool use_shader) {
     // clang-format off
-    glUseProgram(m_shader.get_program());
+    if(use_shader){
+        glUseProgram(m_shader.get_program());
+    }
 
     glUniformMatrix4fv(m_uniformHandles[(GLuint)UniformHandle::Model],          1, GL_FALSE, value_ptr(model));
 

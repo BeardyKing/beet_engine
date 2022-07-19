@@ -44,7 +44,7 @@ class Material : public Component<Material> {
 
     void set_texture_slot_path(TextureType slot, const std::string& path);
 
-    void set_uniforms(const mat4& model);
+    void set_uniforms(const mat4& model, bool use_shader = true);
     GLuint get_program() { return m_shader.get_program(); };
     std::unique_ptr<ShaderProgram> get_shader() { return std::make_unique<ShaderProgram>(m_shader); };
 

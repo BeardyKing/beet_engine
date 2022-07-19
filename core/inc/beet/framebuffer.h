@@ -17,6 +17,7 @@ class Framebuffer {
     void create_color(const vec2& size, bool updatableSize = true);
     void create_depth(const vec2& size, bool updatableSize = true);
     void create_transparent(const vec2& size, bool updatableSize = true);
+    void create_transparent_per_pixel_linked_list(const vec2& size, bool updatableSize = true);
 
     void update_size(const vec2i& size);
 
@@ -34,6 +35,7 @@ class Framebuffer {
 
     void set_name(const std::string& name) { m_name = name; };
     std::string get_name() { return m_name; };
+    void clear_ppll(const vec2i size);
 
    private:
     void create_color_attachment();
@@ -43,6 +45,7 @@ class Framebuffer {
    private:
     GLuint m_fbo{0};
     GLuint m_colorTexture{0};
+    GLuint m_ssboTexture{0};
 
     GLenum m_colorComponents = GL_RGB;
     GLenum m_colorFormat = GL_RGB;
@@ -50,6 +53,10 @@ class Framebuffer {
 
     GLuint m_depthTexture{0};
     GLuint m_revealTexture{0};
+
+    // OIT Per Pixel Linked List
+    GLuint buffers[2];
+    GLuint clearBuf;
 
    private:
     std::vector<GLenum> m_drawBuffers;

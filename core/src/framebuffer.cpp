@@ -46,6 +46,56 @@ void Framebuffer::create_depth(const vec2& size, bool updatableSize) {
     set_draw_buffers();
 }
 
+enum BufferNames { COUNTER_BUFFER = 0, LINKED_LIST_BUFFER };
+
+void Framebuffer::create_transparent_per_pixel_linked_list(const vec2& size, bool updatableSize) {
+    m_size = size;
+    m_updatableSize = updatableSize;
+
+    m_colorComponents = GL_R32UI;
+
+    glGenTextures(1, &m_fbo);
+    glBindTexture(GL_TEXTURE_2D, m_ssboTexture);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, size.x, size.y);
+    glBindImageTexture(0, m_fbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+    glGenBuffers(2, buffers);
+    GLuint maxNodes = 20 * m_size.x * m_size.y;
+    GLint nodeSize = 5 * sizeof(GLfloat) + sizeof(GLuint);  // The size of a linked list node
+
+    // Our atomic counter
+    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, buffers[COUNTER_BUFFER]);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+
+    // The buffer for the head pointers, as an image texture
+    glGenTextures(1, &m_fbo);
+    glBindTexture(GL_TEXTURE_2D, m_fbo);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, size.x, size.y);
+    glBindImageTexture(0, m_fbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+    // The buffer of linked lists
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffers[LINKED_LIST_BUFFER]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, maxNodes * nodeSize, NULL, GL_DYNAMIC_DRAW);
+
+    //    prog.setUniform("MaxNodes", maxNodes);
+
+    std::vector<GLuint> headPtrClearBuf(m_size.x * m_size.y, 0xffffffff);
+    glGenBuffers(1, &clearBuf);
+    //    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, clearBuf);
+    //    glBufferData(GL_PIXEL_UNPACK_BUFFER, headPtrClearBuf.size() * sizeof(GLuint), &headPtrClearBuf[0],
+    //    GL_STATIC_COPY); glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
+void Framebuffer::clear_ppll(const vec2i size) {
+    //    GLuint zero = 0;
+    //    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, buffers[COUNTER_BUFFER]);
+    //    glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zero);
+    //
+    //    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, clearBuf);
+    //    glBindTexture(GL_TEXTURE_2D, m_fbo);
+    // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT, NULL);
+}
+
 void Framebuffer::create_transparent(const vec2& size, bool updatableSize) {
     m_size = size;
     m_updatableSize = updatableSize;

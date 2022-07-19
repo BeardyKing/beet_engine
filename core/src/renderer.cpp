@@ -71,7 +71,7 @@ void Renderer::on_awake() {
     }
     {
         m_compositeProgram.set_asset_name("composite");
-        m_compositeProgram.load_shader("transparency", "composite.vert", "composite.frag");
+        m_compositeProgram.load_shader("oit", "oit.vert", "oit.frag");
         m_compositeAccum = glGetUniformLocation(m_compositeProgram.get_program(), "accum");
         m_compositeReveal = glGetUniformLocation(m_compositeProgram.get_program(), "reveal");
     }
@@ -308,7 +308,8 @@ void Renderer::opaque_pass() {
 void Renderer::transparent_pass() {
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Transparency);
-
+    auto size = m_engine.get_window_module().lock()->get_window_size();
+    fbm->get_framebuffer(FrameBufferType::Transparency).clear_ppll(size);
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -337,6 +338,13 @@ void Renderer::transparent_pass() {
     glCullFace(GL_NONE);
     glDisable(GL_CULL_FACE);
 
+    enum class SUB_PASS {
+        DATA_PASS = 1,
+        COMPOSITION_PASS = 0,
+    };
+    glUseProgram(m_compositeProgram.get_program());
+
+    uint32_t render_pass = (uint32_t)SUB_PASS::DATA_PASS;
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
         auto goOpt = scene.get_game_object_from_handle(e);
@@ -353,13 +361,21 @@ void Renderer::transparent_pass() {
         }
 
         glm::mat4 model = transform.get_model_matrix();
-
-        material.set_uniforms(model);
+        material.set_uniforms(model, false);
         glDepthFunc(GL_LESS);
         glCullFace(GL_BACK);
+        glDepthMask(GL_FALSE);
+        glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &render_pass);
         mesh.draw();
     }
     fbm->unbind_framebuffer();
+
+    glFlush();
+
+    render_pass = (uint32_t)SUB_PASS::COMPOSITION_PASS;
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
     // DO PIXEL SORTING HERE
     //
     //     // Draw Transparent objects on top of opaque geometry
@@ -375,9 +391,8 @@ void Renderer::transparent_pass() {
     //     glEnable(GL_BLEND);
     //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //    fbm->bind_framebuffer(FrameBufferType::Opaque);
     //
-    //    glUseProgram(m_compositeProgram.get_program());
+    glUseProgram(m_compositeProgram.get_program());
     //
     //    glActiveTexture(GL_TEXTURE0);
     //    glBindTexture(GL_TEXTURE_2D, accumTexture);
@@ -385,11 +400,12 @@ void Renderer::transparent_pass() {
     //    glActiveTexture(GL_TEXTURE1);
     //    glBindTexture(GL_TEXTURE_2D, revealTexture);
     //
-    //    m_plane->draw();
-    //    glUseProgram(0);
-    //    fbm->unbind_framebuffer();
+    m_plane->draw();
+    glUseProgram(0);
     fbm->unbind_framebuffer();
 }
+
+void Renderer::clear_ssbo() {}
 
 void Renderer::post_process_pass() {}
 
