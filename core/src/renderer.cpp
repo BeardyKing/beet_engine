@@ -71,9 +71,7 @@ void Renderer::on_awake() {
     }
     {
         m_compositeProgram.set_asset_name("oit composite");
-        m_compositeProgram.load_shader("oit", "oit.vert", "oit.frag");
-        m_compositeAccum = glGetUniformLocation(m_compositeProgram.get_program(), "accum");
-        m_compositeReveal = glGetUniformLocation(m_compositeProgram.get_program(), "reveal");
+        m_compositeProgram.load_shader("oit", "oit_composite.vert", "oit_composite.frag");
     }
 
     glCreateBuffers(1, &fragmentstartindexinitializerbuffer);
@@ -339,29 +337,21 @@ void Renderer::transparent_pass() {
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
-    glm::vec4 zeroFillerVec(0.0f);
-    glm::vec4 oneFillerVec(1.0f);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glCullFace(GL_NONE);
     glDisable(GL_CULL_FACE);
 
-    //    glDepthMask(GL_FALSE);
-    glEnable(GL_BLEND);
-    //    glBlendFunci(0, GL_ONE, GL_ONE);
-    //    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-    //    glBlendEquation(GL_FUNC_ADD);
-    //
-    //    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
-    //    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
-    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
-    //    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass2Index);
+    glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, fragmentstartindexinitializerbuffer);
+    glTextureSubImage2D(fragmentstartindextexture, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
+
+    // initialize fragment index buffer
+    uint atomic_fragment_index = 0;
+    glNamedBufferSubData(fragmentindexbuffer, 0, sizeof(uint), &atomic_fragment_index);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
+        glClear(GL_DEPTH_BUFFER_BIT);
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
             continue;
@@ -379,39 +369,25 @@ void Renderer::transparent_pass() {
 
         material.set_uniforms(model);
 
-        // BIND DATA FOR PPLL SSBO
-        //     glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
-        glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, fragmentstartindexinitializerbuffer);
-        glTextureSubImage2D(fragmentstartindextexture, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT,
-                            nullptr);
-
-        // initialize fragment index buffer
-        uint atomic_fragment_index = 0;
-        glNamedBufferSubData(fragmentindexbuffer, 0, sizeof(uint), &atomic_fragment_index);
-
-        glDepthFunc(GL_LESS);
-        glCullFace(GL_BACK);
         mesh.draw();
+        glUseProgram(0);
     }
     fbm->unbind_framebuffer();
 
-    glFinish();
+    // SORT / COMPOSE
+
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    //    passIndex = 0;
-    //    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &passIndex);
-    //
-    //    // COMPOSE PASS
-    //
-    //    glDepthFunc(GL_ALWAYS);
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //    fbm->bind_framebuffer(FrameBufferType::Transparency);
-    //    glUseProgram(m_compositeProgram.get_program());
-    //    m_plane->draw();
-    //    glUseProgram(0);
-    //    fbm->unbind_framebuffer();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
+    glUseProgram(m_compositeProgram.get_program());
+    m_plane->draw();
+    fbm->unbind_framebuffer();
+    glUseProgram(0);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    glDisable(GL_BLEND);
+    fbm->unbind_framebuffer();
 }
 
 void Renderer::post_process_pass() {}
@@ -451,7 +427,12 @@ void Renderer::back_buffer_pass() {
         postProcessing.draw();
     }
 }
-
+struct Fragment {
+    uint NextIndex;
+    uint Color;
+    float Depth;
+    float _pad;
+};
 void Renderer::resize_all_framebuffers(const vec2i& size) {
     glViewport(0, 0, size.x, size.y);
 
@@ -474,7 +455,7 @@ void Renderer::resize_all_framebuffers(const vec2i& size) {
     glNamedBufferData(fragmentstartindexinitializerbuffer, fragmentstartindexinitializer.size() * sizeof(uint),
                       fragmentstartindexinitializer.data(), GL_DYNAMIC_COPY);
     // resize fragmentbuffer too
-    glNamedBufferData(fragmentbuffer, size.x * size.y * 10 * sizeof(uvec4), nullptr, GL_DYNAMIC_DRAW);
+    glNamedBufferData(fragmentbuffer, size.x * size.y * 30 * sizeof(Fragment), nullptr, GL_DYNAMIC_DRAW);
     //    glNamedBufferData(fragmentbuffer, size.x * size.y * 10 * sizeof(uvec4), nullptr, GL_DYNAMIC_DRAW);
 
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);

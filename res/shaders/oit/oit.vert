@@ -21,9 +21,6 @@ out VS_OUT {
     vec4 fragPosLightSpace;
 } vs_out;
 
-out vec3 Position;
-out vec3 Normal;
-
 void main()
 {
     vs_out.fragPos = vec3(model * vec4(aPos, 1.0));
@@ -31,7 +28,4 @@ void main()
     vs_out.texCoords = vec2(aTexCoords.x * textureTiling.x, aTexCoords.y * textureTiling.y);
     vs_out.fragPosLightSpace = lightSpaceMatrix * vec4(vs_out.fragPos, 1.0);
     gl_Position = projection * view * model * vec4(aPos, 1.0);
-
-    Position = vec3(model * vec4(aPos, 1.0));
-    Normal = transpose(inverse(mat3(model))) * aNormal;
 }

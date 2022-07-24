@@ -113,9 +113,6 @@ void Material::set_uniforms(const mat4& model) {
     glUniform1i(m_textureHandles[(size_t)TextureType::Roughness]    , 3);
     glUniform1i(m_textureHandles[(size_t)TextureType::Occlusion]    , 4);
 
-//    pass1Index = glGetSubroutineIndex(m_shader.get_program(), GL_FRAGMENT_SHADER, "gather_pass");
-//    pass2Index = glGetSubroutineIndex(m_shader.get_program(), GL_FRAGMENT_SHADER, "sort_pass");
-
     // clang-format on
 }
 
