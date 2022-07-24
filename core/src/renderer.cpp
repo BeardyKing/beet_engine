@@ -28,7 +28,7 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
 }
 
 void Renderer::on_awake() {
-    auto size = m_engine.get_window_module().lock()->get_window_size();
+    const auto size = m_engine.get_window_module().lock()->get_window_size();
     resize_all_framebuffers(size);
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
@@ -70,11 +70,30 @@ void Renderer::on_awake() {
         m_plane->on_awake();
     }
     {
-        m_compositeProgram.set_asset_name("composite");
-        m_compositeProgram.load_shader("transparency", "composite.vert", "composite.frag");
+        m_compositeProgram.set_asset_name("oit composite");
+        m_compositeProgram.load_shader("oit", "oit.vert", "oit.frag");
         m_compositeAccum = glGetUniformLocation(m_compositeProgram.get_program(), "accum");
         m_compositeReveal = glGetUniformLocation(m_compositeProgram.get_program(), "reveal");
     }
+
+    glCreateBuffers(1, &fragmentstartindexinitializerbuffer);
+    glCreateBuffers(1, &fragmentbuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, fragmentbuffer);
+
+    glCreateBuffers(1, &fragmentindexbuffer);
+    glNamedBufferData(fragmentindexbuffer, sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, fragmentindexbuffer);
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &fragmentstartindextexture);
+    glTextureStorage2D(fragmentstartindextexture, 1, GL_R32UI, size.x, size.y);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // bind to image unit 6
+    //    glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
+    resize_all_framebuffers(size);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -306,6 +325,8 @@ void Renderer::opaque_pass() {
 }
 
 void Renderer::transparent_pass() {
+    const auto size = m_engine.get_window_module().lock()->get_window_size();
+
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Transparency);
 
@@ -321,14 +342,23 @@ void Renderer::transparent_pass() {
     glm::vec4 zeroFillerVec(0.0f);
     glm::vec4 oneFillerVec(1.0f);
 
-    glDepthMask(GL_FALSE);
-    glEnable(GL_BLEND);
-    glBlendFunci(0, GL_ONE, GL_ONE);
-    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-    glBlendEquation(GL_FUNC_ADD);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+    glCullFace(GL_NONE);
+    glDisable(GL_CULL_FACE);
 
-    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
-    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
+    //    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    //    glBlendFunci(0, GL_ONE, GL_ONE);
+    //    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    //    glBlendEquation(GL_FUNC_ADD);
+    //
+    //    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
+    //    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
+    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
+    //    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass2Index);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
@@ -348,38 +378,40 @@ void Renderer::transparent_pass() {
         glm::mat4 model = transform.get_model_matrix();
 
         material.set_uniforms(model);
+
+        // BIND DATA FOR PPLL SSBO
+        //     glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
+        glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, fragmentstartindexinitializerbuffer);
+        glTextureSubImage2D(fragmentstartindextexture, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT,
+                            nullptr);
+
+        // initialize fragment index buffer
+        uint atomic_fragment_index = 0;
+        glNamedBufferSubData(fragmentindexbuffer, 0, sizeof(uint), &atomic_fragment_index);
+
         glDepthFunc(GL_LESS);
         glCullFace(GL_BACK);
         mesh.draw();
     }
     fbm->unbind_framebuffer();
 
-    // Draw Transparent objects on top of opaque geometry
-
-    GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
-    GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
-
-    if (!accumTexture || !revealTexture) {
-        return;
-    }
-
-    glDepthFunc(GL_ALWAYS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    fbm->bind_framebuffer(FrameBufferType::Opaque);
-
-    glUseProgram(m_compositeProgram.get_program());
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, accumTexture);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, revealTexture);
-
-    m_plane->draw();
-    glUseProgram(0);
-    fbm->unbind_framebuffer();
+    glFinish();
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    //    passIndex = 0;
+    //    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &passIndex);
+    //
+    //    // COMPOSE PASS
+    //
+    //    glDepthFunc(GL_ALWAYS);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //    fbm->bind_framebuffer(FrameBufferType::Transparency);
+    //    glUseProgram(m_compositeProgram.get_program());
+    //    m_plane->draw();
+    //    glUseProgram(0);
+    //    fbm->unbind_framebuffer();
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 void Renderer::post_process_pass() {}
@@ -422,6 +454,29 @@ void Renderer::back_buffer_pass() {
 
 void Renderer::resize_all_framebuffers(const vec2i& size) {
     glViewport(0, 0, size.x, size.y);
+
+    glDeleteTextures(1, &fragmentstartindextexture);
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &fragmentstartindextexture);
+
+    glTextureStorage2D(fragmentstartindextexture, 1, GL_R32UI, size.x, size.y);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // bind to image unit 1
+
+    glBindImageTexture(1, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
+    // resize fragment start index initializer buffer
+    std::vector<uint> fragmentstartindexinitializer(size.x * size.y, 0xFFFFFFFF);
+
+    glNamedBufferData(fragmentstartindexinitializerbuffer, fragmentstartindexinitializer.size() * sizeof(uint),
+                      fragmentstartindexinitializer.data(), GL_DYNAMIC_COPY);
+    // resize fragmentbuffer too
+    glNamedBufferData(fragmentbuffer, size.x * size.y * 10 * sizeof(uvec4), nullptr, GL_DYNAMIC_DRAW);
+    //    glNamedBufferData(fragmentbuffer, size.x * size.y * 10 * sizeof(uvec4), nullptr, GL_DYNAMIC_DRAW);
+
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 
