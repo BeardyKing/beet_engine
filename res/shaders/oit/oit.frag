@@ -1,16 +1,16 @@
 #version 460
 
 struct Fragment {
-    uint next_index;
-    uint packed_color;
+    uint nextIndex;
+    uint packedColor;
     float depth;
-    float unused_padding;
+    float unusedPadding;
 };
 
 layout (early_fragment_tests) in;
-layout (binding = 1) uniform atomic_uint atomic_fragment_index;
-layout (binding = 6, r32ui) uniform coherent uimage2D fragment_start_indices;
-layout (std430, binding = 4) buffer FragmentBlock {
+layout (binding = 1) uniform atomic_uint atomicFragmentIndex;
+layout (binding = 6, r32ui) uniform coherent uimage2D fragmentStartIndices;
+layout (std430, binding = 0) buffer FragmentBlock {
     Fragment fragments[];
 };
 
@@ -30,12 +30,12 @@ vec4 get_color(){
 }
 
 void gather_pass(){
-    uint ssbo_index = atomicCounterIncrement(atomic_fragment_index);
-    uint last_index = imageAtomicExchange(fragment_start_indices, ivec2(gl_FragCoord.xy), ssbo_index);
+    uint ssboIndex = atomicCounterIncrement(atomicFragmentIndex);
+    uint lastIndex = imageAtomicExchange(fragmentStartIndices, ivec2(gl_FragCoord.xy), ssboIndex);
 
-    fragments[ssbo_index].packed_color = packUnorm4x8(get_color());
-    fragments[ssbo_index].depth = gl_FragCoord.z;
-    fragments[ssbo_index].next_index = last_index;
+    fragments[ssboIndex].packedColor = packUnorm4x8(get_color());
+    fragments[ssboIndex].depth = gl_FragCoord.z;
+    fragments[ssboIndex].nextIndex = lastIndex;
 }
 
 void main() {

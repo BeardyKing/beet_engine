@@ -74,24 +74,7 @@ void Renderer::on_awake() {
         m_compositeProgram.load_shader("oit", "oit_composite.vert", "oit_composite.frag");
     }
 
-    glCreateBuffers(1, &fragmentstartindexinitializerbuffer);
-    glCreateBuffers(1, &fragmentbuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, fragmentbuffer);
-
-    glCreateBuffers(1, &fragmentindexbuffer);
-    glNamedBufferData(fragmentindexbuffer, sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, fragmentindexbuffer);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &fragmentstartindextexture);
-    glTextureStorage2D(fragmentstartindextexture, 1, GL_R32UI, size.x, size.y);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // bind to image unit 6
-    //    glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
-    resize_all_framebuffers(size);
+    m_shaderStorageBuffer.init(size);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -341,13 +324,7 @@ void Renderer::transparent_pass() {
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
 
-    glBindImageTexture(6, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, fragmentstartindexinitializerbuffer);
-    glTextureSubImage2D(fragmentstartindextexture, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
-
-    // initialize fragment index buffer
-    uint atomic_fragment_index = 0;
-    glNamedBufferSubData(fragmentindexbuffer, 0, sizeof(uint), &atomic_fragment_index);
+    m_shaderStorageBuffer.bind_oit(size);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
@@ -374,7 +351,7 @@ void Renderer::transparent_pass() {
     }
     fbm->unbind_framebuffer();
 
-    // SORT / COMPOSE
+    // SORT / COMPOSE OIT
 
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glEnable(GL_BLEND);
@@ -388,6 +365,7 @@ void Renderer::transparent_pass() {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     glDisable(GL_BLEND);
     fbm->unbind_framebuffer();
+    m_shaderStorageBuffer.unbind();
 }
 
 void Renderer::post_process_pass() {}
@@ -427,37 +405,11 @@ void Renderer::back_buffer_pass() {
         postProcessing.draw();
     }
 }
-struct Fragment {
-    uint NextIndex;
-    uint Color;
-    float Depth;
-    float _pad;
-};
+
 void Renderer::resize_all_framebuffers(const vec2i& size) {
     glViewport(0, 0, size.x, size.y);
 
-    glDeleteTextures(1, &fragmentstartindextexture);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &fragmentstartindextexture);
-
-    glTextureStorage2D(fragmentstartindextexture, 1, GL_R32UI, size.x, size.y);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(fragmentstartindextexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // bind to image unit 1
-
-    glBindImageTexture(1, fragmentstartindextexture, 0, false, 0, GL_READ_WRITE, GL_R32UI);
-    // resize fragment start index initializer buffer
-    std::vector<uint> fragmentstartindexinitializer(size.x * size.y, 0xFFFFFFFF);
-
-    glNamedBufferData(fragmentstartindexinitializerbuffer, fragmentstartindexinitializer.size() * sizeof(uint),
-                      fragmentstartindexinitializer.data(), GL_DYNAMIC_COPY);
-    // resize fragmentbuffer too
-    glNamedBufferData(fragmentbuffer, size.x * size.y * 30 * sizeof(Fragment), nullptr, GL_DYNAMIC_DRAW);
-    //    glNamedBufferData(fragmentbuffer, size.x * size.y * 10 * sizeof(uvec4), nullptr, GL_DYNAMIC_DRAW);
-
+    m_shaderStorageBuffer.resize(size);
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 

@@ -6,6 +6,7 @@
 #include <beet/log.h>
 #include <beet/mesh.h>
 #include <beet/shader_program.h>
+#include <beet/shader_storage_buffer.h>
 #include <beet/subsystem.h>
 #include <beet/texture.h>
 #include <beet/transform.h>
@@ -54,6 +55,7 @@ class Renderer : public Subsystem {
 
     Engine& m_engine;
     UniversalBufferData m_universalBufferData;
+    ShaderStorageBuffer m_shaderStorageBuffer;
 
     vec4 m_clearCol{0.0f, 0.0f, 0.0f, 0.0f};
     float m_timePassed{0.0f};
@@ -70,10 +72,6 @@ class Renderer : public Subsystem {
     GLuint m_compositeAccum{0};
     GLuint m_compositeReveal{0};
 
-    GLuint fragmentbuffer = 0;
-    GLuint fragmentindexbuffer = 0;
-    GLuint fragmentstartindextexture = 0;
-    GLuint fragmentstartindexinitializerbuffer = 0;
 };
 
 }  // namespace beet
