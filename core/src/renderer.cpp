@@ -28,7 +28,7 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
 }
 
 void Renderer::on_awake() {
-    auto size = m_engine.get_window_module().lock()->get_window_size();
+    const auto size = m_engine.get_window_module().lock()->get_window_size();
     resize_all_framebuffers(size);
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
@@ -70,11 +70,11 @@ void Renderer::on_awake() {
         m_plane->on_awake();
     }
     {
-        m_compositeProgram.set_asset_name("composite");
-        m_compositeProgram.load_shader("oit", "oit.vert", "oit.frag");
-        m_compositeAccum = glGetUniformLocation(m_compositeProgram.get_program(), "accum");
-        m_compositeReveal = glGetUniformLocation(m_compositeProgram.get_program(), "reveal");
+        m_compositeProgram.set_asset_name("oit composite");
+        m_compositeProgram.load_shader("oit", "oit_composite.vert", "oit_composite.frag");
     }
+
+    m_shaderStorageBuffer.init(size);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -306,10 +306,11 @@ void Renderer::opaque_pass() {
 }
 
 void Renderer::transparent_pass() {
+    const auto size = m_engine.get_window_module().lock()->get_window_size();
+
     auto fbm = m_engine.get_framebuffer_module().lock();
     fbm->bind_framebuffer(FrameBufferType::Transparency);
-    auto size = m_engine.get_window_module().lock()->get_window_size();
-    fbm->get_framebuffer(FrameBufferType::Transparency).clear_ppll(size);
+
     using namespace components;
 
     auto sceneOpt = Scene::get_active_scene();
@@ -318,35 +319,16 @@ void Renderer::transparent_pass() {
     }
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
-    //
-    //    glm::vec4 zeroFillerVec(0.0f);
-    //    glm::vec4 oneFillerVec(1.0f);
-    //
-    //    glDepthMask(GL_FALSE);
-    //    glEnable(GL_BLEND);
-    //    glBlendFunci(0, GL_ONE, GL_ONE);
-    //    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-    //    glBlendEquation(GL_FUNC_ADD);
-    //
-    //    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
-    //    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glCullFace(GL_NONE);
     glDisable(GL_CULL_FACE);
 
-    enum class SUB_PASS {
-        DATA_PASS = 1,
-        COMPOSITION_PASS = 0,
-    };
-    glUseProgram(m_compositeProgram.get_program());
+    m_shaderStorageBuffer.bind_oit(size);
 
-    uint32_t render_pass = (uint32_t)SUB_PASS::DATA_PASS;
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
+        glClear(GL_DEPTH_BUFFER_BIT);
         auto goOpt = scene.get_game_object_from_handle(e);
         if (!goOpt) {
             continue;
@@ -361,51 +343,30 @@ void Renderer::transparent_pass() {
         }
 
         glm::mat4 model = transform.get_model_matrix();
-        material.set_uniforms(model, false);
-        glDepthFunc(GL_LESS);
-        glCullFace(GL_BACK);
-        glDepthMask(GL_FALSE);
-        glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &render_pass);
+
+        material.set_uniforms(model);
+
         mesh.draw();
+        glUseProgram(0);
     }
     fbm->unbind_framebuffer();
 
-    glFlush();
+    // SORT / COMPOSE OIT
 
-    render_pass = (uint32_t)SUB_PASS::COMPOSITION_PASS;
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     fbm->bind_framebuffer(FrameBufferType::Opaque);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    // DO PIXEL SORTING HERE
-    //
-    //     // Draw Transparent objects on top of opaque geometry
-    //
-    //     GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
-    //     GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
-    //
-    //     if (!accumTexture || !revealTexture) {
-    //         return;
-    //     }
-    //
-    //     glDepthFunc(GL_ALWAYS);
-    //     glEnable(GL_BLEND);
-    //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    //
     glUseProgram(m_compositeProgram.get_program());
-    //
-    //    glActiveTexture(GL_TEXTURE0);
-    //    glBindTexture(GL_TEXTURE_2D, accumTexture);
-    //
-    //    glActiveTexture(GL_TEXTURE1);
-    //    glBindTexture(GL_TEXTURE_2D, revealTexture);
-    //
     m_plane->draw();
-    glUseProgram(0);
     fbm->unbind_framebuffer();
+    glUseProgram(0);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    glDisable(GL_BLEND);
+    fbm->unbind_framebuffer();
+    m_shaderStorageBuffer.unbind();
 }
-
-void Renderer::clear_ssbo() {}
 
 void Renderer::post_process_pass() {}
 
@@ -447,6 +408,8 @@ void Renderer::back_buffer_pass() {
 
 void Renderer::resize_all_framebuffers(const vec2i& size) {
     glViewport(0, 0, size.x, size.y);
+
+    m_shaderStorageBuffer.resize(size);
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 
