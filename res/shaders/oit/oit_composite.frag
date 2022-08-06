@@ -7,7 +7,7 @@ struct Fragment {
     float unusedPadding;
 };
 
-#define MAX_FRAGMENTS 30
+#define MAX_FRAGMENTS 256
 #define UINT_MAX 0xFFFFFFFF
 
 Fragment localFragments[MAX_FRAGMENTS];

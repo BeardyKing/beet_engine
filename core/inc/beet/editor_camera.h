@@ -42,7 +42,7 @@ class EditorCameraController : public Subsystem {
     vec2d m_currentMousePos = vec2d(0.0);
     vec2d m_mouseDelta = vec2d(0.0);
 
-    vec3 m_keyboardDirection = vec3(0);
+    vec3 m_movementDirection = vec3(0);
     vec3 m_movementMultiplier = vec3(1);
     vec3 m_maxMovementMultiplier = vec3(5);
     vec3 m_minMovementMultiplier = vec3(1);
@@ -57,8 +57,16 @@ class EditorCameraController : public Subsystem {
     vec3 m_forward = vec3(0, 0, 1);
     static constexpr vec3 WORLD_UP = vec3(0, 1, 0);
 
-    bool m_ePressed = true;
-    bool m_lockState = false;
+    double m_timePassed = 0;
+
+    bool m_viewToggleFlag = false;
+    // TODO after perf testing reset these to false
+    bool m_lockState = true;
+    bool m_autoOrbit = true;
+
+    float m_orbitDistance = 15.0f;
+    float m_orbitSpeed = 0.25f;
+    vec3 m_orbitLook = vec3(0.0f);
 };
 
 }  // namespace beet
