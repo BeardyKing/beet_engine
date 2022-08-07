@@ -69,6 +69,8 @@ class Renderer : public Subsystem {
     std::shared_ptr<components::InstanceMesh> m_plane;
     GLuint m_compositeAccum{0};
     GLuint m_compositeReveal{0};
+
+    GLuint m_queryId = 0;
 };
 
 }  // namespace beet

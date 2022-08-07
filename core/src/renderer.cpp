@@ -25,6 +25,7 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     // for (int i = 0; i < nExtensions; i++) {
     //     log::debug("[{}] : {}", i, glGetStringi(GL_EXTENSIONS, i));
     // }
+    glGenQueries(1, &m_queryId);
 }
 
 void Renderer::on_awake() {
@@ -88,11 +89,21 @@ void Renderer::on_update(double deltaTime) {
     }
 
     update_universal_buffer_data();
+
+    // temp_orbit_camera
+
     depth_pass();
     picking_pass();
     shadow_pass();
     opaque_pass();
+
+    GLint frameTime;  // last frame in nanoseconds
+    glGetQueryObjectiv(m_queryId, GL_QUERY_RESULT, &frameTime);
+    log::info("{}", frameTime);  // this also gets printed to a log
+
+    glBeginQuery(GL_TIME_ELAPSED, m_queryId);
     transparent_pass();
+    glEndQuery(GL_TIME_ELAPSED);
     post_process_pass();
     gui_pass();
     back_buffer_pass();
@@ -329,6 +340,7 @@ void Renderer::transparent_pass() {
 
     glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
     glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
+    glDisable(GL_CULL_FACE);
 
     auto entities = registry.view<Transform, InstanceMesh, Material>();
     for (auto& e : entities) {
@@ -349,7 +361,6 @@ void Renderer::transparent_pass() {
 
         material.set_uniforms(model);
         glDepthFunc(GL_LESS);
-        glCullFace(GL_BACK);
         mesh.draw();
     }
     fbm->unbind_framebuffer();
@@ -362,7 +373,7 @@ void Renderer::transparent_pass() {
     if (!accumTexture || !revealTexture) {
         return;
     }
-
+    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_ALWAYS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -431,6 +442,7 @@ void Renderer::gui_pass() {}
 void Renderer::on_late_update() {}
 
 void Renderer::on_destroy() {
+    glDeleteQueries(1, &m_queryId);
     log::debug("Renderer destroyed");
 }
 

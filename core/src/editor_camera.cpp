@@ -42,7 +42,7 @@ void EditorCameraController::on_awake() {
 }
 void EditorCameraController::on_update(double deltaTime) {
     using namespace components;
-
+    m_timePassed += deltaTime;
     camera_key_input();
 
     bool skipCameraBehaviour = false;
@@ -96,14 +96,26 @@ void EditorCameraController::on_update(double deltaTime) {
         m_right = normalize(cross(m_forward, vec3(0, 1, 0)));
         m_up = normalize(cross(m_right, m_forward));
 
-        //= CAMERA MOVEMENT
-        vec3 position = transform.get_position();
-        vec3 nextPosition = position + (m_keyboardDirection * m_movementMultiplier * m_moveSpeed * (float)deltaTime);
-        transform.set_position(nextPosition);
+        if (m_autoOrbit) {
+            float time = static_cast<float>(m_timePassed) * m_orbitSpeed;
+            // TODO REMOVE AFTER TESTING IS DONE
+            if (time >= glm::pi<float>() * 4) {
+                m_engine.get_window_module().lock()->close();
+            }
+            editorCamera.set_look_target(m_orbitLook);
+            vec3 position = vec3(glm::sin(time), 0, glm::cos(time)) * m_orbitDistance;
+            transform.set_position(position);
+        } else {
+            //= CAMERA MOVEMENT
+            vec3 position = transform.get_position();
+            vec3 nextPosition =
+                position + (m_movementDirection * m_movementMultiplier * m_moveSpeed * (float)deltaTime);
+            transform.set_position(nextPosition);
 
-        //= SET LOOK TARGET POSITION USING FORWARD VECTOR
-        vec3 targetPos = transform.get_position() + m_forward;
-        editorCamera.set_look_target(targetPos);
+            //= SET LOOK TARGET POSITION USING FORWARD VECTOR
+            vec3 targetPos = transform.get_position() + m_forward;
+            editorCamera.set_look_target(targetPos);
+        }
     }
 
     m_lastMousePosition = currentMousePos;
@@ -111,16 +123,28 @@ void EditorCameraController::on_update(double deltaTime) {
 
 void EditorCameraController::camera_key_input() {
     //=Camera state=== //TODO when holding left click on the active window
+
+    // TODO select between camera modes in editor i.e. fps,orbit,auto_orbit
+
+    bool isPressed = false;
     if (m_inputManager->key_pressed(KeyCode::E)) {
-        if (m_ePressed) {
+        isPressed = true;
+        m_autoOrbit = false;
+    }
+    if (m_inputManager->key_pressed(KeyCode::O)) {
+        isPressed = true;
+        m_autoOrbit = true;
+    }
+
+    if (isPressed) {
+        if (m_viewToggleFlag) {
             m_lockState = !m_lockState;
             m_engine.get_window_module().lock()->set_cursor_hide(m_lockState);
         }
-        m_ePressed = false;
+        m_viewToggleFlag = false;
     } else {
-        m_ePressed = true;
+        m_viewToggleFlag = true;
     }
-
     //= XYZ editor movement input
 
     vec3 movementDirectionXYZ = vec3(0);
@@ -151,7 +175,7 @@ void EditorCameraController::camera_key_input() {
         speedTarget = m_minMovementMultiplier;
     }
     m_movementMultiplier = lerp(m_movementMultiplier, speedTarget, .15f);
-    m_keyboardDirection = movementDirectionXYZ;
+    m_movementDirection = movementDirectionXYZ;
 }
 
 void EditorCameraController::on_late_update() {}
