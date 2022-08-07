@@ -5,7 +5,7 @@
 
 namespace beet {
 
-constexpr uint32_t MAX_FRAGMENTS = 30;
+constexpr uint32_t MAX_FRAGMENTS = 256;
 
 class ShaderStorageBuffer {
    public:

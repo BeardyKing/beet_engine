@@ -61,8 +61,8 @@ class EditorCameraController : public Subsystem {
 
     bool m_viewToggleFlag = false;
     // TODO after perf testing reset these to false
-    bool m_lockState = true;
-    bool m_autoOrbit = true;
+    bool m_lockState = false;
+    bool m_autoOrbit = false;
 
     float m_orbitDistance = 15.0f;
     float m_orbitSpeed = 0.25f;

@@ -1,3 +1,4 @@
+#include <beet/log.h>
 #include <beet/shader_storage_buffer.h>
 
 namespace beet {
@@ -21,7 +22,12 @@ const void ShaderStorageBuffer::resize(const vec2i size) {
     glNamedBufferData(m_fragmentStartIndicesInit, fragmentIndexInit.size() * sizeof(uint), fragmentIndexInit.data(),
                       GL_DYNAMIC_COPY);
 
-    glNamedBufferData(m_fragmentBuffer, size.x * size.y * MAX_FRAGMENTS * sizeof(Fragment), nullptr, GL_DYNAMIC_DRAW);
+    size_t ssboSize = size.x * size.y * MAX_FRAGMENTS * sizeof(Fragment);
+    glNamedBufferData(m_fragmentBuffer, ssboSize, nullptr, GL_DYNAMIC_DRAW);
+
+    log::info("SSBO INFO: {},{}, Max fragments: {}, size of Fragment: {}", size.x, size.y, MAX_FRAGMENTS,
+              sizeof(Fragment));
+    log::info("SSBO size: {} GiB", 1024.0f * 1024.0f * 1024.0f * ssboSize);
 }
 
 const void ShaderStorageBuffer::init_ssbo_oit(const vec2i size) {

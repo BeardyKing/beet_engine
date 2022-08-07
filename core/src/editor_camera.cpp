@@ -98,8 +98,12 @@ void EditorCameraController::on_update(double deltaTime) {
 
         if (m_autoOrbit) {
             float time = static_cast<float>(m_timePassed) * m_orbitSpeed;
+            // TODO REMOVE AFTER TESTING IS DONE
+            if (time >= glm::pi<float>() * 4) {
+                m_engine.get_window_module().lock()->close();
+            }
             editorCamera.set_look_target(m_orbitLook);
-            vec3 position = vec3(glm::cos(time), 0, glm::sin(time)) * m_orbitDistance;
+            vec3 position = vec3(glm::sin(time), 0, glm::cos(time)) * m_orbitDistance;
             transform.set_position(position);
         } else {
             //= CAMERA MOVEMENT
