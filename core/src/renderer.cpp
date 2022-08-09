@@ -335,8 +335,10 @@ void Renderer::transparent_pass() {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+
+//    glEnable(GL_CULL_FACE);
+//    glCullFace(GL_BACK);
 
     m_shaderStorageBuffer.bind_oit(size);
 
