@@ -3,12 +3,12 @@
 
 namespace beet {
 
-const void ShaderStorageBuffer::init(const vec2i size) {
+const void ShaderStorageBuffer::init(const vec2i& size) {
     init_ssbo_oit(size);
     resize(size);
 }
 
-const void ShaderStorageBuffer::resize(const vec2i size) {
+const void ShaderStorageBuffer::resize(const vec2i& size) {
     glDeleteTextures(1, &m_fragmentStartIndices);
     glCreateTextures(GL_TEXTURE_2D, 1, &m_fragmentStartIndices);
     glTextureStorage2D(m_fragmentStartIndices, 1, GL_R32UI, size.x, size.y);
@@ -30,7 +30,7 @@ const void ShaderStorageBuffer::resize(const vec2i size) {
     log::info("SSBO size: {} GiB", 1024.0f * 1024.0f * 1024.0f * ssboSize);
 }
 
-const void ShaderStorageBuffer::init_ssbo_oit(const vec2i size) {
+const void ShaderStorageBuffer::init_ssbo_oit(const vec2i& size) {
     glCreateBuffers(1, &m_fragmentStartIndicesInit);
     glCreateBuffers(1, &m_fragmentBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_fragmentBuffer);
@@ -48,7 +48,7 @@ const void ShaderStorageBuffer::init_ssbo_oit(const vec2i size) {
     glTextureParameteri(m_fragmentStartIndices, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-const void ShaderStorageBuffer::bind_oit(const vec2i size) const {
+const void ShaderStorageBuffer::bind_oit(const vec2i& size) const {
     glBindImageTexture(6, m_fragmentStartIndices, 0, false, 0, GL_READ_WRITE, GL_R32UI);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_fragmentStartIndicesInit);
     glTextureSubImage2D(m_fragmentStartIndices, 0, 0, 0, size.x, size.y, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);

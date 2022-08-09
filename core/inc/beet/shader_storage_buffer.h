@@ -5,19 +5,19 @@
 
 namespace beet {
 
-constexpr uint32_t MAX_FRAGMENTS = 256;
+constexpr uint32_t MAX_FRAGMENTS = 32;
 
 class ShaderStorageBuffer {
    public:
     ShaderStorageBuffer() = default;
-    const void init(const vec2i size);
-    const void resize(const vec2i size);
+    const void init(const vec2i& size);
+    const void resize(const vec2i& size);
     const void unbind() const;
 
-    const void bind_oit(const vec2i size) const;
+    const void bind_oit(const vec2i& size) const;
 
    private:
-    const void init_ssbo_oit(const vec2i size);
+    const void init_ssbo_oit(const vec2i& size);
 
    private:
     GLuint m_fragmentBuffer{0};

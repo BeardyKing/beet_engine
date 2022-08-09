@@ -76,6 +76,7 @@ void Renderer::on_awake() {
     }
 
     m_shaderStorageBuffer.init(size);
+    m_shaderStorageBuffer.init(size);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -97,9 +98,10 @@ void Renderer::on_update(double deltaTime) {
     shadow_pass();
     opaque_pass();
 
+    // TODO build ImGui debug frame time window
     GLint frameTime;  // last frame in nanoseconds
     glGetQueryObjectiv(m_queryId, GL_QUERY_RESULT, &frameTime);
-    log::info("{}", frameTime);  // this also gets printed to a log
+    //    log::info("{}", frameTime);  // this also gets printed to a log
 
     glBeginQuery(GL_TIME_ELAPSED, m_queryId);
     transparent_pass();
@@ -333,7 +335,8 @@ void Renderer::transparent_pass() {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     m_shaderStorageBuffer.bind_oit(size);
 
