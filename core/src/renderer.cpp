@@ -99,7 +99,7 @@ void Renderer::on_update(double deltaTime) {
 
     GLint frameTime;  // last frame in nanoseconds
     glGetQueryObjectiv(m_queryId, GL_QUERY_RESULT, &frameTime);
-    log::info("{}", frameTime);  // this also gets printed to a log
+    //    log::info("{}", frameTime);  // this also gets printed to a log
 
     glBeginQuery(GL_TIME_ELAPSED, m_queryId);
     transparent_pass();
