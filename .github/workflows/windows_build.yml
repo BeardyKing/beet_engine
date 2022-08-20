@@ -1,0 +1,31 @@
+name: C/C++ CI
+
+on: [push, pull_request]
+
+jobs:
+    build:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: true
+            matrix:
+                os: [windows-latest]
+        steps:
+            - name: Checkout repository and submodules
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+                  lfs: false
+
+            - name: Enable Developer Command Prompt
+              uses: ilammy/msvc-dev-cmd@v1.10.0
+              if: startsWith(matrix.os,'windows')
+
+            - name: Build CMake project
+              shell: bash
+              env:
+                  GITHUB_OS: ${{ matrix.os }}
+              run: |
+                  mkdir build
+                  cd build
+                  cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+                  cmake --build . --config Release --parallel
