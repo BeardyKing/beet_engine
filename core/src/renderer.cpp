@@ -104,7 +104,8 @@ void Renderer::on_update(double deltaTime) {
     //    log::info("{}", frameTime);  // this also gets printed to a log
 
     glBeginQuery(GL_TIME_ELAPSED, m_queryId);
-    transparent_pass();
+    oit_wb();
+    oit_ppll();
     glEndQuery(GL_TIME_ELAPSED);
     post_process_pass();
     gui_pass();
@@ -318,7 +319,12 @@ void Renderer::opaque_pass() {
     glCullFace(GL_BACK);
 }
 
-void Renderer::transparent_pass() {
+void Renderer::oit_wb() {
+    // wb = Weighted Blended
+}
+
+void Renderer::oit_ppll() {
+    // ppll = Per-Pixel Linked List
     const auto size = m_engine.get_window_module().lock()->get_window_size();
 
     auto fbm = m_engine.get_framebuffer_module().lock();

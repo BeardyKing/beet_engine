@@ -45,7 +45,8 @@ class Renderer : public Subsystem {
     void picking_pass();
     void depth_pass();
     void opaque_pass();
-    void transparent_pass();
+    void oit_ppll();
+    void oit_wb();
     void gui_pass();
     void post_process_pass();
     void back_buffer_pass();
