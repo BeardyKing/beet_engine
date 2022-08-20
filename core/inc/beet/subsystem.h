@@ -13,4 +13,4 @@ class Subsystem {
 
     virtual void on_destroy() {}
 };
-}  // namespace knot
+}  // namespace beet

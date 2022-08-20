@@ -72,7 +72,7 @@ class Renderer : public Subsystem {
 
     components::ShaderProgram m_ppllCompositeProgram;
     components::ShaderProgram m_wbComposeProgram;
-    
+
     std::shared_ptr<components::InstanceMesh> m_plane;
     GLuint m_compositeAccum{0};
     GLuint m_compositeReveal{0};

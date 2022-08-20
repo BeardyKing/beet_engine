@@ -30,7 +30,7 @@ Window::Window(int width, int height, std::string title, Engine& engine)
     glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
     m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
-    
+
     BEET_ASSERT_MESSAGE(m_window, "Failed to create GLFW window");
     log::debug("GLFW initialized");
 
