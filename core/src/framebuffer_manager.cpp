@@ -23,7 +23,7 @@ void FramebufferManager::on_awake() {
     m_framebuffers[(size_t)FrameBufferType::Back];  // fbo default = 0;
     m_framebuffers[(size_t)FrameBufferType::Depth].create_depth(windowSize);
     m_framebuffers[(size_t)FrameBufferType::Opaque].create_color_depth(windowSize);
-    
+
     m_framebuffers[(size_t)FrameBufferType::Transparency].set_depth_to_existing_texture(
         m_framebuffers[(size_t)FrameBufferType::Opaque].get_depth_texture());
     m_framebuffers[(size_t)FrameBufferType::Transparency].create_transparent(windowSize);
