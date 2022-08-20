@@ -71,8 +71,12 @@ void Renderer::on_awake() {
         m_plane->on_awake();
     }
     {
-        m_compositeProgram.set_asset_name("oit composite");
-        m_compositeProgram.load_shader("oit_ppll", "composite_ppll.vert", "composite_ppll.frag");
+        m_ppllCompositeProgram.set_asset_name("oit composite");
+        m_ppllCompositeProgram.load_shader("oit_ppll", "composite_ppll.vert", "composite_ppll.frag");
+    }
+    {
+        m_wbComposeProgram.set_asset_name("oit composite");
+        m_wbComposeProgram.load_shader("oit_wb", "composite_wb.vert", "composite_wb.frag");
     }
 
     m_shaderStorageBuffer.init(size);
@@ -104,8 +108,8 @@ void Renderer::on_update(double deltaTime) {
     //    log::info("{}", frameTime);  // this also gets printed to a log
 
     glBeginQuery(GL_TIME_ELAPSED, m_queryId);
-    oit_wb();
     oit_ppll();
+    oit_wb();
     glEndQuery(GL_TIME_ELAPSED);
     post_process_pass();
     gui_pass();
@@ -321,6 +325,80 @@ void Renderer::opaque_pass() {
 
 void Renderer::oit_wb() {
     // wb = Weighted Blended
+    auto fbm = m_engine.get_framebuffer_module().lock();
+    fbm->bind_framebuffer(FrameBufferType::Transparency);
+
+    using namespace components;
+
+    auto sceneOpt = Scene::get_active_scene();
+    if (!sceneOpt) {
+        return;
+    }
+    Scene& scene = sceneOpt.value();
+    entt::registry& registry = scene.get_registry();
+
+    glm::vec4 zeroFillerVec(0.0f);
+    glm::vec4 oneFillerVec(1.0f);
+
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunci(0, GL_ONE, GL_ONE);
+    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    glBlendEquation(GL_FUNC_ADD);
+
+    glClearBufferfv(GL_COLOR, 0, &zeroFillerVec[0]);
+    glClearBufferfv(GL_COLOR, 1, &oneFillerVec[0]);
+    glDisable(GL_CULL_FACE);
+
+    auto entities = registry.view<Transform, InstanceMesh, Material>();
+    for (auto& e : entities) {
+        auto goOpt = scene.get_game_object_from_handle(e);
+        if (!goOpt) {
+            continue;
+        }
+
+        GameObject go = goOpt.value();
+        Transform& transform = go.get_component<Transform>();
+        InstanceMesh& mesh = go.get_component<InstanceMesh>();
+        Material& material = go.get_component<Material>();
+        if (material.get_is_opaque() == true) {
+            continue;
+        }
+
+        glm::mat4 model = transform.get_model_matrix();
+
+        material.set_uniforms(model);
+        glDepthFunc(GL_LESS);
+        mesh.draw();
+    }
+    fbm->unbind_framebuffer();
+
+    // Draw Transparent objects on top of opaque geometry
+
+    GLuint accumTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_color_texture();
+    GLuint revealTexture = fbm->get_framebuffer(FrameBufferType::Transparency).get_reveal_texture();
+
+    if (!accumTexture || !revealTexture) {
+        return;
+    }
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
+
+    glUseProgram(m_wbComposeProgram.get_program());
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, accumTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, revealTexture);
+
+    m_plane->draw();
+    glUseProgram(0);
+    fbm->unbind_framebuffer();
 }
 
 void Renderer::oit_ppll() {
@@ -328,7 +406,7 @@ void Renderer::oit_ppll() {
     const auto size = m_engine.get_window_module().lock()->get_window_size();
 
     auto fbm = m_engine.get_framebuffer_module().lock();
-    fbm->bind_framebuffer(FrameBufferType::Transparency);
+    fbm->bind_framebuffer(FrameBufferType::Opaque);
 
     using namespace components;
 
@@ -380,7 +458,7 @@ void Renderer::oit_ppll() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     fbm->bind_framebuffer(FrameBufferType::Opaque);
-    glUseProgram(m_compositeProgram.get_program());
+    glUseProgram(m_ppllCompositeProgram.get_program());
     m_plane->draw();
     fbm->unbind_framebuffer();
     glUseProgram(0);
