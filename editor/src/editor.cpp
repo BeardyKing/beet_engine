@@ -17,56 +17,55 @@ Editor::Editor() {
                             editorCamera.get_component<components::Transform>().forward());
     }
 
-
     //==================== ROTATE AROUND ====================//
-        {
-            auto cubeObj = m_scene->create_game_object("54k glass");
-            cubeObj.get_component<components::Transform>().set_position(glm::vec3(3.5, -3.5, -3.5));
-            cubeObj.get_component<components::Transform>().set_scale(glm::vec3(0.1));
-            cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
-
-            cubeObj.add_component<components::InstanceMesh>("30x30x30_54k_tris.fbx");
-
-            auto material = components::Material();
-            material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
-
-            material.set_is_opaque(false);
-            material.set_albedo_color(vec4(100.0f / 255.0f, 100.0f / 255.0f, 255.0f / 255.0f, 64.0f / 255.0f));
-            material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
-
-            cubeObj.add_component<components::Material>(material);
-        }
-
-        {
-            auto cubeObj = m_scene->create_game_object("stanford dragon");
-            cubeObj.get_component<components::Transform>().set_position(glm::vec3(0, -3, 0));
-            cubeObj.get_component<components::Transform>().set_scale(glm::vec3(5));
-            cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 270, 0));
-
-            cubeObj.add_component<components::InstanceMesh>("dragon.fbx");
-
-            auto material = components::Material();
-            material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
-            material.set_albedo_scalar(1.0f);
-            material.set_normal_scalar(1.29);
-            material.set_metallic_scalar(1.0f);
-            material.set_roughness_scalar(2.6f);
-            material.set_occlusion_scalar(1.0f);
-
-            material.set_is_opaque(false);
-            material.set_albedo_color(vec4(1.0, 1.0, 1.0, 0.5));
-            material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
-            material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
-
-            cubeObj.add_component<components::Material>(material);
-        }
+    //        {
+    //            auto cubeObj = m_scene->create_game_object("54k glass");
+    //            cubeObj.get_component<components::Transform>().set_position(glm::vec3(3.5, -3.5, -3.5));
+    //            cubeObj.get_component<components::Transform>().set_scale(glm::vec3(0.1));
+    //            cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 180, 0));
+    //
+    //            cubeObj.add_component<components::InstanceMesh>("30x30x30_54k_tris.fbx");
+    //
+    //            auto material = components::Material();
+    //            material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
+    //
+    //            material.set_is_opaque(false);
+    //            material.set_albedo_color(vec4(100.0f / 255.0f, 100.0f / 255.0f, 255.0f / 255.0f, 64.0f / 255.0f));
+    //            material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
+    //
+    //            cubeObj.add_component<components::Material>(material);
+    //        }
+    //
+    //        {
+    //            auto cubeObj = m_scene->create_game_object("stanford dragon");
+    //            cubeObj.get_component<components::Transform>().set_position(glm::vec3(0, -3, 0));
+    //            cubeObj.get_component<components::Transform>().set_scale(glm::vec3(5));
+    //            cubeObj.get_component<components::Transform>().set_rotation_euler(glm::vec3(0, 270, 0));
+    //
+    //            cubeObj.add_component<components::InstanceMesh>("dragon.fbx");
+    //
+    //            auto material = components::Material();
+    //            material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
+    //            material.set_albedo_scalar(1.0f);
+    //            material.set_normal_scalar(1.29);
+    //            material.set_metallic_scalar(1.0f);
+    //            material.set_roughness_scalar(2.6f);
+    //            material.set_occlusion_scalar(1.0f);
+    //
+    //            material.set_is_opaque(false);
+    //            material.set_albedo_color(vec4(1.0, 1.0, 1.0, 0.5));
+    //            material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Roughness, "whiteTexture");
+    //            material.set_texture_slot_path(TextureType::Occlusion, "whiteTexture");
+    //
+    //            cubeObj.add_component<components::Material>(material);
+    //        }
     //==================== ROTATE AROUND ====================//
 
     //==================== ROTATE AROUND ====================//
@@ -127,7 +126,7 @@ Editor::Editor() {
     //        cubeObj.add_component<components::InstanceMesh>("dragon.fbx");
     //
     //        auto material = components::Material();
-    //        material.temp_set_shader("oit", "oit.vert", "oit.frag", "oit");
+    //        material.temp_set_shader("oit_ppll", "gather_ppll.vert", "gather_ppll.frag", "gather_ppll");
     //        material.set_albedo_scalar(0.968f);
     //        material.set_normal_scalar(1.86);
     //        material.set_metallic_scalar(1.0f);
@@ -135,7 +134,7 @@ Editor::Editor() {
     //        material.set_occlusion_scalar(1.06f);
     //
     //        material.set_is_opaque(false);
-    //        material.set_albedo_color(vec4(50.0f / 255.0f, 50.0f / 255.0f, 255.0f / 255.0f, 185.0f / 255.0f));
+    //        material.set_albedo_color(vec4(250.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 185.0f / 255.0f));
     //        material.set_texture_slot_path(TextureType::Albedo, "whiteTexture");
     //        material.set_texture_slot_path(TextureType::Normal, "whiteTexture");
     //        material.set_texture_slot_path(TextureType::Metallic, "whiteTexture");

@@ -245,8 +245,8 @@ vec4 get_color(){
 }
 
 void gather_pass(){
-    //    vec4 outColor = get_color();
-    vec4 outColor = albedoColor;
+    vec4 outColor = get_color();
+    //    vec4 outColor = albedoColor;
 
     uint ssboIndex = atomicCounterIncrement(atomicFragmentIndex);
     uint lastIndex = imageAtomicExchange(fragmentStartIndices, ivec2(gl_FragCoord.xy), ssboIndex);

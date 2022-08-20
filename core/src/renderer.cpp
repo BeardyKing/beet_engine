@@ -72,7 +72,7 @@ void Renderer::on_awake() {
     }
     {
         m_compositeProgram.set_asset_name("oit composite");
-        m_compositeProgram.load_shader("oit", "oit_composite.vert", "oit_composite.frag");
+        m_compositeProgram.load_shader("oit_ppll", "composite_ppll.vert", "composite_ppll.frag");
     }
 
     m_shaderStorageBuffer.init(size);
@@ -337,8 +337,8 @@ void Renderer::transparent_pass() {
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
 
-//    glEnable(GL_CULL_FACE);
-//    glCullFace(GL_BACK);
+    //    glEnable(GL_CULL_FACE);
+    //    glCullFace(GL_BACK);
 
     m_shaderStorageBuffer.bind_oit(size);
 
