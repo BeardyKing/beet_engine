@@ -25,7 +25,7 @@ Renderer::Renderer(Engine& engine) : m_engine(engine) {
     // for (int i = 0; i < nExtensions; i++) {
     //     log::debug("[{}] : {}", i, glGetStringi(GL_EXTENSIONS, i));
     // }
-    glGenQueries(1, &m_queryId);
+    glGenQueries((size_t)FrameBufferType::LAST, m_renderPassQueries.data());
 }
 
 void Renderer::on_awake() {
@@ -39,7 +39,7 @@ void Renderer::on_awake() {
 
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
 
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glEnable(GL_DEPTH_TEST);
@@ -54,6 +54,12 @@ void Renderer::on_awake() {
     glEnable(GL_CULL_FACE);
 
     m_universalBufferData.init();
+
+    {
+        m_plane = std::make_shared<components::InstanceMesh>("plane");
+        m_plane->on_awake();
+    }
+
     {
         m_depthProgram.load_shader("depth", "depth.vert", "depth.frag");
         m_depthModelUniform = glGetUniformLocation(m_depthProgram.get_program(), "model");
@@ -67,20 +73,9 @@ void Renderer::on_awake() {
         glUniformBlockBinding(m_pickingProgram.get_program(), uboMatrixIndex, 0);
     }
     {
-        m_plane = std::make_shared<components::InstanceMesh>("plane");
-        m_plane->on_awake();
-    }
-    {
-        m_ppllCompositeProgram.set_asset_name("oit composite");
-        m_ppllCompositeProgram.load_shader("oit_ppll", "composite_ppll.vert", "composite_ppll.frag");
-    }
-    {
         m_wbComposeProgram.set_asset_name("oit composite");
         m_wbComposeProgram.load_shader("oit_wb", "composite_wb.vert", "composite_wb.frag");
     }
-
-    m_shaderStorageBuffer.init(size);
-    m_shaderStorageBuffer.init(size);
 }
 
 void Renderer::on_update(double deltaTime) {
@@ -89,28 +84,21 @@ void Renderer::on_update(double deltaTime) {
 
     m_timePassed += (float)deltaTime;
 
+    for (int i = 0; i < (size_t)FrameBufferType::LAST; ++i) {
+        glGetQueryObjectiv(m_renderPassQueries[i], GL_QUERY_RESULT, &m_renderPassTiming[i]);
+    }
+
     if (glm::isnan((float)m_engine.get_window_module().lock()->get_window_aspect_ratio())) {
         return;
     }
 
     update_universal_buffer_data();
 
-    // temp_orbit_camera
-
     depth_pass();
     picking_pass();
     shadow_pass();
     opaque_pass();
-
-    // TODO build ImGui debug frame time window
-    GLint frameTime;  // last frame in nanoseconds
-    glGetQueryObjectiv(m_queryId, GL_QUERY_RESULT, &frameTime);
-    //    log::info("{}", frameTime);  // this also gets printed to a log
-
-    glBeginQuery(GL_TIME_ELAPSED, m_queryId);
-    oit_ppll();
     oit_wb();
-    glEndQuery(GL_TIME_ELAPSED);
     post_process_pass();
     gui_pass();
     back_buffer_pass();
@@ -183,6 +171,7 @@ void Renderer::depth_pass() {
     if (!sceneOpt) {
         return;
     }
+    glBeginQuery(GL_TIME_ELAPSED, m_renderPassQueries[(size_t)FrameBufferType::Depth]);
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
@@ -212,6 +201,7 @@ void Renderer::depth_pass() {
         glUseProgram(0);
         fbm->unbind_framebuffer();
     }
+    glEndQuery(GL_TIME_ELAPSED);
 }
 
 void Renderer::picking_pass() {
@@ -226,6 +216,7 @@ void Renderer::picking_pass() {
     if (!sceneOpt) {
         return;
     }
+    glBeginQuery(GL_TIME_ELAPSED, m_renderPassQueries[(size_t)FrameBufferType::ObjectPicking]);
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
     glEnable(GL_DEPTH_TEST);
@@ -254,6 +245,7 @@ void Renderer::picking_pass() {
     fbm->unbind_framebuffer();
 
     glClearColor(m_clearCol.x, m_clearCol.y, m_clearCol.z, m_clearCol.w);
+    glEndQuery(GL_TIME_ELAPSED);
 }
 
 void Renderer::opaque_pass() {
@@ -270,6 +262,7 @@ void Renderer::opaque_pass() {
     if (!sceneOpt) {
         return;
     }
+    glBeginQuery(GL_TIME_ELAPSED, m_renderPassQueries[(size_t)FrameBufferType::Opaque]);
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
@@ -321,6 +314,7 @@ void Renderer::opaque_pass() {
     fbm->unbind_framebuffer();
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glEndQuery(GL_TIME_ELAPSED);
 }
 
 void Renderer::oit_wb() {
@@ -334,6 +328,7 @@ void Renderer::oit_wb() {
     if (!sceneOpt) {
         return;
     }
+    glBeginQuery(GL_TIME_ELAPSED, m_renderPassQueries[(size_t)FrameBufferType::Transparency]);
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
@@ -399,73 +394,7 @@ void Renderer::oit_wb() {
     m_plane->draw();
     glUseProgram(0);
     fbm->unbind_framebuffer();
-}
-
-void Renderer::oit_ppll() {
-    // ppll = Per-Pixel Linked List
-    const auto size = m_engine.get_window_module().lock()->get_window_size();
-
-    auto fbm = m_engine.get_framebuffer_module().lock();
-    fbm->bind_framebuffer(FrameBufferType::Opaque);
-
-    using namespace components;
-
-    auto sceneOpt = Scene::get_active_scene();
-    if (!sceneOpt) {
-        return;
-    }
-    Scene& scene = sceneOpt.value();
-    entt::registry& registry = scene.get_registry();
-
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-
-    //    glEnable(GL_CULL_FACE);
-    //    glCullFace(GL_BACK);
-
-    m_shaderStorageBuffer.bind_oit(size);
-
-    auto entities = registry.view<Transform, InstanceMesh, Material>();
-    for (auto& e : entities) {
-        glClear(GL_DEPTH_BUFFER_BIT);
-        auto goOpt = scene.get_game_object_from_handle(e);
-        if (!goOpt) {
-            continue;
-        }
-
-        GameObject go = goOpt.value();
-        Transform& transform = go.get_component<Transform>();
-        InstanceMesh& mesh = go.get_component<InstanceMesh>();
-        Material& material = go.get_component<Material>();
-        if (material.get_is_opaque() == true) {
-            continue;
-        }
-
-        glm::mat4 model = transform.get_model_matrix();
-
-        material.set_uniforms(model);
-
-        mesh.draw();
-        glUseProgram(0);
-    }
-    fbm->unbind_framebuffer();
-
-    // SORT / COMPOSE OIT
-
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    fbm->bind_framebuffer(FrameBufferType::Opaque);
-    glUseProgram(m_ppllCompositeProgram.get_program());
-    m_plane->draw();
-    fbm->unbind_framebuffer();
-    glUseProgram(0);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-    glDisable(GL_BLEND);
-    fbm->unbind_framebuffer();
-    m_shaderStorageBuffer.unbind();
+    glEndQuery(GL_TIME_ELAPSED);
 }
 
 void Renderer::post_process_pass() {}
@@ -479,6 +408,7 @@ void Renderer::back_buffer_pass() {
     if (!sceneOpt) {
         return;
     }
+    glBeginQuery(GL_TIME_ELAPSED, m_renderPassQueries[(size_t)FrameBufferType::Back]);
     Scene& scene = sceneOpt.value();
     entt::registry& registry = scene.get_registry();
 
@@ -504,12 +434,12 @@ void Renderer::back_buffer_pass() {
         postProcessing.apply_post_processing();
         postProcessing.draw();
     }
+    glEndQuery(GL_TIME_ELAPSED);
 }
 
 void Renderer::resize_all_framebuffers(const vec2i& size) {
     glViewport(0, 0, size.x, size.y);
 
-    m_shaderStorageBuffer.resize(size);
     m_engine.get_framebuffer_module().lock()->resize_all_framebuffers(size);
 }
 
@@ -519,7 +449,7 @@ void Renderer::gui_pass() {}
 void Renderer::on_late_update() {}
 
 void Renderer::on_destroy() {
-    glDeleteQueries(1, &m_queryId);
+    glDeleteQueries((size_t)FrameBufferType::LAST, m_renderPassQueries.data());
     log::debug("Renderer destroyed");
 }
 

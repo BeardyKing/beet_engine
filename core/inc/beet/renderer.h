@@ -45,20 +45,16 @@ class Renderer : public Subsystem {
     void picking_pass();
     void depth_pass();
     void opaque_pass();
-    void oit_ppll();
     void oit_wb();
     void gui_pass();
     void post_process_pass();
     void back_buffer_pass();
-
-    void clear_ssbo();
 
    private:
     entt::registry test_registry;
 
     Engine& m_engine;
     UniversalBufferData m_universalBufferData;
-    ShaderStorageBuffer m_shaderStorageBuffer;
 
     vec4 m_clearCol{0.0f, 0.0f, 0.0f, 0.0f};
     float m_timePassed{0.0f};
@@ -70,14 +66,17 @@ class Renderer : public Subsystem {
     GLuint m_pickingModelUniform{0};
     GLuint m_pickingenttHandleUniform{0};
 
-    components::ShaderProgram m_ppllCompositeProgram;
     components::ShaderProgram m_wbComposeProgram;
 
     std::shared_ptr<components::InstanceMesh> m_plane;
     GLuint m_compositeAccum{0};
     GLuint m_compositeReveal{0};
 
-    GLuint m_queryId = 0;
+    std::array<GLuint, (size_t)FrameBufferType::LAST> m_renderPassQueries{0};
+    std::array<int32_t, (size_t)FrameBufferType::LAST> m_renderPassTiming{0};
+
+   public:
+    std::array<int32_t, (size_t)FrameBufferType::LAST> get_render_pass_timings() { return m_renderPassTiming; }
 };
 
 }  // namespace beet
