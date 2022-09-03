@@ -5,8 +5,8 @@
 #include "gizmo_widget.h"
 #include "hierarchy_widget.h"
 #include "inspector_widget.h"
-#include "terminal_widget.h"
 #include "profiler_widget.h"
+#include "terminal_widget.h"
 
 namespace beet {
 EditorWidgets::EditorWidgets(Engine& engine) : m_engine(engine) {
