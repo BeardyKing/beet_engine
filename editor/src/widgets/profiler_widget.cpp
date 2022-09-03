@@ -31,7 +31,7 @@ void ProfilerWidget::on_widget_render() {
         ImGui::Text("%s - (%.2g ms)", renderPassNames[i], tmp.back());
         ImGui::PlotLines("##", tmp.data(), tmp.size(), 0, NULL, 0.0f, m_largestValueSeen[i], size);
     }
-    
+
     ImGui::End();
 }
 
