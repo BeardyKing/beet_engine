@@ -16,7 +16,6 @@ Editor::Editor() {
         cam.set_look_target(editorCamera.get_component<components::Transform>().get_position() +
                             editorCamera.get_component<components::Transform>().forward());
     }
-
     {
         auto cubeObj = m_scene->create_game_object("Weighted Blended - stanford dragon");
         cubeObj.get_component<components::Transform>().set_position(glm::vec3(0, -1.5, 0));
@@ -43,7 +42,6 @@ Editor::Editor() {
 
         cubeObj.add_component<components::Material>(material);
     }
-    
     {
         auto light = m_scene->create_game_object("pLight0");
         auto& pointLight = light.add_component<components::PointLight>();
@@ -72,7 +70,6 @@ Editor::Editor() {
         pointLight.set_intensity(3);
         pointLight.set_range(10);
     }
-
     {
         auto light = m_scene->create_game_object("pLight3");
         auto& pointLight = light.add_component<components::PointLight>();
@@ -82,7 +79,6 @@ Editor::Editor() {
         pointLight.set_intensity(3);
         pointLight.set_range(10);
     }
-
     {
         auto postProcessing = m_scene->create_game_object("Post processing");
         postProcessing.add_component<components::PostProcessing>();

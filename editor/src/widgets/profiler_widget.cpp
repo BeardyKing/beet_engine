@@ -12,6 +12,7 @@ void ProfilerWidget::on_widget_render() {
 
     ImGui::Text("%s", "Render pass timings");
     ImGui::Spacing();
+
     for (int i = 0; i < (size_t)FrameBufferType::LAST; ++i) {
         if (m_recentTimings[i].size() >= dequeLength) {
             m_recentTimings[i].pop_front();
@@ -30,7 +31,7 @@ void ProfilerWidget::on_widget_render() {
         ImGui::Text("%s - (%.2g ms)", renderPassNames[i], tmp.back());
         ImGui::PlotLines("##", tmp.data(), tmp.size(), 0, NULL, 0.0f, m_largestValueSeen[i], size);
     }
-
+    
     ImGui::End();
 }
 

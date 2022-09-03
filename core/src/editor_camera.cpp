@@ -1,7 +1,6 @@
 #include <beet/components.h>
 #include <beet/editor_camera.h>
 #include <beet/engine.h>
-#include <beet/log.h>
 #include <beet/scene.h>
 #include <fstream>
 #include <string_view>
@@ -40,6 +39,7 @@ void EditorCameraController::on_awake() {
         m_roll = rotation.z;
     }
 }
+
 void EditorCameraController::on_update(double deltaTime) {
     using namespace components;
     m_timePassed += deltaTime;
