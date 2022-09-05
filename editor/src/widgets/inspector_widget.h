@@ -7,6 +7,8 @@
 
 namespace beet {
 
+constexpr std::array<const char*, (size_t)AssetState::LAST> assetStateNames{"Idle", "Loading", "Finished", "Failed"};
+
 class InspectorWidget : public Widget {
    public:
     InspectorWidget(const std::string& name, EditorWidgets& editorWidgets);

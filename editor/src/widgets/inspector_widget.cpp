@@ -127,8 +127,9 @@ void InspectorWidget::render_transform_component(components::Transform& transfor
 void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMesh) {
     auto& mesh = *instanceMesh.get_mesh().lock();
     auto mIndices = mesh.get_index_buffer();
-    auto indices = mesh.get_indices();
-    auto vertexLayout = mesh.get_vertex_layout();
+    // TODO copy on init
+    //     auto indices = mesh.get_indices();
+    //     auto vertexLayout = mesh.get_vertex_layout();
     const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
     static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX | ImGuiTableFlags_RowBg |
                                    ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
@@ -166,126 +167,128 @@ void InspectorWidget::render_mesh_component(components::InstanceMesh& instanceMe
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%s", "Asset state");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%i", mesh.get_asset_state());
+            ImGui::Text("%s", assetStateNames[(size_t)mesh.get_asset_state()]);
 
             ImGui::EndTable();
         }
 
-        if (ImGui::TreeNode("Vertex Layout")) {
-            if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
-                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Stride", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableHeadersRow();
-                uint32_t stride{0};
-                uint32_t size{0};
-                {
-                    size = sizeof(VertexLayout::m_position);
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", "Position");
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%i", stride);
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%i", size);
-                    stride += size;
-                }
-                {
-                    size = sizeof(VertexLayout::m_normal);
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", "Normal");
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%i", stride);
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%i", size);
-                    stride += size;
-                }
-                {
-                    size = sizeof(VertexLayout::m_uv);
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", "UV");
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%i", stride);
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%i", size);
-                    stride += size;
-                }
-                {
-                    size = sizeof(VertexLayout::m_tangent);
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", "Tangent");
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%i", stride);
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%i", size);
-                    stride += size;
-                }
-                ImGui::EndTable();
-            }
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Vertex Data")) {
-            if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
-                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Normal", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("UV", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Tangent", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableHeadersRow();
-
-                ImGuiListClipper clipper;
-                clipper.Begin(vertexLayout.size() - 4);
-                while (clipper.Step()) {
-                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-                        ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0);
-                        ImGui::Text("\n%i", row);
-                        ImGui::TableSetColumnIndex(1);
-                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_position.x,
-                                    vertexLayout[row].m_position.y, vertexLayout[row].m_position.z);
-                        ImGui::TableSetColumnIndex(2);
-                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_normal.x, vertexLayout[row].m_normal.y,
-                                    vertexLayout[row].m_normal.z);
-                        ImGui::TableSetColumnIndex(3);
-                        ImGui::Text("u: %f \nv: %f", vertexLayout[row].m_uv.x, vertexLayout[row].m_uv.y);
-                        ImGui::TableSetColumnIndex(4);
-                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_tangent.x,
-                                    vertexLayout[row].m_tangent.y, vertexLayout[row].m_tangent.z);
-                    }
-                }
-                ImGui::EndTable();
-            }
-            ImGui::TreePop();
-        }
-
-        if (ImGui::TreeNode("Index Data")) {
-            if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
-                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableHeadersRow();
-
-                ImGuiListClipper clipper;
-                clipper.Begin(indices.size() - 3);
-                while (clipper.Step()) {
-                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-                        ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0);
-                        ImGui::Text("%i", row);
-                        for (int column = 0; column < 3; ++column) {
-                            ImGui::TableSetColumnIndex(column + 1);
-                            ImGui::Text("%i", indices[row + column]);
-                        }
-                    }
-                }
-                ImGui::EndTable();
-            }
-            ImGui::TreePop();
-        }
+        // TODO add ImGui clipper to Layout and Index info
+        //        if (ImGui::TreeNode("Vertex Layout")) {
+        //            if (ImGui::BeginTable("VertexLayout", 3, flags, vertexLayoutSize)) {
+        //                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("Stride", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableHeadersRow();
+        //                uint32_t stride{0};
+        //                uint32_t size{0};
+        //                {
+        //                    size = sizeof(VertexLayout::m_position);
+        //                    ImGui::TableNextRow();
+        //                    ImGui::TableSetColumnIndex(0);
+        //                    ImGui::Text("%s", "Position");
+        //                    ImGui::TableSetColumnIndex(2);
+        //                    ImGui::Text("%i", stride);
+        //                    ImGui::TableSetColumnIndex(1);
+        //                    ImGui::Text("%i", size);
+        //                    stride += size;
+        //                }
+        //                {
+        //                    size = sizeof(VertexLayout::m_normal);
+        //                    ImGui::TableNextRow();
+        //                    ImGui::TableSetColumnIndex(0);
+        //                    ImGui::Text("%s", "Normal");
+        //                    ImGui::TableSetColumnIndex(2);
+        //                    ImGui::Text("%i", stride);
+        //                    ImGui::TableSetColumnIndex(1);
+        //                    ImGui::Text("%i", size);
+        //                    stride += size;
+        //                }
+        //                {
+        //                    size = sizeof(VertexLayout::m_uv);
+        //                    ImGui::TableNextRow();
+        //                    ImGui::TableSetColumnIndex(0);
+        //                    ImGui::Text("%s", "UV");
+        //                    ImGui::TableSetColumnIndex(2);
+        //                    ImGui::Text("%i", stride);
+        //                    ImGui::TableSetColumnIndex(1);
+        //                    ImGui::Text("%i", size);
+        //                    stride += size;
+        //                }
+        //                {
+        //                    size = sizeof(VertexLayout::m_tangent);
+        //                    ImGui::TableNextRow();
+        //                    ImGui::TableSetColumnIndex(0);
+        //                    ImGui::Text("%s", "Tangent");
+        //                    ImGui::TableSetColumnIndex(2);
+        //                    ImGui::Text("%i", stride);
+        //                    ImGui::TableSetColumnIndex(1);
+        //                    ImGui::Text("%i", size);
+        //                    stride += size;
+        //                }
+        //                ImGui::EndTable();
+        //            }
+        //            ImGui::TreePop();
+        //        }
+        //        if (ImGui::TreeNode("Vertex Data")) {
+        //            if (ImGui::BeginTable("VertexData", 5, flags, indexLayoutSize)) {
+        //                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("Position", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("Normal", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("UV", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("Tangent", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableHeadersRow();
+        //
+        //                ImGuiListClipper clipper;
+        //                clipper.Begin(vertexLayout.size() - 4);
+        //                while (clipper.Step()) {
+        //                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+        //                        ImGui::TableNextRow();
+        //                        ImGui::TableSetColumnIndex(0);
+        //                        ImGui::Text("\n%i", row);
+        //                        ImGui::TableSetColumnIndex(1);
+        //                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_position.x,
+        //                                    vertexLayout[row].m_position.y, vertexLayout[row].m_position.z);
+        //                        ImGui::TableSetColumnIndex(2);
+        //                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_normal.x,
+        //                        vertexLayout[row].m_normal.y,
+        //                                    vertexLayout[row].m_normal.z);
+        //                        ImGui::TableSetColumnIndex(3);
+        //                        ImGui::Text("u: %f \nv: %f", vertexLayout[row].m_uv.x, vertexLayout[row].m_uv.y);
+        //                        ImGui::TableSetColumnIndex(4);
+        //                        ImGui::Text("x: %f \ny: %f \nz: %f", vertexLayout[row].m_tangent.x,
+        //                                    vertexLayout[row].m_tangent.y, vertexLayout[row].m_tangent.z);
+        //                    }
+        //                }
+        //                ImGui::EndTable();
+        //            }
+        //            ImGui::TreePop();
+        //        }
+        //
+        //        if (ImGui::TreeNode("Index Data")) {
+        //            if (ImGui::BeginTable("IndexData", 4, flags, indexLayoutSize)) {
+        //                ImGui::TableSetupColumn("index", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+        //                ImGui::TableHeadersRow();
+        //
+        //                ImGuiListClipper clipper;
+        //                clipper.Begin(indices.size() - 3);
+        //                while (clipper.Step()) {
+        //                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+        //                        ImGui::TableNextRow();
+        //                        ImGui::TableSetColumnIndex(0);
+        //                        ImGui::Text("%i", row);
+        //                        for (int column = 0; column < 3; ++column) {
+        //                            ImGui::TableSetColumnIndex(column + 1);
+        //                            ImGui::Text("%i", indices[row + column]);
+        //                        }
+        //                    }
+        //                }
+        //                ImGui::EndTable();
+        //            }
+        //            ImGui::TreePop();
+        //        }
         ImGui::Unindent();
     }
     ImGui::Separator();
