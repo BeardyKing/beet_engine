@@ -26,6 +26,7 @@ class TerminalWidget : public Widget {
     EditorWidgets& m_editorWidgets;
 
     std::ostringstream m_oss;
+    uint32_t m_logIdx{0};
     // TODO consider using large array or circular buffer
     std::vector<TermMessage> m_terminalMessages;
 

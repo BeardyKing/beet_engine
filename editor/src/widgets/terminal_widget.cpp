@@ -5,13 +5,16 @@ namespace beet {
 TerminalWidget::TerminalWidget(const std::string& name, EditorWidgets& editorWidgets)
     : Widget(name), m_editorWidgets(editorWidgets) {
     // setup ostringstream and attach to spd log
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(m_oss);
-    log::default_logger()->sinks().push_back(ostream_sink);
+    log::default_logger()->sinks().push_back(std::make_shared<spdlog::sinks::ostream_sink_mt>(m_oss));
+    m_logIdx = log::default_logger()->sinks().size() - 1;
     log::set_pattern("[%R:%S:%e] [%^%l%$] %v");
     m_terminalMessages.reserve(sizeof(TermMessage) * 20000);
 }
 
-TerminalWidget::~TerminalWidget() {}
+TerminalWidget::~TerminalWidget() {
+    log::debug("TerminalWidget destroyed");
+    log::default_logger()->sinks().erase(log::default_logger()->sinks().begin() + m_logIdx);
+}
 
 void TerminalWidget::on_widget_render() {
     ImGui::Begin(m_name.c_str());
